@@ -83,6 +83,12 @@ if (isLoomoHost) {
   syncSession();
   window.addEventListener('focus', syncSession);
   window.addEventListener('loomo_session_changed', syncSession);
+
+  // Close the popup window when the web app dispatches the loomo_close_window event
+  window.addEventListener('loomo_close_window', () => {
+    console.log('[Jam Extension Content] Menutup jendela popup sesuai permintaan Loomo app...');
+    chrome.runtime.sendMessage({ action: 'CLOSE_CURRENT_WINDOW' });
+  });
 }
 
 function syncSession() {

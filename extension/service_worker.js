@@ -35,6 +35,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false; 
   }
 
+  // Handle closing the current popup/window
+  if (message.action === 'CLOSE_CURRENT_WINDOW') {
+    if (sender && sender.tab && typeof sender.tab.windowId !== 'undefined') {
+      chrome.windows.remove(sender.tab.windowId);
+    }
+    return false;
+  }
+
   // 1. Log Penyadapan Halaman Target (dari content.js)
   if (message.source === 'jam-extension-content' && isRecording) {
     if (message.type === 'CONSOLE_LOG') {

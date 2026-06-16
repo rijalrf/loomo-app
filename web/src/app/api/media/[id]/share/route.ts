@@ -37,7 +37,11 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    if (media.uploadStatus !== 'READY') {
+    if (
+      media.uploadStatus !== 'READY' &&
+      media.uploadStatus !== 'PROCESSING' &&
+      media.uploadStatus !== 'UPLOADING'
+    ) {
       return NextResponse.json({ error: 'Media is not ready for sharing yet' }, { status: 400 });
     }
 

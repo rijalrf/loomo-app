@@ -438,7 +438,11 @@ export default function EditorClient() {
 
       // 5. Success behavior
       if (isPopup) {
-        window.close();
+        window.dispatchEvent(new CustomEvent('loomo_close_window'));
+        // Fallback for standalone window.open environments
+        setTimeout(() => {
+          window.close();
+        }, 100);
       } else {
         router.push('/');
         setTimeout(() => {
