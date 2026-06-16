@@ -144,6 +144,9 @@ export default function SettingsClient({
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(
     initialWorkspaces[0]?.id || ''
   );
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
   
   // Sync workspace with localStorage
   useEffect(() => {
@@ -180,6 +183,33 @@ export default function SettingsClient({
       }
     } catch (e) {
       clientLogger.error('settings-client', 'Failed to fetch workspace members:', e);
+    }
+  };
+
+  const handleCreateWorkspace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWorkspaceName.trim()) return;
+    setCreatingWorkspace(true);
+    try {
+      const res = await fetch('/api/workspace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newWorkspaceName })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Workspace "${newWorkspaceName}" created successfully!`);
+        setWorkspaces(prev => [...prev, data.workspace]);
+        setActiveWorkspaceId(data.workspace.id);
+        setShowCreateModal(false);
+        setNewWorkspaceName('');
+      } else {
+        toast.error(data.error || 'Failed to create workspace');
+      }
+    } catch (err) {
+      toast.error('Network error. Failed to create workspace.');
+    } finally {
+      setCreatingWorkspace(false);
     }
   };
 
@@ -261,13 +291,24 @@ export default function SettingsClient({
             <CustomSelect
               value={activeWorkspaceId}
               onChange={(val) => {
-                setActiveWorkspaceId(val);
+                if (val === 'CREATE_NEW') {
+                  setShowCreateModal(true);
+                } else {
+                  setActiveWorkspaceId(val);
+                }
               }}
-              options={workspaces.map(w => ({
-                value: w.id,
-                label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
-                icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
-              }))}
+              options={[
+                ...workspaces.map(w => ({
+                  value: w.id,
+                  label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
+                  icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
+                })),
+                {
+                  value: 'CREATE_NEW',
+                  label: 'Create Workspace',
+                  icon: <Plus size={14} className="text-[#0CB2EB]" />
+                }
+              ]}
               className="w-full"
               buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
             />
@@ -473,6 +514,55 @@ export default function SettingsClient({
             </div>
           </div>
         </main>
+      {/* Create Workspace Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 p-8 animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-black text-white tracking-tight">Create Workspace</h3>
+              <button 
+                onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWorkspace} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Workspace Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Marketing Team, Personal Projects..."
+                  value={newWorkspaceName}
+                  onChange={(e) => setNewWorkspaceName(e.target.value)}
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); }}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white border border-slate-800 hover:bg-slate-800/40 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingWorkspace || !newWorkspaceName.trim()}
+                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  {creatingWorkspace ? 'Creating...' : 'Create Workspace'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       </div>
     </div>
   );
