@@ -41,7 +41,7 @@ function LoginCard() {
       {/* Google Login Button */}
       <button 
         onClick={handleGoogleLogin}
-        className="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-[0_4px_20px_rgba(255,255,255,0.05)] cursor-pointer"
+        className="w-full bg-[#1E293B] hover:bg-[#334155] border border-slate-800 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-lg cursor-pointer"
       >
         {/* Google G Logo SVG */}
         <svg className="w-5 h-5" viewBox="0 0 24 24">
