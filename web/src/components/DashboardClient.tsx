@@ -70,6 +70,20 @@ export default function DashboardClient({
     initialWorkspaces[0]?.id || ''
   );
   
+  // Sync workspace with localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('loomo_active_workspace_id');
+    if (saved && workspaces.some(w => w.id === saved)) {
+      setActiveWorkspaceId(saved);
+    }
+  }, [workspaces]);
+
+  useEffect(() => {
+    if (activeWorkspaceId) {
+      localStorage.setItem('loomo_active_workspace_id', activeWorkspaceId);
+    }
+  }, [activeWorkspaceId]);
+  
   const [mediaList, setMediaList] = useState<Media[]>(initialMedia);
   const [totalMedia, setTotalMedia] = useState(0);
   

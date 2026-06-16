@@ -68,7 +68,9 @@ export default function EditorClient() {
       .then(data => {
         if (data.authenticated) {
           setWorkspaces(data.workspaces);
-          setSelectedWorkspaceId(data.workspaces[0]?.id || '');
+          const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
+          const targetWorkspace = data.workspaces.find((w: any) => w.id === savedWorkspaceId) || data.workspaces[0];
+          setSelectedWorkspaceId(targetWorkspace?.id || '');
         }
       });
 
@@ -480,8 +482,21 @@ export default function EditorClient() {
           <button 
             className="btn-secondary" 
             style={{ padding: '6px 12px', fontSize: '13px' }}
-            onClick={() => {
-              if (confirm('Discard changes and return to dashboard?')) {
+            onClick={async () => {
+              // Cleanup local cache so it doesn't trigger auto-import on next open
+              localStorage.removeItem(`jam_meta_${id}`);
+              try {
+                if (id) {
+                  await deleteVideoFromIndexedDB(id);
+                }
+              } catch (e) {}
+
+              if (isPopup) {
+                window.dispatchEvent(new CustomEvent('loomo_close_window'));
+                setTimeout(() => {
+                  window.close();
+                }, 100);
+              } else {
                 router.push('/');
               }
             }}
@@ -507,29 +522,8 @@ export default function EditorClient() {
           />
         </div>
 
-        {/* Workspace selector & Save */}
+        {/* Save */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Workspace:</span>
-            <select
-              value={selectedWorkspaceId}
-              onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-              style={{
-                backgroundColor: 'var(--bg-main)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                padding: '6px 10px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                outline: 'none'
-              }}
-            >
-              {workspaces.map(w => (
-                <option key={w.id} value={w.id}>{w.name}</option>
-              ))}
-            </select>
-          </div>
-
           <button
             onClick={handleSave}
             disabled={savingState === 'saving'}
