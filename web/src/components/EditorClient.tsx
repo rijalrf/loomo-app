@@ -708,14 +708,25 @@ export default function EditorClient() {
             boxShadow: '0 10px 45px rgba(0,0,0,0.6)',
             borderRadius: '6px',
             overflow: 'hidden',
-            backgroundColor: '#0F1626'
+            backgroundColor: '#0F1626',
+            maxWidth: '100%',
+            maxHeight: 'calc(100vh - 160px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
             <canvas
               ref={canvasRef}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
-              style={{ display: 'block', cursor: activeTool === 'text' ? 'text' : 'crosshair' }}
+              style={{
+                display: 'block',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                cursor: activeTool === 'text' ? 'text' : 'crosshair'
+              }}
             />
           </div>
         </div>
