@@ -70,37 +70,17 @@ export async function GET(request: NextRequest) {
     const encryptedRefreshToken = refresh_token ? encrypt(refresh_token) : undefined;
 
     if (!user) {
-      // Create user and their default Workspace
-      user = await prisma.$transaction(async (tx) => {
-        const newUser = await tx.user.create({
-          data: {
-            googleId,
-            email,
-            displayName,
-            avatarUrl,
-            accessToken: encryptedAccessToken,
-            refreshToken: encryptedRefreshToken,
-            tokenExpiresAt
-          }
-        });
-
-        const newWorkspace = await tx.workspace.create({
-          data: {
-            name: `${displayName}'s Workspace`,
-            createdBy: newUser.id
-          }
-        });
-
-        await tx.workspaceMember.create({
-          data: {
-            workspaceId: newWorkspace.id,
-            userId: newUser.id,
-            role: 'OWNER',
-            acceptedAt: new Date()
-          }
-        });
-
-        return newUser;
+      // Create user (workspaces will be created during onboarding journey)
+      user = await prisma.user.create({
+        data: {
+          googleId,
+          email,
+          displayName,
+          avatarUrl,
+          accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
+          tokenExpiresAt
+        }
       });
     } else {
       // Update existing user tokens

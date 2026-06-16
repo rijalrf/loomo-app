@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
 import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown, Settings } from 'lucide-react';
+import OnboardingJourney from './OnboardingJourney';
 
 interface SelectOption<T> {
   value: T;
@@ -506,6 +507,18 @@ export default function DashboardClient({
       window.location.reload();
     }
   };
+
+  if (workspaces.length === 0) {
+    return (
+      <OnboardingJourney
+        user={initialUser}
+        onComplete={(newWorkspace) => {
+          setWorkspaces([newWorkspace]);
+          setActiveWorkspaceId(newWorkspace.id);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-[#0F172A] text-slate-200">
