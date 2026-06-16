@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { Folder, BookOpen, LogOut, ChevronDown, Check, Settings, Users, Plus, Trash2 } from 'lucide-react';
+import { Folder, BookOpen, LogOut, ChevronDown, Check, Settings, Users, Plus, Trash2, AlertCircle } from 'lucide-react';
 
 interface User {
   id: string;
@@ -113,7 +113,7 @@ function CustomSelect<T extends string | number>({
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
                   option.value === value
                     ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
                     : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
@@ -144,6 +144,11 @@ export default function SettingsClient({
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(
     initialWorkspaces[0]?.id || ''
   );
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [newWorkspaceDesc, setNewWorkspaceDesc] = useState('');
+  const [newWorkspaceDept, setNewWorkspaceDept] = useState('Engineering & Product');
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
   
   // Sync workspace with localStorage
   useEffect(() => {
@@ -180,6 +185,39 @@ export default function SettingsClient({
       }
     } catch (e) {
       clientLogger.error('settings-client', 'Failed to fetch workspace members:', e);
+    }
+  };
+
+  const handleCreateWorkspace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWorkspaceName.trim()) return;
+    setCreatingWorkspace(true);
+    try {
+      const res = await fetch('/api/workspace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newWorkspaceName,
+          description: newWorkspaceDesc,
+          department: newWorkspaceDept
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Workspace "${newWorkspaceName}" created successfully!`);
+        setWorkspaces(prev => [...prev, data.workspace]);
+        setActiveWorkspaceId(data.workspace.id);
+        setShowCreateModal(false);
+        setNewWorkspaceName('');
+        setNewWorkspaceDesc('');
+        setNewWorkspaceDept('Engineering & Product');
+      } else {
+        toast.error(data.error || 'Failed to create workspace');
+      }
+    } catch (err) {
+      toast.error('Network error. Failed to create workspace.');
+    } finally {
+      setCreatingWorkspace(false);
     }
   };
 
@@ -261,13 +299,24 @@ export default function SettingsClient({
             <CustomSelect
               value={activeWorkspaceId}
               onChange={(val) => {
-                setActiveWorkspaceId(val);
+                if (val === 'CREATE_NEW') {
+                  setShowCreateModal(true);
+                } else {
+                  setActiveWorkspaceId(val);
+                }
               }}
-              options={workspaces.map(w => ({
-                value: w.id,
-                label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
-                icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
-              }))}
+              options={[
+                ...workspaces.map(w => ({
+                  value: w.id,
+                  label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
+                  icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
+                })),
+                {
+                  value: 'CREATE_NEW',
+                  label: 'Create Workspace',
+                  icon: <Plus size={14} className="text-[#0CB2EB]" />
+                }
+              ]}
               className="w-full"
               buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
             />
@@ -281,7 +330,7 @@ export default function SettingsClient({
               onClick={() => {
                 router.push('/');
               }}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <Folder size={18} />
               <span>All Media</span>
@@ -289,7 +338,7 @@ export default function SettingsClient({
 
             <button
               onClick={() => {}}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB] transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB] transition-all cursor-pointer"
             >
               <Settings size={18} />
               <span>Settings</span>
@@ -299,7 +348,7 @@ export default function SettingsClient({
               href="/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <BookOpen size={18} />
               <span>Documentation</span>
@@ -311,7 +360,7 @@ export default function SettingsClient({
         <div className="p-4 border-t border-slate-800 bg-[#080D16]/50">
           <button
             onClick={handleLogout}
-            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
           >
             <LogOut size={14} />
             <span>Sign Out</span>
@@ -391,7 +440,7 @@ export default function SettingsClient({
                     className="w-full sm:w-32"
                     buttonClassName="w-full flex items-center justify-between gap-2 bg-slate-950/40 hover:bg-slate-950/60 border border-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
                   />
-                  <button type="submit" className="btn-primary py-2.5 px-6 rounded-xl text-sm shadow-[#0CB2EB]/20 justify-center">
+                  <button type="submit" className="btn-primary py-2.5 px-6 rounded-xl text-sm shadow-[#0CB2EB]/20 justify-center cursor-pointer">
                     <Plus size={16} />
                     <span>Invite</span>
                   </button>
@@ -399,13 +448,13 @@ export default function SettingsClient({
 
                 {inviteError && (
                   <div className="text-red-400 text-xs mt-4 font-bold flex items-center gap-2">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <AlertCircle size={12} />
                     {inviteError}
                   </div>
                 )}
                 {inviteSuccess && (
                   <div className="text-[#0CB2EB] text-xs mt-4 font-bold flex items-center gap-2">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <Check size={12} className="text-[#0CB2EB]" />
                     Invitation sent successfully!
                   </div>
                 )}
@@ -473,6 +522,82 @@ export default function SettingsClient({
             </div>
           </div>
         </main>
+      {/* Create Workspace Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 p-8 animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-black text-white tracking-tight">Create Workspace</h3>
+              <button 
+                onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWorkspace} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Workspace Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Marketing Team, Personal Projects..."
+                  value={newWorkspaceName}
+                  onChange={(e) => setNewWorkspaceName(e.target.value)}
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Short Description</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Collaborative space for marketing team (optional)..."
+                  value={newWorkspaceDesc}
+                  onChange={(e) => setNewWorkspaceDesc(e.target.value)}
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Department / Team</label>
+                <select
+                  value={newWorkspaceDept}
+                  onChange={(e) => setNewWorkspaceDept(e.target.value)}
+                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all cursor-pointer font-medium"
+                >
+                  <option value="Engineering & Product" className="bg-[#0B0F19] text-white">Engineering & Product</option>
+                  <option value="Design & Creative" className="bg-[#0B0F19] text-white">Design & Creative</option>
+                  <option value="Marketing & Sales" className="bg-[#0B0F19] text-white">Marketing & Sales</option>
+                  <option value="Operations & HR" className="bg-[#0B0F19] text-white">Operations & HR</option>
+                  <option value="Personal & Individual" className="bg-[#0B0F19] text-white">Personal & Individual</option>
+                  <option value="Other / Custom" className="bg-[#0B0F19] text-white">Other / Custom</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white border border-slate-800 hover:bg-slate-800/40 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingWorkspace || !newWorkspaceName.trim()}
+                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                >
+                  {creatingWorkspace ? 'Creating...' : 'Create Workspace'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const state = searchParams.get('state') || 'login'; // 'login' or 'register'
 
   if (error) {
     logger.error('google-oauth-callback', `Error from Google: ${error}`);
@@ -66,41 +67,27 @@ export async function GET(request: NextRequest) {
       where: { googleId }
     });
 
+    // Enforce isolation: if flow is login but user is not registered, redirect with error
+    if (state === 'login' && !user) {
+      logger.info('google-oauth-callback', `Access denied: email ${email} is not registered.`);
+      return NextResponse.redirect(new URL(`/login?error=not_registered&email=${encodeURIComponent(email)}`, request.url));
+    }
+
     const encryptedAccessToken = encrypt(access_token);
     const encryptedRefreshToken = refresh_token ? encrypt(refresh_token) : undefined;
 
     if (!user) {
-      // Create user and their default Workspace
-      user = await prisma.$transaction(async (tx) => {
-        const newUser = await tx.user.create({
-          data: {
-            googleId,
-            email,
-            displayName,
-            avatarUrl,
-            accessToken: encryptedAccessToken,
-            refreshToken: encryptedRefreshToken,
-            tokenExpiresAt
-          }
-        });
-
-        const newWorkspace = await tx.workspace.create({
-          data: {
-            name: `${displayName}'s Workspace`,
-            createdBy: newUser.id
-          }
-        });
-
-        await tx.workspaceMember.create({
-          data: {
-            workspaceId: newWorkspace.id,
-            userId: newUser.id,
-            role: 'OWNER',
-            acceptedAt: new Date()
-          }
-        });
-
-        return newUser;
+      // Create user (workspaces will be created during onboarding journey)
+      user = await prisma.user.create({
+        data: {
+          googleId,
+          email,
+          displayName,
+          avatarUrl,
+          accessToken: encryptedAccessToken,
+          refreshToken: encryptedRefreshToken,
+          tokenExpiresAt
+        }
       });
     } else {
       // Update existing user tokens

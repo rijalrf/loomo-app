@@ -36,6 +36,10 @@ export default async function SettingsPage() {
     isOwner: membership.workspace.createdBy === dbUser.id
   }));
 
+  if (workspaces.length === 0) {
+    redirect('/');
+  }
+
   return (
     <>
       <SessionSync session={session} />

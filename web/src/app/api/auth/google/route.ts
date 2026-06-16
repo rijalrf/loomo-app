@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const flow = request.nextUrl.searchParams.get('flow') || 'login';
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   
   const options = {
@@ -9,6 +10,7 @@ export async function GET() {
     access_type: 'offline',
     response_type: 'code',
     prompt: 'consent',
+    state: flow,
     scope: [
       'openid',
       'email',

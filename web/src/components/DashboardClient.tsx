@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown, Settings } from 'lucide-react';
+import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown, Settings, Edit2, Calendar, HardDrive, Share2, AlertCircle } from 'lucide-react';
+import OnboardingJourney from './OnboardingJourney';
 
 interface SelectOption<T> {
   value: T;
@@ -83,7 +84,7 @@ function CustomSelect<T extends string | number>({
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
                   option.value === value
                     ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
                     : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
@@ -157,7 +158,7 @@ function MediaVisibilitySelect({
                   onChange(optKey);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors ${
+                className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors cursor-pointer ${
                   optKey === value
                     ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -270,6 +271,11 @@ export default function DashboardClient({
 
   // Modals & Popups
   const [activeMediaViewer, setActiveMediaViewer] = useState<Media | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [newWorkspaceDesc, setNewWorkspaceDesc] = useState('');
+  const [newWorkspaceDept, setNewWorkspaceDept] = useState('Engineering & Product');
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
   
   // Sharing Dialog
   const [showShareModal, setShowShareModal] = useState<Media | null>(null);
@@ -360,6 +366,40 @@ export default function DashboardClient({
 
 
   // Actions
+  const handleCreateWorkspace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWorkspaceName.trim()) return;
+    setCreatingWorkspace(true);
+    try {
+      const res = await fetch('/api/workspace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newWorkspaceName,
+          description: newWorkspaceDesc,
+          department: newWorkspaceDept
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Workspace "${newWorkspaceName}" created successfully!`);
+        setWorkspaces(prev => [...prev, data.workspace]);
+        setActiveWorkspaceId(data.workspace.id);
+        setPage(1);
+        setShowCreateModal(false);
+        setNewWorkspaceName('');
+        setNewWorkspaceDesc('');
+        setNewWorkspaceDept('Engineering & Product');
+      } else {
+        toast.error(data.error || 'Failed to create workspace');
+      }
+    } catch (err) {
+      toast.error('Network error. Failed to create workspace.');
+    } finally {
+      setCreatingWorkspace(false);
+    }
+  };
+
   const handleRename = async (id: string) => {
     if (!renamingTitle.trim()) return;
     try {
@@ -476,6 +516,18 @@ export default function DashboardClient({
     }
   };
 
+  if (workspaces.length === 0) {
+    return (
+      <OnboardingJourney
+        user={initialUser}
+        onComplete={(newWorkspace) => {
+          setWorkspaces([newWorkspace]);
+          setActiveWorkspaceId(newWorkspace.id);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-[#0F172A] text-slate-200">
       {/* Sidebar */}
@@ -495,14 +547,25 @@ export default function DashboardClient({
             <CustomSelect
               value={activeWorkspaceId}
               onChange={(val) => {
-                setActiveWorkspaceId(val);
-                setPage(1);
+                if (val === 'CREATE_NEW') {
+                  setShowCreateModal(true);
+                } else {
+                  setActiveWorkspaceId(val);
+                  setPage(1);
+                }
               }}
-              options={workspaces.map(w => ({
-                value: w.id,
-                label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
-                icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
-              }))}
+              options={[
+                ...workspaces.map(w => ({
+                  value: w.id,
+                  label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
+                  icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
+                })),
+                {
+                  value: 'CREATE_NEW',
+                  label: 'Create Workspace',
+                  icon: <Plus size={14} className="text-[#0CB2EB]" />
+                }
+              ]}
               className="w-full"
               buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
             />
@@ -517,7 +580,7 @@ export default function DashboardClient({
                 setFilterType('ALL');
                 setPage(1);
               }}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 filterType === 'ALL'
                   ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -529,7 +592,7 @@ export default function DashboardClient({
 
             <button
               onClick={() => router.push('/settings')}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <Settings size={18} />
               <span>Settings</span>
@@ -539,7 +602,7 @@ export default function DashboardClient({
               href="/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <BookOpen size={18} />
               <span>Documentation</span>
@@ -551,7 +614,7 @@ export default function DashboardClient({
         <div className="p-4 border-t border-slate-800 bg-[#080D16]/50">
           <button
             onClick={handleLogout}
-            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
           >
             <LogOut size={14} />
             <span>Sign Out</span>
@@ -669,14 +732,14 @@ export default function DashboardClient({
             <div className="flex bg-slate-900/40 border border-slate-800 rounded-xl p-1 shrink-0">
               <button
                 onClick={() => setIsGridView(true)}
-                className={`p-1.5 rounded-lg transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="Grid View"
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setIsGridView(false)}
-                className={`p-1.5 rounded-lg transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="List View"
               >
                 <List size={18} />
@@ -689,11 +752,7 @@ export default function DashboardClient({
         {sortedMedia.length === 0 ? (
           <div className="glass-panel py-20 px-6 rounded-2xl text-center border-slate-800/50 flex flex-col items-center">
             <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-6 border border-slate-800">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
-              </svg>
+              <ImageIcon className="text-slate-500" size={40} strokeWidth={1.5} />
             </div>
             <h3 className="text-xl font-bold text-white mb-2">No captures yet</h3>
             <p className="text-slate-400 text-sm max-w-sm mb-8 leading-relaxed">
@@ -701,7 +760,7 @@ export default function DashboardClient({
             </p>
             <button 
               onClick={() => toast.info('Load the "extension" folder in Chrome Developer mode.')}
-              className="btn-primary"
+              className="btn-primary cursor-pointer"
             >
               Get Extension
             </button>
@@ -765,9 +824,7 @@ export default function DashboardClient({
                         )}
                         {isFailed && (
                           <>
-                            <svg className="text-red-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                            </svg>
+                            <AlertCircle className="text-red-500" size={32} />
                             <span className="text-[10px] font-bold text-red-500 tracking-wider uppercase">Failed</span>
                           </>
                         )}
@@ -808,20 +865,18 @@ export default function DashboardClient({
                           className="text-slate-500 hover:text-[#0CB2EB] transition-colors p-1 cursor-pointer"
                           title="Rename"
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/>
-                          </svg>
+                          <Edit2 size={14} />
                         </button>
                       )}
                     </div>
 
                     <div className="flex items-center gap-3 text-[11px] font-medium text-slate-500">
                       <span className="flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <Calendar size={12} />
                         {new Date(media.createdAt).toLocaleDateString()}
                       </span>
                       <span className="flex items-center gap-1">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <HardDrive size={12} />
                         {media.fileSizeBytes ? `${(media.fileSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '-'}
                       </span>
                     </div>
@@ -845,9 +900,7 @@ export default function DashboardClient({
                             className="p-2 rounded-lg bg-slate-900/50 text-slate-400 hover:text-[#0CB2EB] hover:bg-[#0CB2EB]/10 border border-slate-800 transition-all cursor-pointer"
                             title="Share"
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-                            </svg>
+                            <Share2 size={14} />
                           </button>
                         )}
                         <button
@@ -855,9 +908,7 @@ export default function DashboardClient({
                           className="p-2 rounded-lg bg-slate-900/50 text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-slate-800 transition-all cursor-pointer"
                           title="Delete"
                         >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-                          </svg>
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
@@ -935,11 +986,11 @@ export default function DashboardClient({
                         <div className="inline-flex gap-2">
                           {isReady && (
                             <button onClick={() => handleShareLink(media)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#0CB2EB] transition-colors cursor-pointer">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                              <Share2 size={14} />
                             </button>
                           )}
                           <button onClick={() => handleDelete(media.id)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-red-400 transition-colors cursor-pointer">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </td>
@@ -1025,7 +1076,7 @@ export default function DashboardClient({
             </div>
             <button
               onClick={() => setActiveMediaViewer(null)}
-              className="btn-secondary py-2 px-6 rounded-full border-slate-700 hover:bg-white hover:text-black hover:border-white transition-all font-bold"
+              className="btn-secondary py-2 px-6 rounded-full border-slate-700 hover:bg-white hover:text-black hover:border-white transition-all font-bold cursor-pointer"
             >
               Close
             </button>
@@ -1061,7 +1112,7 @@ export default function DashboardClient({
           <div className="glass-panel w-full max-w-md bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 p-8 animate-in fade-in zoom-in duration-300">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-white tracking-tight">Share Capture</h3>
-              <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors">✕</button>
+              <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors cursor-pointer">✕</button>
             </div>
 
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
@@ -1078,7 +1129,7 @@ export default function DashboardClient({
                   `${window.location.origin}/s/${showShareModal.shareToken}`,
                   showShareModal.id
                 )}
-                className="btn-primary py-2 px-4 text-xs rounded-lg shadow-[#0CB2EB]/20"
+                className="btn-primary py-2 px-4 text-xs rounded-lg shadow-[#0CB2EB]/20 cursor-pointer"
               >
                 {copiedId === showShareModal.id ? 'Copied!' : 'Copy Link'}
               </button>
@@ -1092,11 +1143,87 @@ export default function DashboardClient({
 
               <button
                 onClick={() => handleRevokeShare(showShareModal)}
-                className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors"
+                className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors cursor-pointer"
               >
                 Revoke Access
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Workspace Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 p-8 animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-black text-white tracking-tight">Create Workspace</h3>
+              <button 
+                onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateWorkspace} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Workspace Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Marketing Team, Personal Projects..."
+                  value={newWorkspaceName}
+                  onChange={(e) => setNewWorkspaceName(e.target.value)}
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Short Description</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Collaborative space for marketing team (optional)..."
+                  value={newWorkspaceDesc}
+                  onChange={(e) => setNewWorkspaceDesc(e.target.value)}
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Department / Team</label>
+                <select
+                  value={newWorkspaceDept}
+                  onChange={(e) => setNewWorkspaceDept(e.target.value)}
+                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all cursor-pointer font-medium"
+                >
+                  <option value="Engineering & Product" className="bg-[#0B0F19] text-white">Engineering & Product</option>
+                  <option value="Design & Creative" className="bg-[#0B0F19] text-white">Design & Creative</option>
+                  <option value="Marketing & Sales" className="bg-[#0B0F19] text-white">Marketing & Sales</option>
+                  <option value="Operations & HR" className="bg-[#0B0F19] text-white">Operations & HR</option>
+                  <option value="Personal & Individual" className="bg-[#0B0F19] text-white">Personal & Individual</option>
+                  <option value="Other / Custom" className="bg-[#0B0F19] text-white">Other / Custom</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white border border-slate-800 hover:bg-slate-800/40 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creatingWorkspace || !newWorkspaceName.trim()}
+                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                >
+                  {creatingWorkspace ? 'Creating...' : 'Create Workspace'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
