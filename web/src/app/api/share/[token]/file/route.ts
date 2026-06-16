@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { getFreshAccessToken, fetchFileStream } from '@/lib/gdrive';
+import { getDriveOwnerId } from '@/lib/workspace';
 
 export async function GET(
   request: NextRequest,
@@ -51,8 +52,9 @@ export async function GET(
       return NextResponse.json({ error: 'Drive file ID is missing' }, { status: 500 });
     }
 
-    // Fetch fresh access token for the uploader (owner of the file)
-    const accessToken = await getFreshAccessToken(media.uploadedBy);
+    // Resolve correct drive owner (workspace owner or uploader)
+    const targetUserId = getDriveOwnerId(media.workspace, media.uploadedBy);
+    const accessToken = await getFreshAccessToken(targetUserId);
 
     // Stream the file from Google Drive
     const driveRes = await fetchFileStream(accessToken, media.driveFileId);

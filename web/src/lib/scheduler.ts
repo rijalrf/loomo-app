@@ -3,6 +3,7 @@ import path from 'path';
 import { prisma } from './db';
 import { getFreshAccessToken, getOrCreateLoomoFolders, uploadToDrive, deleteFromDrive } from './gdrive';
 import { logger } from './logger';
+import { getDriveOwnerId } from './workspace';
 
 let isSchedulerRunning = false;
 let schedulerIntervalId: NodeJS.Timeout | null = null;
@@ -70,11 +71,7 @@ async function processJob(job: any) {
     }
 
     // Resolve target user ID based on workspace settings:
-    // If saveToOwnerDrive is true, upload/delete goes to workspace owner's Google Drive.
-    // If saveToOwnerDrive is false, upload/delete goes to uploader's (job.userId) Google Drive.
-    const targetUserId = (media.workspace.saveToOwnerDrive !== false)
-      ? media.workspace.createdBy
-      : job.userId;
+    const targetUserId = getDriveOwnerId(media.workspace, media.uploadedBy);
 
     const accessToken = await getFreshAccessToken(targetUserId);
 
