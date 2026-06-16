@@ -19,6 +19,7 @@ window.addEventListener('unhandledrejection', (event) => {
 const btnAction = document.getElementById('btn-action');
 const btnScreenshot = document.getElementById('btn-screenshot');
 const btnDashboard = document.getElementById('btn-view-dashboard');
+const btnCopyLogs = document.getElementById('btn-copy-logs');
 const statusDisplay = document.getElementById('status-display');
 const statusContainer = document.getElementById('status-container');
 const loginWarning = document.getElementById('login-warning');
@@ -30,17 +31,21 @@ chrome.storage.local.get(['gdrive_user_session'], (result) => {
   const session = result.gdrive_user_session;
   
   if (!session || !session.token) {
-    // Belum login: Tampilkan warning dan sembunyikan tombol rekam/screenshot
+    // Belum login: Tampilkan warning dan sembunyikan tombol rekam/screenshot/dashboard/copy-logs
     loginWarning.style.display = 'block';
     statusContainer.style.display = 'none';
     btnAction.style.display = 'none';
     btnScreenshot.style.display = 'none';
+    if (btnDashboard) btnDashboard.style.display = 'none';
+    if (btnCopyLogs) btnCopyLogs.style.display = 'none';
   } else {
     // Sudah login: Tampilkan engine rekam
     loginWarning.style.display = 'none';
     statusContainer.style.display = 'flex';
     btnAction.style.display = 'flex';
     btnScreenshot.style.display = 'flex';
+    if (btnDashboard) btnDashboard.style.display = 'flex';
+    if (btnCopyLogs) btnCopyLogs.style.display = 'none';
     
     // Ambil status perekaman aktif saat ini dari service worker
     chrome.runtime.sendMessage(
@@ -136,7 +141,6 @@ if (btnLoginGoogle) {
 }
 
 // 3b. Klik Salin Log Diagnostik
-const btnCopyLogs = document.getElementById('btn-copy-logs');
 if (btnCopyLogs) {
   btnCopyLogs.addEventListener('click', async () => {
     btnCopyLogs.disabled = true;
@@ -184,7 +188,7 @@ function updateUI(recording, elapsed) {
     btnAction.className = 'btn btn-stop';
     btnScreenshot.style.display = 'none';
   } else {
-    statusDisplay.textContent = 'Idle';
+    statusDisplay.textContent = 'Active';
     statusDot.className = 'status-dot';
     
     // Feather Icon: video (Mulai)
