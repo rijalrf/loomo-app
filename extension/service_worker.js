@@ -318,101 +318,43 @@ async function createOffscreenDocument() {
 async function saveRecordingAndRedirect(videoDataBase64) {
   // A. Hapus offscreen document karena perekaman selesai
   chrome.offscreen.closeDocument().catch(() => {});
- 
+  
   const durationSec = Math.round((Date.now() - startTime) / 1000);
-
-  // Find target tab to send progress/alert messages to
-  let targetTabId = activeTabId;
-  if (!targetTabId) {
-    try {
-      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (activeTab) {
-        targetTabId = activeTab.id;
-      }
-    } catch (e) {}
-  }
-
-  if (targetTabId) {
-    chrome.tabs.sendMessage(targetTabId, {
-      source: 'jam-extension-background',
-      action: 'RECORDING_SAVE_START'
-    }).catch(() => {});
-  }
  
-  try {
-    // 1. Convert base64 data URL to Blob natively via fetch
-    const responseBlob = await fetch(videoDataBase64);
-    const videoBlob = await responseBlob.blob();
-
-    // 2. Fetch the active workspace ID from synchronized extension storage
-    const storageData = await new Promise((resolve) => {
-      chrome.storage.local.get(['loomo_active_workspace_id'], resolve);
+  // B. Susun objek Metadata Jam
+  const metadata = {
+    id: generateUUID(),
+    title: `Loomo Recording - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
+    createdAt: new Date().toISOString(),
+    type: 'recording', // Tipe: Recording
+    duration: durationSec || 1,
+    systemInfo: {
+      browser: 'Google Chrome (Extension)',
+      os: 'Linux',
+      userAgent: 'Chrome Extension',
+      screenResolution: '1920x1080', // Default fallback
+      viewportSize: '1280x720',
+      locale: 'id-ID'
+    },
+    logs: logs,
+    networkRequests: networkRequests,
+    userActions: userActions
+  };
+ 
+  // C. Simpan sementara di chrome.storage.local agar bisa dibaca halaman localhost:8999
+  chrome.storage.local.set({
+    pending_jam_metadata: metadata,
+    pending_jam_video: videoDataBase64
+  }, () => {
+    // D. Buka window popup mengarah ke Backoffice dengan instruksi importPending dan isPopup=true
+    const backofficeUrl = `http://localhost:8999/?importPending=true&isPopup=true`;
+    chrome.windows.create({
+      url: backofficeUrl,
+      type: 'popup',
+      width: 1024,
+      height: 768
     });
-    const workspaceId = storageData.loomo_active_workspace_id || '';
-
-    // 3. Prepare FormData
-    const mediaId = generateUUID();
-    const title = `Loomo Recording - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`;
-    
-    const formData = new FormData();
-    formData.append('file', videoBlob, `${mediaId}.webm`);
-    formData.append('title', title);
-    formData.append('type', 'recording');
-    formData.append('durationSeconds', String(durationSec || 1));
-    if (workspaceId) {
-      formData.append('workspaceId', workspaceId);
-    }
-
-    // 4. Send upload request to localhost backend (attaches session cookies automatically)
-    const response = await fetch('http://localhost:8999/api/media/upload', {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    });
-
-    if (!response.ok) {
-      let errText = 'Server upload failed';
-      try {
-        const errJson = await response.json();
-        errText = errJson.error || errText;
-      } catch (e) {}
-      throw new Error(errText);
-    }
-
-    const uploadResult = await response.json();
-    const serverMediaId = uploadResult.mediaId;
-
-    // 5. Generate public share link
-    const shareRes = await fetch(`http://localhost:8999/api/media/${serverMediaId}/share`, {
-      method: 'POST',
-      credentials: 'include'
-    });
-
-    let shareLink = 'http://localhost:8999/';
-    if (shareRes.ok) {
-      const shareData = await shareRes.json();
-      shareLink = `http://localhost:8999/s/${shareData.shareToken}`;
-    }
-
-    // 6. Send success message to the content script
-    if (targetTabId) {
-      chrome.tabs.sendMessage(targetTabId, {
-        source: 'jam-extension-background',
-        action: 'RECORDING_SAVE_SUCCESS',
-        payload: { shareLink }
-      }).catch(() => {});
-    }
-
-  } catch (error) {
-    console.error('[Loomo Background] Gagal menyimpan rekaman:', error);
-    if (targetTabId) {
-      chrome.tabs.sendMessage(targetTabId, {
-        source: 'jam-extension-background',
-        action: 'RECORDING_SAVE_ERROR',
-        payload: { error: error.message || String(error) }
-      }).catch(() => {});
-    }
-  }
+  });
 }
 
 function generateUUID() {

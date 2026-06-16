@@ -32,13 +32,9 @@ export default function PendingImportHandler() {
     try {
       const metadata = JSON.parse(rawMetadata);
       
-      if (metadata.type === 'screenshot') {
-        // Screenshots go to the editor
+      if (metadata.type === 'screenshot' || metadata.type === 'recording') {
         const isPopup = searchParams.get('isPopup') === 'true';
         router.push(`/editor?id=${driveFileId}${isPopup ? '&isPopup=true' : ''}`);
-      } else if (metadata.type === 'recording') {
-        // Recordings upload directly to the database
-        handleVideoUpload(driveFileId, metadata);
       }
     } catch (e) {
       clientLogger.error('pending-import-handler', 'Failed to parse pending import metadata:', e);

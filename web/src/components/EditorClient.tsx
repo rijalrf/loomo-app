@@ -80,7 +80,7 @@ export default function EditorClient() {
       try {
         const parsed = JSON.parse(rawMeta);
         setMetadata(parsed);
-        setTitle(parsed.title || `Screenshot ${new Date().toLocaleDateString()}`);
+        setTitle(parsed.title || `${parsed.type === 'recording' ? 'Recording' : 'Screenshot'} ${new Date().toLocaleDateString()}`);
       } catch (e) {}
     }
 
@@ -379,27 +379,42 @@ export default function EditorClient() {
   // Flatten canvas and save
   const handleSave = async () => {
     const canvas = canvasRef.current;
-    if (!canvas || !id) return;
+    if (!id) return;
 
     setSavingState('saving');
     setSavingError(null);
 
     try {
-      // 1. Convert annotated canvas to blob
-      const blob = await new Promise<Blob | null>((resolve) => {
-        canvas.toBlob((b) => resolve(b), 'image/png');
-      });
+      const isRecording = metadata?.type === 'recording';
+      let blob: Blob | null = null;
+      let filename = '';
+
+      if (isRecording) {
+        // 1. Get video blob from IndexedDB
+        blob = await getVideoFromIndexedDB(id);
+        filename = `${id}.webm`;
+      } else {
+        if (!canvas) throw new Error('Canvas not found');
+        // 1. Convert annotated canvas to blob
+        blob = await new Promise<Blob | null>((resolve) => {
+          canvas.toBlob((b) => resolve(b), 'image/png');
+        });
+        filename = `${id}_annotated.png`;
+      }
 
       if (!blob) {
-        throw new Error('Failed to flatten image canvas.');
+        throw new Error(isRecording ? 'Failed to read video recording.' : 'Failed to flatten image canvas.');
       }
 
       // 2. Prepare Form Data
       const formData = new FormData();
-      formData.append('file', blob, `${id}_annotated.png`);
-      formData.append('title', title || 'Annotated Screenshot');
-      formData.append('type', 'screenshot');
+      formData.append('file', blob, filename);
+      formData.append('title', title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'));
+      formData.append('type', isRecording ? 'recording' : 'screenshot');
       formData.append('workspaceId', selectedWorkspaceId);
+      if (isRecording && metadata?.duration) {
+        formData.append('durationSeconds', String(metadata.duration));
+      }
 
       // 3. Upload to server
       const res = await fetch('/api/media/upload', {
@@ -546,17 +561,18 @@ export default function EditorClient() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         
         {/* Left Toolbar */}
-        <div style={{
-          width: '64px',
-          borderRight: '1px solid var(--border-color)',
-          backgroundColor: '#131B2E',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '20px 0',
-          gap: '12px',
-          zIndex: 5
-        }}>
+        {metadata?.type !== 'recording' && (
+          <div style={{
+            width: '64px',
+            borderRight: '1px solid var(--border-color)',
+            backgroundColor: '#131B2E',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: '20px 0',
+            gap: '12px',
+            zIndex: 5
+          }}>
           {/* Tool buttons */}
           <button 
             onClick={() => setActiveTool('rectangle')}
@@ -651,6 +667,7 @@ export default function EditorClient() {
             />
           ))}
         </div>
+      )}
 
         {/* Edit Area / Canvas Container */}
         <div style={{
@@ -665,43 +682,45 @@ export default function EditorClient() {
           position: 'relative'
         }}>
           {/* Top Canvas Controls Bar (Undo/Redo/Clear) */}
-          <div className="glass-panel" style={{
-            position: 'absolute',
-            top: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 12px',
-            borderRadius: '20px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
-            zIndex: 4
-          }}>
-            <button 
-              onClick={handleUndo} 
-              disabled={historyIndex < 0}
-              className="btn-secondary" 
-              style={{ padding: '4px 8px', fontSize: '12px', border: 'none', opacity: historyIndex < 0 ? 0.4 : 1 }}
-            >
-              Undo (Ctrl+Z)
-            </button>
-            <button 
-              onClick={handleRedo} 
-              disabled={historyIndex >= history.length - 1}
-              className="btn-secondary" 
-              style={{ padding: '4px 8px', fontSize: '12px', border: 'none', opacity: historyIndex >= history.length - 1 ? 0.4 : 1 }}
-            >
-              Redo (Ctrl+Y)
-            </button>
-            <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--border-color)' }}></div>
-            <button 
-              onClick={handleClear} 
-              className="btn-secondary" 
-              style={{ padding: '4px 8px', fontSize: '12px', border: 'none', color: 'var(--error)' }}
-            >
-              Clear
-            </button>
-          </div>
-
+          {metadata?.type !== 'recording' && (
+            <div className="glass-panel" style={{
+              position: 'absolute',
+              top: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
+              zIndex: 4
+            }}>
+              <button 
+                onClick={handleUndo} 
+                disabled={historyIndex < 0}
+                className="btn-secondary" 
+                style={{ padding: '4px 8px', fontSize: '12px', border: 'none', opacity: historyIndex < 0 ? 0.4 : 1 }}
+              >
+                Undo (Ctrl+Z)
+              </button>
+              <button 
+                onClick={handleRedo} 
+                disabled={historyIndex >= history.length - 1}
+                className="btn-secondary" 
+                style={{ padding: '4px 8px', fontSize: '12px', border: 'none', opacity: historyIndex >= history.length - 1 ? 0.4 : 1 }}
+              >
+                Redo (Ctrl+Y)
+              </button>
+              <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--border-color)' }}></div>
+              <button 
+                onClick={handleClear} 
+                className="btn-secondary" 
+                style={{ padding: '4px 8px', fontSize: '12px', border: 'none', color: 'var(--error)' }}
+              >
+                Clear
+              </button>
+            </div>
+          )}
+ 
           {/* Canvas Wrapper */}
           <div style={{
             position: 'relative',
@@ -715,19 +734,34 @@ export default function EditorClient() {
             alignItems: 'center',
             justifyContent: 'center'
           }}>
-            <canvas
-              ref={canvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              style={{
-                display: 'block',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'contain',
-                cursor: activeTool === 'text' ? 'text' : 'crosshair'
-              }}
-            />
+            {metadata?.type === 'recording' ? (
+              <video
+                src={imageSrc || undefined}
+                controls
+                autoPlay
+                style={{
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  backgroundColor: 'black'
+                }}
+              />
+            ) : (
+              <canvas
+                ref={canvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                style={{
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  cursor: activeTool === 'text' ? 'text' : 'crosshair'
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

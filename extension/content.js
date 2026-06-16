@@ -68,22 +68,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     } else if (message.action === 'INIT_SCREENSHOT_SELECTION') {
       initScreenshotSelection(); // Mulai tangkapan layar area
       sendResponse({ status: 'Screenshot selection initialized' });
-    } else if (message.action === 'RECORDING_SAVE_START') {
-      showRecordingProgressToast("Saving & uploading recording...");
-      sendResponse({ status: 'Save started' });
-    } else if (message.action === 'RECORDING_SAVE_SUCCESS') {
-      removeRecordingProgressToast();
-      const { shareLink } = message.payload;
-      navigator.clipboard.writeText(shareLink).then(() => {
-        alert("Saved & Shared!\n\nYour recording has been saved to your Google Drive and the public share link has been automatically copied to your clipboard.");
-      }).catch((err) => {
-        alert(`Saved & Shared!\n\nYour public share link is:\n${shareLink}`);
-      });
-      sendResponse({ status: 'Save complete' });
-    } else if (message.action === 'RECORDING_SAVE_ERROR') {
-      removeRecordingProgressToast();
-      alert("Failed to save recording: " + message.payload.error);
-      sendResponse({ status: 'Save error' });
     }
   }
 });
@@ -584,75 +568,6 @@ function generateUUID() {
   });
 }
 
-// 7. Toast Notifikasi Progress Perekaman di Latar Belakang
-let recordingProgressToast = null;
 
-function showRecordingProgressToast(message) {
-  if (recordingProgressToast) {
-    const textNode = recordingProgressToast.querySelector('#loomo-toast-text');
-    if (textNode) textNode.textContent = message;
-    return;
-  }
-
-  recordingProgressToast = document.createElement('div');
-  recordingProgressToast.id = 'loomo-recording-progress-toast';
-  recordingProgressToast.style.cssText = `
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 2147483647;
-    background: #0B0F19;
-    border: 1px solid #232D3F;
-    border-radius: 8px;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: white;
-    font-size: 13px;
-    font-weight: 500;
-  `;
-
-  const spinner = document.createElement('div');
-  spinner.style.cssText = `
-    width: 14px;
-    height: 14px;
-    border: 2px solid #3B82F6;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: loomo-spin 1s linear infinite;
-  `;
-
-  if (!document.getElementById('loomo-spin-style')) {
-    const style = document.createElement('style');
-    style.id = 'loomo-spin-style';
-    style.innerHTML = `
-      @keyframes loomo-spin {
-        to { transform: rotate(360deg); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  recordingProgressToast.appendChild(spinner);
-  
-  const text = document.createElement('span');
-  text.id = 'loomo-toast-text';
-  text.textContent = message;
-  recordingProgressToast.appendChild(text);
-
-  document.body.appendChild(recordingProgressToast);
-}
-
-function removeRecordingProgressToast() {
-  if (recordingProgressToast) {
-    if (recordingProgressToast.parentNode) {
-      recordingProgressToast.parentNode.removeChild(recordingProgressToast);
-    }
-    recordingProgressToast = null;
-  }
-}
 
 
