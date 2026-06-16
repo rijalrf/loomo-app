@@ -113,7 +113,7 @@ function CustomSelect<T extends string | number>({
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
                   option.value === value
                     ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
                     : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
@@ -322,7 +322,7 @@ export default function SettingsClient({
               onClick={() => {
                 router.push('/');
               }}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <Folder size={18} />
               <span>All Media</span>
@@ -330,7 +330,7 @@ export default function SettingsClient({
 
             <button
               onClick={() => {}}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB] transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB] transition-all cursor-pointer"
             >
               <Settings size={18} />
               <span>Settings</span>
@@ -340,7 +340,7 @@ export default function SettingsClient({
               href="/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <BookOpen size={18} />
               <span>Documentation</span>
@@ -352,7 +352,7 @@ export default function SettingsClient({
         <div className="p-4 border-t border-slate-800 bg-[#080D16]/50">
           <button
             onClick={handleLogout}
-            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
           >
             <LogOut size={14} />
             <span>Sign Out</span>
@@ -432,7 +432,7 @@ export default function SettingsClient({
                     className="w-full sm:w-32"
                     buttonClassName="w-full flex items-center justify-between gap-2 bg-slate-950/40 hover:bg-slate-950/60 border border-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
                   />
-                  <button type="submit" className="btn-primary py-2.5 px-6 rounded-xl text-sm shadow-[#0CB2EB]/20 justify-center">
+                  <button type="submit" className="btn-primary py-2.5 px-6 rounded-xl text-sm shadow-[#0CB2EB]/20 justify-center cursor-pointer">
                     <Plus size={16} />
                     <span>Invite</span>
                   </button>
@@ -553,7 +553,7 @@ export default function SettingsClient({
                 <button
                   type="submit"
                   disabled={creatingWorkspace || !newWorkspaceName.trim()}
-                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none"
+                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                 >
                   {creatingWorkspace ? 'Creating...' : 'Create Workspace'}
                 </button>

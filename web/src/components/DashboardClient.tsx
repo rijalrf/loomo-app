@@ -83,7 +83,7 @@ function CustomSelect<T extends string | number>({
                   onChange(option.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors ${
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
                   option.value === value
                     ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
                     : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
@@ -157,7 +157,7 @@ function MediaVisibilitySelect({
                   onChange(optKey);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors ${
+                className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors cursor-pointer ${
                   optKey === value
                     ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -559,7 +559,7 @@ export default function DashboardClient({
                 setFilterType('ALL');
                 setPage(1);
               }}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 filterType === 'ALL'
                   ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
@@ -571,7 +571,7 @@ export default function DashboardClient({
 
             <button
               onClick={() => router.push('/settings')}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <Settings size={18} />
               <span>Settings</span>
@@ -581,7 +581,7 @@ export default function DashboardClient({
               href="/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all cursor-pointer"
             >
               <BookOpen size={18} />
               <span>Documentation</span>
@@ -593,7 +593,7 @@ export default function DashboardClient({
         <div className="p-4 border-t border-slate-800 bg-[#080D16]/50">
           <button
             onClick={handleLogout}
-            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
           >
             <LogOut size={14} />
             <span>Sign Out</span>
@@ -711,14 +711,14 @@ export default function DashboardClient({
             <div className="flex bg-slate-900/40 border border-slate-800 rounded-xl p-1 shrink-0">
               <button
                 onClick={() => setIsGridView(true)}
-                className={`p-1.5 rounded-lg transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="Grid View"
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setIsGridView(false)}
-                className={`p-1.5 rounded-lg transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="List View"
               >
                 <List size={18} />
@@ -743,7 +743,7 @@ export default function DashboardClient({
             </p>
             <button 
               onClick={() => toast.info('Load the "extension" folder in Chrome Developer mode.')}
-              className="btn-primary"
+              className="btn-primary cursor-pointer"
             >
               Get Extension
             </button>
@@ -1067,7 +1067,7 @@ export default function DashboardClient({
             </div>
             <button
               onClick={() => setActiveMediaViewer(null)}
-              className="btn-secondary py-2 px-6 rounded-full border-slate-700 hover:bg-white hover:text-black hover:border-white transition-all font-bold"
+              className="btn-secondary py-2 px-6 rounded-full border-slate-700 hover:bg-white hover:text-black hover:border-white transition-all font-bold cursor-pointer"
             >
               Close
             </button>
@@ -1103,7 +1103,7 @@ export default function DashboardClient({
           <div className="glass-panel w-full max-w-md bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 p-8 animate-in fade-in zoom-in duration-300">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-white tracking-tight">Share Capture</h3>
-              <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors">✕</button>
+              <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors cursor-pointer">✕</button>
             </div>
 
             <p className="text-sm text-slate-400 mb-6 leading-relaxed">
@@ -1120,7 +1120,7 @@ export default function DashboardClient({
                   `${window.location.origin}/s/${showShareModal.shareToken}`,
                   showShareModal.id
                 )}
-                className="btn-primary py-2 px-4 text-xs rounded-lg shadow-[#0CB2EB]/20"
+                className="btn-primary py-2 px-4 text-xs rounded-lg shadow-[#0CB2EB]/20 cursor-pointer"
               >
                 {copiedId === showShareModal.id ? 'Copied!' : 'Copy Link'}
               </button>
@@ -1134,7 +1134,7 @@ export default function DashboardClient({
 
               <button
                 onClick={() => handleRevokeShare(showShareModal)}
-                className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors"
+                className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors cursor-pointer"
               >
                 Revoke Access
               </button>
@@ -1182,7 +1182,7 @@ export default function DashboardClient({
                 <button
                   type="submit"
                   disabled={creatingWorkspace || !newWorkspaceName.trim()}
-                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none"
+                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                 >
                   {creatingWorkspace ? 'Creating...' : 'Create Workspace'}
                 </button>
