@@ -34,9 +34,9 @@ export default function LandingClient() {
             >
               Login
             </button>
-            <Link
+            <Link 
               href="/register"
-              className="btn-primary py-2 px-5 text-sm rounded-lg cursor-pointer"
+              className="bg-[#1E293B] hover:bg-[#334155] border border-slate-800 hover:border-[#0CB2EB]/50 text-white font-bold py-2 px-5 text-sm rounded-lg cursor-pointer transition-all duration-300 shadow-md"
             >
               Sign Up
             </Link>
@@ -71,7 +71,7 @@ export default function LandingClient() {
           <div className="flex flex-col sm:flex-row gap-4 justify-start items-center w-full">
             <Link
               href="/register"
-              className="btn-primary py-3.5 px-8 text-base text-white hover:text-white flex items-center justify-center gap-2 rounded-lg w-full sm:w-auto transition-all duration-300 font-bold cursor-pointer"
+              className="bg-[#1E293B] hover:bg-[#334155] border border-slate-800 hover:border-[#0CB2EB]/50 text-white flex items-center justify-center gap-2 rounded-lg w-full sm:w-auto py-3.5 px-8 text-base transition-all duration-300 font-bold cursor-pointer shadow-lg"
             >
               Get Started
             </Link>
