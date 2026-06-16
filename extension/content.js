@@ -119,8 +119,8 @@ async function importPendingJamFromExtension() {
       localStorage.setItem(`jam_meta_${metadata.id}`, JSON.stringify(metadata));
       await saveVideoToIndexedDB(metadata.id, videoBlob);
       
-      console.log('[Jam Extension Content] Impor data berhasil! Memuat ulang replay...');
-      window.location.href = `http://localhost:8999/?driveFileId=${metadata.id}`;
+      const isPopup = new URLSearchParams(window.location.search).get('isPopup') === 'true';
+      window.location.href = `http://localhost:8999/?driveFileId=${metadata.id}${isPopup ? '&isPopup=true' : ''}`;
     } catch (err) {
       if (globalThis.ExtensionLogger) {
         globalThis.ExtensionLogger.error('content-script', `[Jam Extension Content] Gagal menyimpan data impor: ${err.message || String(err)}`);

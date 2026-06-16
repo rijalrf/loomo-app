@@ -440,7 +440,10 @@ export default function EditorClient() {
       if (isPopup) {
         window.close();
       } else {
-        setSavingState('success');
+        router.push('/');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       }
 
     } catch (err: any) {
@@ -773,97 +776,7 @@ export default function EditorClient() {
         </div>
       )}
 
-      {/* Success Modal */}
-      {savingState === 'success' && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(11, 15, 25, 0.85)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass-panel" style={{ padding: '30px', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
-            <div style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
-              border: '2px solid var(--primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 20px auto'
-            }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <h3 style={{ fontSize: '18px', margin: '0 0 8px 0', color: 'var(--primary)' }}>Saved & Shared!</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              Your annotated screenshot has been saved to your Google Drive and the public share link has been automatically copied to your clipboard.
-            </p>
-            
-            <div style={{
-              display: 'flex',
-              backgroundColor: '#131B2E',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              padding: '8px 12px',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '24px',
-              gap: '8px'
-            }}>
-              <span style={{ fontSize: '11px', color: '#8B94A3', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {copiedLink}
-              </span>
-              <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(copiedLink);
-                  alert('Link copied to clipboard!');
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--primary)',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-                title="Copy to clipboard"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              </button>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {isPopup ? (
-                <button 
-                  onClick={() => {
-                    window.close();
-                  }}
-                  className="btn-primary" 
-                  style={{ width: '100%', justifyContent: 'center' }}
-                >
-                  Close Window
-                </button>
-              ) : (
-                <button 
-                  onClick={() => {
-                    router.push('/');
-                    window.location.reload();
-                  }}
-                  className="btn-primary" 
-                  style={{ width: '100%', justifyContent: 'center' }}
-                >
-                  Go to Backoffice
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
