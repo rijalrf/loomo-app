@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexeddb';
 import { clientLogger } from '@/lib/clientLogger';
+import { toast } from 'sonner';
 
 interface Annotation {
   id: string;
@@ -61,6 +62,8 @@ export default function EditorClient() {
   // Load Image and workspaces
   useEffect(() => {
     if (!id) return;
+
+    toast.info('Loomo Editor is ready!');
 
     // Load workspaces
     fetch('/api/auth/me')
@@ -383,6 +386,7 @@ export default function EditorClient() {
 
     setSavingState('saving');
     setSavingError(null);
+    toast.loading('Saving media and generating share link...', { id: 'save-media' });
 
     try {
       const isRecording = metadata?.type === 'recording';
@@ -454,12 +458,13 @@ export default function EditorClient() {
       await deleteVideoFromIndexedDB(id);
 
       // 5. Success behavior
+      toast.success('Successfully saved! Share link copied to clipboard.', { id: 'save-media' });
       if (isPopup) {
         window.dispatchEvent(new CustomEvent('loomo_close_window'));
         // Fallback for standalone window.open environments
         setTimeout(() => {
           window.close();
-        }, 100);
+        }, 1200);
       } else {
         router.push('/');
         setTimeout(() => {
@@ -471,6 +476,7 @@ export default function EditorClient() {
       clientLogger.error('editor-client', 'Error saving annotated screenshot:', err);
       setSavingState('error');
       setSavingError(err.message || 'Failed to save annotated screenshot.');
+      toast.error(err.message || 'Failed to save annotated screenshot.', { id: 'save-media' });
     }
   };
 
