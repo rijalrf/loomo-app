@@ -4,7 +4,178 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check } from 'lucide-react';
+import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown } from 'lucide-react';
+
+interface SelectOption<T> {
+  value: T;
+  label: string;
+  icon?: React.ReactNode;
+}
+
+interface CustomSelectProps<T> {
+  value: T;
+  onChange: (value: T) => void;
+  options: SelectOption<T>[];
+  className?: string;
+  buttonClassName?: string;
+  placeholder?: string;
+  size?: 'sm' | 'md';
+  align?: 'left' | 'right';
+}
+
+function CustomSelect<T extends string | number>({
+  value,
+  onChange,
+  options,
+  className = '',
+  buttonClassName = '',
+  placeholder = 'Select option',
+  size = 'md',
+  align = 'left'
+}: CustomSelectProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(o => o.value === value);
+
+  const py = size === 'sm' ? 'py-1.5' : 'py-2.5';
+  const px = size === 'sm' ? 'px-2.5' : 'px-4';
+  const text = size === 'sm' ? 'text-xs' : 'text-sm';
+  const rounded = size === 'sm' ? 'rounded-lg' : 'rounded-xl';
+
+  const defaultBtnClass = `w-full flex items-center justify-between gap-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white ${px} ${py} ${rounded} ${text} font-semibold outline-none focus:border-[#0CB2EB] focus:ring-1 focus:ring-[#0CB2EB] transition-all cursor-pointer`;
+
+  return (
+    <div className={`relative inline-block ${className}`} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={buttonClassName || defaultBtnClass}
+      >
+        <span className="flex items-center gap-2 truncate">
+          {selectedOption?.icon}
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <ChevronDown
+          size={size === 'sm' ? 14 : 16}
+          className={`text-slate-500 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className={`absolute z-50 mt-2 min-w-full w-max max-w-[280px] bg-[#0B0F19]/95 backdrop-blur-xl border border-slate-800 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] p-1 animate-in fade-in slide-in-from-top-1 duration-150 ${align === 'right' ? 'right-0' : 'left-0'}`}>
+          <div className="max-h-60 overflow-y-auto custom-scrollbar">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors ${
+                  option.value === value
+                    ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
+                    : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
+                }`}
+              >
+                {option.icon}
+                <span className="flex-1 truncate">{option.label}</span>
+                {option.value === value && (
+                  <Check size={14} className="text-[#0CB2EB] shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MediaVisibilitySelect({
+  value,
+  onChange,
+  direction = 'down'
+}: {
+  value: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
+  onChange: (value: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY') => void;
+  direction?: 'up' | 'down';
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const options = {
+    PRIVATE: { label: 'Private', color: 'bg-slate-500' },
+    UNLISTED: { label: 'Unlisted', color: 'bg-[#0CB2EB]' },
+    WORKSPACE_ONLY: { label: 'Workspace', color: 'bg-[#8A5CF6]' }
+  };
+
+  const current = options[value];
+
+  return (
+    <div className="relative inline-block text-left" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1.5 bg-transparent text-[11px] font-bold text-slate-400 outline-none cursor-pointer uppercase tracking-tight hover:text-white transition-all"
+      >
+        <span className={`w-1.5 h-1.5 rounded-full ${current.color}`}></span>
+        <span>{current.label}</span>
+        <ChevronDown size={10} className="text-slate-500" />
+      </button>
+
+      {isOpen && (
+        <div className={`absolute ${direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 z-50 w-32 bg-[#0B0F19]/95 backdrop-blur-xl border border-slate-800 rounded-lg shadow-2xl p-1 animate-in fade-in duration-150`}>
+          {(Object.keys(options) as Array<keyof typeof options>).map((optKey) => {
+            const opt = options[optKey];
+            return (
+              <button
+                key={optKey}
+                type="button"
+                onClick={() => {
+                  onChange(optKey);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors ${
+                  optKey === value
+                    ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${opt.color}`}></span>
+                <span className="flex-1 text-left">{opt.label}</span>
+                {optKey === value && (
+                  <Check size={10} className="text-[#0CB2EB]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface User {
   id: string;
@@ -393,20 +564,20 @@ export default function DashboardClient({
           {/* Workspace Switcher */}
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Workspace</label>
-            <select
+            <CustomSelect
               value={activeWorkspaceId}
-              onChange={(e) => {
-                setActiveWorkspaceId(e.target.value);
+              onChange={(val) => {
+                setActiveWorkspaceId(val);
                 setPage(1);
               }}
-              className="w-full bg-[#1E293B] border border-slate-700 text-white px-3 py-2 rounded-lg text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-colors cursor-pointer"
-            >
-              {workspaces.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name} {w.isOwner ? '(Owner)' : ''}
-                </option>
-              ))}
-            </select>
+              options={workspaces.map(w => ({
+                value: w.id,
+                label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
+                icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
+              }))}
+              className="w-full"
+              buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
+            />
           </div>
 
           {/* Sidebar Menu */}
@@ -538,7 +709,7 @@ export default function DashboardClient({
         </div>
 
         {/* Toolbar: Search, Filters, Sorting, Toggle View */}
-        <div className="glass-panel p-4 rounded-xl flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 border-slate-800">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 w-full">
           {/* Search and Filters */}
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto flex-1">
             <div className="relative flex-1 min-w-[240px]">
@@ -548,57 +719,66 @@ export default function DashboardClient({
                 placeholder="Search captures..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-text w-full pl-10 text-sm bg-slate-900/50"
+                className="w-full bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-white pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none focus:bg-slate-900/80 focus:border-[#0CB2EB] focus:ring-1 focus:ring-[#0CB2EB] transition-all"
               />
             </div>
 
-            <select
+            <CustomSelect
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
-              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB]"
-            >
-              <option value="ALL">All Types</option>
-              <option value="SCREENSHOT">Screenshots</option>
-              <option value="RECORDING">Recordings</option>
-            </select>
+              onChange={(val) => {
+                setFilterType(val as any);
+                setPage(1);
+              }}
+              options={[
+                { value: 'ALL', label: 'All Types', icon: <Folder size={14} className="text-slate-400" /> },
+                { value: 'SCREENSHOT', label: 'Screenshots', icon: <ImageIcon size={14} className="text-[#0CB2EB]" /> },
+                { value: 'RECORDING', label: 'Recordings', icon: <Video size={14} className="text-[#8A5CF6]" /> }
+              ]}
+              className="w-full sm:w-auto"
+            />
 
-            <select
+            <CustomSelect
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB]"
-            >
-              <option value="ALL">Any Status</option>
-              <option value="READY">Ready</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="FAILED">Failed</option>
-            </select>
+              onChange={(val) => {
+                setFilterStatus(val as any);
+                setPage(1);
+              }}
+              options={[
+                { value: 'ALL', label: 'Any Status', icon: <Folder size={14} className="text-slate-400" /> },
+                { value: 'READY', label: 'Ready', icon: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> },
+                { value: 'PROCESSING', label: 'Processing', icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB] animate-pulse" /> },
+                { value: 'FAILED', label: 'Failed', icon: <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> }
+              ]}
+              className="w-full sm:w-auto"
+            />
           </div>
 
           {/* Sorting and Toggle */}
           <div className="flex items-center gap-3 w-full lg:w-auto">
-            <select
+            <CustomSelect
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB] flex-1 lg:flex-none"
-            >
-              <option value="DATE_DESC">Recently Captured</option>
-              <option value="DATE_ASC">Oldest First</option>
-              <option value="NAME_ASC">Name (A-Z)</option>
-              <option value="SIZE_DESC">File Size</option>
-            </select>
+              onChange={(val) => setSortBy(val as any)}
+              options={[
+                { value: 'DATE_DESC', label: 'Recently Captured' },
+                { value: 'DATE_ASC', label: 'Oldest First' },
+                { value: 'NAME_ASC', label: 'Name (A-Z)' },
+                { value: 'SIZE_DESC', label: 'File Size' }
+              ]}
+              className="w-full lg:w-auto flex-1 lg:flex-none"
+            />
 
             {/* View Toggle */}
-            <div className="flex bg-slate-900 border border-slate-700 rounded-lg p-1">
+            <div className="flex bg-slate-900/40 border border-slate-800 rounded-xl p-1 shrink-0">
               <button
                 onClick={() => setIsGridView(true)}
-                className={`p-1.5 rounded-md transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="Grid View"
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setIsGridView(false)}
-                className={`p-1.5 rounded-md transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="List View"
               >
                 <List size={18} />
@@ -752,18 +932,11 @@ export default function DashboardClient({
                     {/* Card Actions Footer */}
                     <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
                       {isReady ? (
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${media.visibility === 'PRIVATE' ? 'bg-slate-600' : media.visibility === 'UNLISTED' ? 'bg-[#0CB2EB]' : 'bg-[#8A5CF6]'}`}></div>
-                          <select
-                            value={media.visibility}
-                            onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
-                            className="bg-transparent text-[11px] font-bold text-slate-400 outline-none cursor-pointer uppercase tracking-tight hover:text-white transition-colors"
-                          >
-                            <option value="PRIVATE" className="bg-[#1E293B]">Private</option>
-                            <option value="UNLISTED" className="bg-[#1E293B]">Unlisted</option>
-                            <option value="WORKSPACE_ONLY" className="bg-[#1E293B]">Workspace</option>
-                          </select>
-                        </div>
+                        <MediaVisibilitySelect
+                          value={media.visibility}
+                          onChange={(val) => handleVisibilityChange(media.id, val)}
+                          direction="up"
+                        />
                       ) : (
                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Processing</span>
                       )}
@@ -846,15 +1019,11 @@ export default function DashboardClient({
                       </td>
                       <td className="px-6 py-3">
                         {isReady ? (
-                          <select
+                          <MediaVisibilitySelect
                             value={media.visibility}
-                            onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
-                            className="bg-transparent border-none text-slate-400 text-xs font-bold focus:ring-0 outline-none uppercase tracking-tighter"
-                          >
-                            <option value="PRIVATE" className="bg-[#0F172A]">Private</option>
-                            <option value="UNLISTED" className="bg-[#0F172A]">Unlisted</option>
-                            <option value="WORKSPACE_ONLY" className="bg-[#0F172A]">Workspace</option>
-                          </select>
+                            onChange={(val) => handleVisibilityChange(media.id, val)}
+                            direction="down"
+                          />
                         ) : (
                           <span className="text-slate-600">-</span>
                         )}
@@ -957,14 +1126,16 @@ export default function DashboardClient({
                       className="input-text flex-1 bg-slate-900 border-slate-800 focus:border-[#0CB2EB]"
                       required
                     />
-                    <select
+                    <CustomSelect
                       value={inviteRole}
-                      onChange={(e) => setInviteRole(e.target.value as any)}
-                      className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold outline-none"
-                    >
-                      <option value="MEMBER">Member</option>
-                      <option value="OWNER">Owner</option>
-                    </select>
+                      onChange={(val) => setInviteRole(val as any)}
+                      options={[
+                        { value: 'MEMBER', label: 'Member' },
+                        { value: 'OWNER', label: 'Owner' }
+                      ]}
+                      size="sm"
+                      buttonClassName="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold outline-none flex items-center justify-between gap-2 cursor-pointer focus:border-[#0CB2EB] transition-all"
+                    />
                     <button type="submit" className="btn-primary py-2 px-6 rounded-lg text-sm shadow-[#0CB2EB]/20">
                       Invite
                     </button>
