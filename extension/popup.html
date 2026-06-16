@@ -8,90 +8,100 @@
     }
     body {
       width: 280px;
-      padding: 1rem;
-      background-color: #0F172A; /* Slate 900 */
-      color: #F8FAFC; /* Slate 50 */
+      padding: 1.25rem;
+      background-color: #0F172A;
+      color: #F8FAFC;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       margin: 0;
-      border-radius: 12px;
-      border: 1px solid #1E293B; /* Slate 800 */
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border-radius: 16px;
+      border: 1px solid #334155;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
     }
     
     .header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      border-bottom: 1px solid #1E293B; /* Slate 800 */
-      padding-bottom: 0.75rem;
-      margin-bottom: 1rem;
+      gap: 0.75rem;
+      border-bottom: 1px solid #1E293B;
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
     
     .logo-badge {
-      background: linear-gradient(135deg, #10B981 0%, #3B82F6 100%);
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #0CB2EB 0%, #8A5CF6 100%);
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: 900;
       color: white;
       font-size: 14px;
-      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 12px rgba(12, 178, 235, 0.4);
     }
     
     .logo-text {
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: -0.025em;
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: -0.04em;
+      background: linear-gradient(to right, white, #94A3B8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .warning-box {
-      background-color: rgba(239, 68, 68, 0.08);
-      border: 1px solid rgba(239, 68, 68, 0.25);
-      border-radius: 8px;
-      padding: 0.75rem;
-      font-size: 12px;
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 10px;
+      padding: 1rem;
+      font-size: 11px;
       color: #FCA5A5;
-      line-height: 1.4;
-      margin-bottom: 1rem;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: 0.5rem;
     }
     
     .warning-title {
-      font-weight: 600;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.5rem;
     }
     
     .status-badge {
       background-color: #1E293B;
       border: 1px solid #334155;
-      border-radius: 6px;
-      padding: 0.4rem 0.75rem;
-      font-size: 11px;
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 10px;
       color: #94A3B8;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
     
     .status-dot {
-      width: 6px;
-      height: 6px;
-      background-color: #10B981; /* Green */
+      width: 5px;
+      height: 5px;
+      background-color: #0CB2EB;
       border-radius: 50%;
       margin-right: 6px;
       display: inline-block;
+      box-shadow: 0 0 8px #0CB2EB;
     }
     
     .status-dot.recording {
       background-color: #EF4444;
+      box-shadow: 0 0 8px #EF4444;
       animation: blink 1s infinite;
     }
     
@@ -104,68 +114,78 @@
     .btn-group {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
     
     .btn {
       width: 100%;
-      height: 40px;
-      border-radius: 8px;
+      height: 44px;
+      border-radius: 10px;
       border: none;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 800;
       font-size: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.15s ease;
+      gap: 0.6rem;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       color: white;
     }
     
     .btn svg {
-      stroke-width: 2.25px;
+      stroke-width: 2.5px;
     }
     
     .btn-screenshot {
-      background-color: #10B981;
+      background-color: #0CB2EB;
+      box-shadow: 0 4px 12px rgba(12, 178, 235, 0.3);
     }
     
     .btn-screenshot:hover {
-      background-color: #059669;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(12, 178, 235, 0.4);
+      filter: brightness(1.1);
     }
     
     .btn-record {
-      background-color: #3B82F6;
+      background-color: #8A5CF6;
+      box-shadow: 0 4px 12px rgba(138, 92, 246, 0.3);
     }
     
     .btn-record:hover {
-      background-color: #2563EB;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(138, 92, 246, 0.4);
+      filter: brightness(1.1);
     }
     
     .btn-stop {
       background-color: #EF4444;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
     
     .btn-stop:hover {
-      background-color: #DC2626;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
     }
     
     .btn-dashboard {
-      background-color: transparent;
+      background-color: #1E293B;
       border: 1px solid #334155;
-      color: #E2E8F0;
-      margin-top: 0.25rem;
+      color: #CBD5E1;
+      margin-top: 0.5rem;
     }
     
     .btn-dashboard:hover {
-      background-color: #1E293B;
+      background-color: #334155;
+      border-color: #0CB2EB;
+      color: white;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <div class="logo-badge">L</div>
+    <img src="icon.png" alt="Loomo" style="width: 24px; height: 24px; object-contain; filter: drop-shadow(0 0 8px rgba(12, 178, 235, 0.4));">
     <span class="logo-text">Loomo Capture</span>
   </div>
   

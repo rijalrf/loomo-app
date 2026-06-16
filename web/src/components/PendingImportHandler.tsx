@@ -142,69 +142,33 @@ export default function PendingImportHandler() {
   if (!uploadState.isUploading) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: 'rgba(11, 15, 25, 0.9)',
-      zIndex: 99999,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'sans-serif'
-    }}>
-      <div className="glass-panel" style={{
-        padding: '30px',
-        borderRadius: '16px',
-        maxWidth: '450px',
-        width: '90%',
-        textAlign: 'center',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-        border: '1px solid var(--border-color)'
-      }}>
-        <h3 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>Uploading Tab Recording</h3>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '0 0 20px 0' }}>
+    <div className="fixed inset-0 bg-[#0F172A]/80 backdrop-blur-md z-[99999] flex items-center justify-center p-6 text-slate-200 font-sans">
+      <div className="glass-panel p-10 rounded-3xl max-w-md w-full text-center border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-300">
+        <h3 className="text-xl font-black text-white mb-2 tracking-tight uppercase">Uploading Recording</h3>
+        <p className="text-slate-400 text-sm mb-8 font-medium truncate">
           {uploadState.title}
         </p>
 
         {uploadState.error ? (
-          <div>
-            <div style={{
-              color: 'var(--error)',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-              padding: '12px',
-              borderRadius: '8px',
-              fontSize: '14px',
-              marginBottom: '20px',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              textAlign: 'left'
-            }}>
+          <div className="space-y-6">
+            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400 text-sm font-medium text-left flex items-start gap-3">
+              <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               {uploadState.error}
             </div>
             <button 
-              className="btn-primary" 
+              className="btn-primary w-full py-3 rounded-xl justify-center font-bold"
               onClick={() => {
                 localStorage.removeItem(`jam_meta_${driveFileId}`);
                 router.push('/');
               }}
-              style={{ width: '100%', justifyContent: 'center' }}
             >
-              Cancel & Back to Dashboard
+              Cancel & Return
             </button>
           </div>
         ) : (
-          <div>
-            <div className="glow-animation" style={{
-              width: '40px',
-              height: '40px',
-              border: '3px solid var(--primary)',
-              borderTopColor: 'transparent',
-              borderRadius: '50%',
-              margin: '0 auto 20px auto'
-            }}></div>
-            <div style={{ fontSize: '14px', color: 'var(--primary)', fontWeight: '600' }}>
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full border-4 border-[#0CB2EB]/20 border-t-[#0CB2EB] animate-spin mb-6"></div>
+            <div className="text-sm font-black text-[#0CB2EB] uppercase tracking-widest">
               {uploadState.progress}
             </div>
           </div>

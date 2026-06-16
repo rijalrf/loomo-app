@@ -101,110 +101,60 @@ export default async function SharePage({ params }: SharePageProps) {
   const fileUrl = `/api/share/${token}/file`;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0, left: 0, width: '100vw', height: '100vh',
-      backgroundColor: '#0B0F19',
-      color: '#F8FAFC',
-      fontFamily: 'sans-serif',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden'
-    }}>
+    <div className="fixed inset-0 bg-[#0F172A] text-slate-200 font-sans flex flex-col overflow-hidden">
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 24px',
-        borderBottom: '1px solid #232D3F',
-        backgroundColor: '#131B2E',
-        zIndex: 10
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl z-10">
+        <div className="flex items-center gap-4">
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '4px',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)',
-              boxShadow: '0 0 8px var(--primary)'
-            }}></div>
-            <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#F8FAFC' }}>Loomo</span>
-          </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <img src="/logo.png" alt="Loomo Logo" className="w-6 h-6 object-contain transition-transform group-hover:scale-110" />
+            <span className="text-base font-black tracking-tighter text-white">Loomo</span>
+          </Link>
           
-          <div style={{ width: '1px', height: '24px', backgroundColor: '#232D3F' }}></div>
+          <div className="w-px h-6 bg-slate-800"></div>
           
           {/* Title & Metadata */}
           <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '600', color: '#F8FAFC' }}>{media.title}</h3>
-            <p style={{ color: '#94A3B8', fontSize: '12px', margin: 0 }}>
-              Uploaded by {media.uploader.displayName} on {new Date(media.createdAt).toLocaleString()}
+            <h3 className="text-sm font-bold text-white mb-0.5">{media.title}</h3>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+              By {media.uploader.displayName} • {new Date(media.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>
         
         {/* Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="flex items-center gap-3">
           <a 
             href={fileUrl} 
             download={media.title}
-            className="btn-primary" 
-            style={{ 
-              padding: '8px 16px', 
-              fontSize: '13px', 
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
+            className="btn-primary py-2 px-4 text-xs rounded-lg gap-2 shadow-[#0CB2EB]/20"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            <span>Download Original</span>
+            <span className="font-bold">Download</span>
           </a>
         </div>
       </div>
 
       {/* Media Body */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px',
-        overflow: 'hidden',
-        position: 'relative'
-      }}>
-        {media.type === 'SCREENSHOT' ? (
-          <img 
-            src={fileUrl} 
-            alt={media.title}
-            style={{
-              maxWidth: '100%',
-              maxHeight: '100%',
-              objectFit: 'contain',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
-              borderRadius: '8px',
-              backgroundColor: 'black'
-            }}
-          />
-        ) : (
-          <video 
-            src={fileUrl}
-            controls
-            autoPlay
-            style={{
-              maxWidth: '100%',
-              maxHeight: '100%',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
-              borderRadius: '8px',
-              backgroundColor: 'black'
-            }}
-          />
-        )}
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 overflow-hidden relative">
+        <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-slate-800">
+          {media.type === 'SCREENSHOT' ? (
+            <img 
+              src={fileUrl} 
+              alt={media.title}
+              className="max-w-full max-h-full object-contain"
+            />
+          ) : (
+            <video 
+              src={fileUrl}
+              controls
+              autoPlay
+              className="max-w-full max-h-full"
+            />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -212,48 +162,24 @@ export default async function SharePage({ params }: SharePageProps) {
 
 function renderErrorPage(title: string, message: string, status: number) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#0B0F19',
-      color: '#F8FAFC',
-      fontFamily: 'sans-serif',
-      padding: '20px',
-      textAlign: 'center'
-    }}>
-      <div className="glass-panel" style={{
-        padding: '40px 30px',
-        borderRadius: '16px',
-        maxWidth: '450px',
-        width: '90%',
-        boxShadow: '0 15px 35px rgba(0,0,0,0.5)',
-        border: '1px solid #232D3F'
-      }}>
-        <div style={{
-          width: '48px', height: '48px', borderRadius: '50%',
-          backgroundColor: status === 202 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 20px auto',
-          color: status === 202 ? '#F59E0B' : '#EF4444'
-        }}>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F172A] text-slate-200 font-sans p-6 text-center">
+      <div className="glass-panel p-10 rounded-3xl max-w-md w-full border-slate-800 shadow-2xl animate-in fade-in zoom-in duration-300">
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${status === 202 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
           {status === 202 ? (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="glow-animation">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse">
               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg>
           ) : (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           )}
         </div>
 
-        <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 10px 0' }}>{title}</h3>
-        <p style={{ fontSize: '14px', color: '#94A3B8', margin: '0 0 24px 0', lineHeight: '1.6' }}>{message}</p>
+        <h3 className="text-2xl font-black text-white mb-3 tracking-tight">{title}</h3>
+        <p className="text-slate-400 text-sm mb-8 leading-relaxed font-medium">{message}</p>
 
-        <Link href="/" className="btn-secondary" style={{ width: '100%', justifyContent: 'center', textDecoration: 'none' }}>
+        <Link href="/" className="btn-secondary w-full py-3 rounded-xl justify-center font-bold hover:border-[#0CB2EB] transition-all">
           Back to Loomo Home
         </Link>
       </div>

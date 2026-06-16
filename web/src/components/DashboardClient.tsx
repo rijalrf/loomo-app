@@ -377,53 +377,27 @@ export default function DashboardClient({
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-main)' }}>
+    <div className="min-h-screen flex flex-col bg-[#0F172A] text-slate-200">
       {/* Navbar */}
-      <header style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 24px',
-        borderBottom: '1px solid var(--border-color)',
-        backgroundColor: 'rgba(19, 27, 46, 0.8)',
-        backdropFilter: 'blur(10px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50
-      }}>
+      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-50">
         {/* Logo and Workspace Selector */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '5px',
-              background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)',
-              boxShadow: '0 0 10px var(--primary)'
-            }}></div>
-            <span style={{ fontSize: '18px', fontWeight: '800', letterSpacing: '-0.02em' }}>Loomo</span>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 group cursor-pointer" onClick={() => router.push('/')}>
+            <img src="/logo.png" alt="Loomo Logo" className="w-7 h-7 object-contain transition-transform group-hover:scale-110" />
+            <span className="text-xl font-black tracking-tighter text-white">Loomo</span>
           </div>
 
-          <div style={{ width: '1px', height: '20px', backgroundColor: 'var(--border-color)' }}></div>
+          <div className="w-px h-5 bg-slate-800"></div>
 
           {/* Workspace Switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="flex items-center gap-3">
             <select
               value={activeWorkspaceId}
               onChange={(e) => {
                 setActiveWorkspaceId(e.target.value);
                 setPage(1);
               }}
-              style={{
-                backgroundColor: 'var(--bg-main)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '600',
-                outline: 'none'
-              }}
+              className="bg-[#1E293B] border border-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-colors cursor-pointer"
             >
               {workspaces.map((w) => (
                 <option key={w.id} value={w.id}>
@@ -434,8 +408,7 @@ export default function DashboardClient({
 
             <button
               onClick={() => setShowMembersModal(true)}
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              className="btn-secondary py-1.5 px-3 text-xs gap-1.5 border-slate-700 hover:border-[#0CB2EB]"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -449,36 +422,25 @@ export default function DashboardClient({
         </div>
 
         {/* Profile Info and Logout */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'right' }}>
-            <div style={{ fontSize: '13px', fontWeight: '600' }}>{initialUser.displayName}</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{initialUser.email}</div>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex flex-col items-end">
+            <div className="text-sm font-bold text-white leading-none">{initialUser.displayName}</div>
+            <div className="text-[10px] text-slate-500 font-medium">{initialUser.email}</div>
           </div>
           {initialUser.avatarUrl ? (
             <img 
               src={initialUser.avatarUrl} 
               alt={initialUser.displayName} 
-              style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--border-color)' }}
+              className="w-9 h-9 rounded-full border border-slate-700 p-0.5"
             />
           ) : (
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--border-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '14px',
-              fontWeight: '700'
-            }}>
+            <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-white border border-slate-700">
               {initialUser.displayName[0]}
             </div>
           )}
           <button
             onClick={handleLogout}
-            className="btn-secondary"
-            style={{ padding: '6px 12px', fontSize: '12px', borderColor: 'rgba(239, 68, 68, 0.3)', color: 'var(--error)' }}
+            className="text-xs font-bold text-slate-500 hover:text-red-400 transition-colors"
           >
             Sign Out
           </button>
@@ -486,56 +448,43 @@ export default function DashboardClient({
       </header>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '30px 24px', maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
+      <main className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">
         
         {/* Title and stats */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px' }}>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
-            <h2 style={{ fontSize: '24px', fontWeight: '800', margin: '0 0 4px 0' }}>
+            <h2 className="text-3xl font-black text-white tracking-tight mb-1">
               {activeWorkspace?.name || 'Workspace Dashboard'}
             </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>
-              Showing {mediaList.length} of {totalMedia} captures in this workspace.
+            <p className="text-slate-400 text-sm font-medium">
+              You have <span className="text-[#0CB2EB]">{totalMedia}</span> captures in this workspace.
             </p>
           </div>
         </div>
 
         {/* Toolbar: Search, Filters, Sorting, Toggle View */}
-        <div className="glass-panel" style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '16px',
-          borderRadius: '12px',
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
+        <div className="glass-panel p-4 rounded-xl flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 border-slate-800">
           {/* Search and Filters */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', flex: 1, minWidth: '300px' }}>
-            <input
-              type="text"
-              placeholder="Search by title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-text"
-              style={{ flex: 1, minWidth: '200px', padding: '8px 12px', fontSize: '14px' }}
-            />
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto flex-1">
+            <div className="relative flex-1 min-w-[240px]">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search captures..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-text w-full pl-10 text-sm bg-slate-900/50"
+              />
+            </div>
 
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as any)}
-              style={{
-                backgroundColor: 'var(--bg-main)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none'
-              }}
+              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB]"
             >
-              <option value="ALL">All Formats</option>
+              <option value="ALL">All Types</option>
               <option value="SCREENSHOT">Screenshots</option>
               <option value="RECORDING">Recordings</option>
             </select>
@@ -543,17 +492,9 @@ export default function DashboardClient({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              style={{
-                backgroundColor: 'var(--bg-main)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none'
-              }}
+              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB]"
             >
-              <option value="ALL">All Statuses</option>
+              <option value="ALL">Any Status</option>
               <option value="READY">Ready</option>
               <option value="PROCESSING">Processing</option>
               <option value="FAILED">Failed</option>
@@ -561,56 +502,37 @@ export default function DashboardClient({
           </div>
 
           {/* Sorting and Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="flex items-center gap-3 w-full lg:w-auto">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              style={{
-                backgroundColor: 'var(--bg-main)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-main)',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none'
-              }}
+              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB] flex-1 lg:flex-none"
             >
-              <option value="DATE_DESC">Newest Captures</option>
-              <option value="DATE_ASC">Oldest Captures</option>
+              <option value="DATE_DESC">Recently Captured</option>
+              <option value="DATE_ASC">Oldest First</option>
               <option value="NAME_ASC">Name (A-Z)</option>
-              <option value="SIZE_DESC">Largest Files</option>
+              <option value="SIZE_DESC">File Size</option>
             </select>
 
             {/* View Toggle */}
-            <div style={{
-              display: 'flex',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              overflow: 'hidden'
-            }}>
+            <div className="flex bg-slate-900 border border-slate-700 rounded-lg p-1">
               <button
                 onClick={() => setIsGridView(true)}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: isGridView ? 'var(--primary)' : 'transparent',
-                  color: isGridView ? 'white' : 'var(--text-muted)',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
+                className={`p-1.5 rounded-md transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                title="Grid View"
               >
-                Grid
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
               </button>
               <button
                 onClick={() => setIsGridView(false)}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: !isGridView ? 'var(--primary)' : 'transparent',
-                  color: !isGridView ? 'white' : 'var(--text-muted)',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
+                className={`p-1.5 rounded-md transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                title="List View"
               >
-                List
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
               </button>
             </div>
           </div>
@@ -618,24 +540,24 @@ export default function DashboardClient({
 
         {/* Media List / Grid */}
         {sortedMedia.length === 0 ? (
-          <div className="glass-panel" style={{
-            padding: '80px 20px',
-            borderRadius: '16px',
-            textAlign: 'center',
-            border: '1px solid var(--border-color)'
-          }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-dark)" strokeWidth="1.5" style={{ marginBottom: '16px' }}>
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
-            <h3 style={{ fontSize: '18px', margin: '0 0 8px 0' }}>No captures found</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '0 auto 20px auto', maxWidth: '360px' }}>
-              Screenshots or screen recordings you capture using the Loomo Chrome Extension will appear here.
-            </p>
-            <div style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>
-              Tip: Use the Loomo extension shortcut or popup to record/capture.
+          <div className="glass-panel py-20 px-6 rounded-2xl text-center border-slate-800/50 flex flex-col items-center">
+            <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mb-6 border border-slate-800">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
             </div>
+            <h3 className="text-xl font-bold text-white mb-2">No captures yet</h3>
+            <p className="text-slate-400 text-sm max-w-sm mb-8 leading-relaxed">
+              Use the Loomo Chrome Extension to take screenshots or record your screen. They will automatically appear here.
+            </p>
+            <button 
+              onClick={() => toast.info('Load the "extension" folder in Chrome Developer mode.')}
+              className="btn-primary"
+            >
+              Get Extension
+            </button>
           </div>
         ) : isGridView ? (
           /* Grid View */
@@ -649,94 +571,65 @@ export default function DashboardClient({
               return (
                 <div 
                   key={media.id} 
-                  className={`media-card ${isDeleting ? 'media-card-deleting' : ''}`}
-                  style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+                  className={`media-card flex flex-col h-full bg-[#1E293B] border-slate-800 group ${isDeleting ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                 >
-                  {/* Card Thumbnail / Top section */}
-                  <div style={{ 
-                    position: 'relative', 
-                    paddingTop: '56.25%', 
-                    backgroundColor: '#0F1626',
-                    cursor: isReady ? 'pointer' : 'default',
-                    overflow: 'hidden'
-                  }}
-                  onClick={() => isReady && setActiveMediaViewer(media)}
+                  {/* Card Thumbnail */}
+                  <div 
+                    className="relative pt-[56.25%] bg-slate-950 cursor-pointer overflow-hidden rounded-t-xl"
+                    onClick={() => isReady && setActiveMediaViewer(media)}
                   >
                     {isReady ? (
                       <>
                         <img 
                           src={`/api/media/${media.id}/thumbnail`}
                           alt={media.title}
-                          style={{
-                            position: 'absolute',
-                            top: 0, right: 0, bottom: 0, left: 0,
-                            width: '100%', height: '100%',
-                            objectFit: 'cover'
-                          }}
+                          className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        {/* Video type indicator overlay */}
+                        {/* Type Indicator Overlay */}
+                        <div className="absolute top-2 left-2 z-10">
+                          <span className={`px-2 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-lg ${media.type === 'SCREENSHOT' ? 'bg-[#0CB2EB] text-white' : 'bg-[#8A5CF6] text-white'}`}>
+                            {media.type}
+                          </span>
+                        </div>
+                        {/* Play icon for recordings */}
                         {media.type === 'RECORDING' && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '50%', left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: '40px', height: '40px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(11, 15, 25, 0.8)',
-                            border: '1px solid var(--border-color)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: 'var(--primary)',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.5)'
-                          }}>
-                            {/* Play icon */}
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                            <div className="w-12 h-12 rounded-full bg-[#0CB2EB]/90 flex items-center justify-center text-white shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform">
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                              </svg>
+                            </div>
                           </div>
                         )}
-                        {/* Duration badge for recording */}
+                        {/* Duration badge */}
                         {media.type === 'RECORDING' && (
-                          <span style={{
-                            position: 'absolute',
-                            bottom: '8px', right: '8px',
-                            backgroundColor: 'rgba(0,0,0,0.7)',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: '600'
-                          }}>
+                          <span className="absolute bottom-2 right-2 bg-black/70 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">
                             {Math.floor(media.durationSeconds / 60)}:{String(media.durationSeconds % 60).padStart(2, '0')}
                           </span>
                         )}
                       </>
                     ) : (
-                      <div style={{
-                        position: 'absolute',
-                        top: 0, right: 0, bottom: 0, left: 0,
-                        display: 'flex', flexDirection: 'column',
-                        alignItems: 'center', justifyContent: 'center',
-                        gap: '8px'
-                      }}>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
                         {isDeleting && (
                           <>
-                            <div className="glow-animation" style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px solid var(--error)', borderTopColor: 'transparent' }}></div>
-                            <span style={{ fontSize: '12px', color: 'var(--error)', fontWeight: '600' }}>Deleting from Drive...</span>
+                            <div className="w-8 h-8 rounded-full border-2 border-red-500/30 border-t-red-500 animate-spin"></div>
+                            <span className="text-[10px] font-bold text-red-500 tracking-wider uppercase">Deleting...</span>
                           </>
                         )}
                         {isPending && (
                           <>
-                            <div className="glow-animation" style={{ width: '24px', height: '24px', borderRadius: '50%', border: '2px solid var(--primary)', borderTopColor: 'transparent' }}></div>
-                            <span style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600' }}>
-                              {media.uploadStatus === 'PROCESSING' ? 'Processing...' : 'Uploading...'}
+                            <div className="w-8 h-8 rounded-full border-2 border-[#0CB2EB]/30 border-t-[#0CB2EB] animate-spin"></div>
+                            <span className="text-[10px] font-bold text-[#0CB2EB] tracking-wider uppercase">
+                              {media.uploadStatus === 'PROCESSING' ? 'Processing' : 'Uploading'}
                             </span>
                           </>
                         )}
                         {isFailed && (
                           <>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--error)" strokeWidth="2">
+                            <svg className="text-red-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
-                            <span style={{ fontSize: '12px', color: 'var(--error)', fontWeight: '600' }}>Upload failed</span>
+                            <span className="text-[10px] font-bold text-red-500 tracking-wider uppercase">Failed</span>
                           </>
                         )}
                       </div>
@@ -744,8 +637,8 @@ export default function DashboardClient({
                   </div>
 
                   {/* Card Info */}
-                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
+                  <div className="p-4 flex flex-col flex-1">
+                    <div className="flex items-start justify-between gap-2 mb-3">
                       {renamingId === media.id ? (
                         <input
                           type="text"
@@ -754,113 +647,65 @@ export default function DashboardClient({
                           onBlur={() => handleRename(media.id)}
                           onKeyDown={(e) => e.key === 'Enter' && handleRename(media.id)}
                           autoFocus
-                          style={{
-                            backgroundColor: 'var(--bg-main)',
-                            border: '1px solid var(--primary)',
-                            color: 'var(--text-main)',
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            padding: '2px 4px',
-                            borderRadius: '4px',
-                            width: '100%',
-                            outline: 'none'
-                          }}
+                          className="bg-slate-950 border border-[#0CB2EB] text-white text-sm font-bold px-2 py-1 rounded w-full outline-none"
                         />
                       ) : (
                         <h4 
-                          style={{
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            margin: 0,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            flex: 1,
-                            cursor: isReady ? 'pointer' : 'default'
-                          }}
+                          className="text-sm font-bold text-slate-100 truncate flex-1 hover:text-[#0CB2EB] transition-colors cursor-pointer"
                           onClick={() => isReady && setActiveMediaViewer(media)}
                         >
                           {media.title}
                         </h4>
                       )}
 
-                      {/* Rename Trigger */}
                       {isReady && renamingId !== media.id && (
                         <button
                           onClick={() => { setRenamingId(media.id); setRenamingTitle(media.title); }}
-                          style={{ background: 'none', border: 'none', color: 'var(--text-dark)', cursor: 'pointer', padding: '2px' }}
+                          className="text-slate-500 hover:text-[#0CB2EB] transition-colors p-1"
                           title="Rename"
                         >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/>
                           </svg>
                         </button>
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      {/* Format Icon */}
-                      <span style={{
-                        display: 'inline-flex',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        backgroundColor: media.type === 'SCREENSHOT' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                        color: media.type === 'SCREENSHOT' ? 'var(--primary)' : 'var(--accent)'
-                      }}>
-                        {media.type}
-                      </span>
-
-                      {/* Date */}
-                      <span style={{ fontSize: '11px', color: 'var(--text-dark)' }}>
+                    <div className="flex items-center gap-3 text-[11px] font-medium text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                         {new Date(media.createdAt).toLocaleDateString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        {media.fileSizeBytes ? `${(media.fileSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '-'}
                       </span>
                     </div>
 
                     {/* Card Actions Footer */}
-                    <div style={{
-                      marginTop: 'auto',
-                      paddingTop: '12px',
-                      borderTop: '1px solid var(--border-color)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}>
-                      {/* Visibility dropdown */}
+                    <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
                       {isReady ? (
-                        <select
-                          value={media.visibility}
-                          onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
-                          style={{
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            color: 'var(--text-muted)',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            outline: 'none'
-                          }}
-                        >
-                          <option value="PRIVATE" style={{ backgroundColor: 'var(--bg-card)' }}>Private</option>
-                          <option value="UNLISTED" style={{ backgroundColor: 'var(--bg-card)' }}>Unlisted</option>
-                          <option value="WORKSPACE_ONLY" style={{ backgroundColor: 'var(--bg-card)' }}>Workspace</option>
-                        </select>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-2 h-2 rounded-full ${media.visibility === 'PRIVATE' ? 'bg-slate-600' : media.visibility === 'UNLISTED' ? 'bg-[#0CB2EB]' : 'bg-[#8A5CF6]'}`}></div>
+                          <select
+                            value={media.visibility}
+                            onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
+                            className="bg-transparent text-[11px] font-bold text-slate-400 outline-none cursor-pointer uppercase tracking-tight hover:text-white transition-colors"
+                          >
+                            <option value="PRIVATE" className="bg-[#1E293B]">Private</option>
+                            <option value="UNLISTED" className="bg-[#1E293B]">Unlisted</option>
+                            <option value="WORKSPACE_ONLY" className="bg-[#1E293B]">Workspace</option>
+                          </select>
+                        </div>
                       ) : (
-                        <span style={{ fontSize: '11px', color: 'var(--text-dark)' }}>
-                          Processing...
-                        </span>
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Processing</span>
                       )}
 
-                      {/* Action buttons */}
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {/* Copy Share Link */}
+                      <div className="flex gap-2">
                         {isReady && (
                           <button
                             onClick={() => handleShareLink(media)}
-                            className="btn-secondary"
-                            style={{ padding: '6px', borderRadius: '6px' }}
+                            className="p-2 rounded-lg bg-slate-900/50 text-slate-400 hover:text-[#0CB2EB] hover:bg-[#0CB2EB]/10 border border-slate-800 transition-all"
                             title="Share"
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -868,20 +713,15 @@ export default function DashboardClient({
                             </svg>
                           </button>
                         )}
-
-                        {/* Delete Button (Allowed in all states except deleting) */}
-                        {!isDeleting && (
-                          <button
-                            onClick={() => handleDelete(media.id)}
-                            className="btn-secondary"
-                            style={{ padding: '6px', borderRadius: '6px', borderColor: 'rgba(239, 68, 68, 0.2)', color: 'var(--error)' }}
-                            title="Delete"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-                            </svg>
-                          </button>
-                        )}
+                        <button
+                          onClick={() => handleDelete(media.id)}
+                          className="p-2 rounded-lg bg-slate-900/50 text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-slate-800 transition-all"
+                          title="Delete"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -891,83 +731,83 @@ export default function DashboardClient({
           </div>
         ) : (
           /* List View */
-          <div className="glass-panel" style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+          <div className="glass-panel rounded-2xl overflow-hidden border-slate-800 bg-[#1E293B]/40">
+            <table className="w-full text-left text-sm border-collapse">
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                  <th style={{ padding: '12px 16px' }}>Thumbnail</th>
-                  <th style={{ padding: '12px 16px' }}>Title</th>
-                  <th style={{ padding: '12px 16px' }}>Format</th>
-                  <th style={{ padding: '12px 16px' }}>Visibility</th>
-                  <th style={{ padding: '12px 16px' }}>Date</th>
-                  <th style={{ padding: '12px 16px' }}>Size</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'right' }}>Actions</th>
+                <tr className="border-b border-slate-800 text-slate-500 font-bold uppercase text-[11px] tracking-widest bg-slate-900/50">
+                  <th className="px-6 py-4">Preview</th>
+                  <th className="px-6 py-4">Title</th>
+                  <th className="px-6 py-4">Type</th>
+                  <th className="px-6 py-4">Visibility</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Size</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-800/50">
                 {sortedMedia.map((media) => {
                   const isReady = media.uploadStatus === 'READY';
                   const isDeleting = media.uploadStatus === 'DELETING';
                   return (
                     <tr 
                       key={media.id} 
-                      style={{ 
-                        borderBottom: '1px solid var(--border-color)',
-                        opacity: isDeleting ? 0.4 : 1,
-                        backgroundColor: isDeleting ? 'transparent' : 'rgba(19, 27, 46, 0.2)'
-                      }}
+                      className={`hover:bg-slate-800/30 transition-colors ${isDeleting ? 'opacity-40 grayscale' : ''}`}
                     >
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ width: '64px', height: '36px', borderRadius: '4px', overflow: 'hidden', backgroundColor: '#0F1626' }}>
+                      <td className="px-6 py-3">
+                        <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-950 border border-slate-800 group-hover:border-[#0CB2EB]/50 transition-colors">
                           {isReady ? (
-                            <img src={`/api/media/${media.id}/thumbnail`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={`/api/media/${media.id}/thumbnail`} className="w-full h-full object-cover" />
                           ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>
-                              {media.uploadStatus.toLowerCase()}
+                            <div className="w-full h-full flex items-center justify-center">
+                              <div className="w-4 h-4 border border-[#0CB2EB]/30 border-t-[#0CB2EB] rounded-full animate-spin"></div>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: '12px 16px', fontWeight: '600' }}>
+                      <td className="px-6 py-3">
                         <span 
-                          style={{ cursor: isReady ? 'pointer' : 'default' }}
+                          className="font-bold text-white hover:text-[#0CB2EB] cursor-pointer transition-colors"
                           onClick={() => isReady && setActiveMediaViewer(media)}
                         >
                           {media.title}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: '700' }}>{media.type}</span>
+                      <td className="px-6 py-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${media.type === 'SCREENSHOT' ? 'bg-[#0CB2EB]/10 text-[#0CB2EB]' : 'bg-[#8A5CF6]/10 text-[#8A5CF6]'}`}>
+                          {media.type}
+                        </span>
                       </td>
-                      <td style={{ padding: '12px 16px' }}>
+                      <td className="px-6 py-3">
                         {isReady ? (
                           <select
                             value={media.visibility}
                             onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
-                            style={{ backgroundColor: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '12px', outline: 'none' }}
+                            className="bg-transparent border-none text-slate-400 text-xs font-bold focus:ring-0 outline-none uppercase tracking-tighter"
                           >
-                            <option value="PRIVATE" style={{ backgroundColor: 'var(--bg-card)' }}>Private</option>
-                            <option value="UNLISTED" style={{ backgroundColor: 'var(--bg-card)' }}>Unlisted</option>
-                            <option value="WORKSPACE_ONLY" style={{ backgroundColor: 'var(--bg-card)' }}>Workspace</option>
+                            <option value="PRIVATE" className="bg-[#0F172A]">Private</option>
+                            <option value="UNLISTED" className="bg-[#0F172A]">Unlisted</option>
+                            <option value="WORKSPACE_ONLY" className="bg-[#0F172A]">Workspace</option>
                           </select>
                         ) : (
-                          <span style={{ fontSize: '12px', color: 'var(--text-dark)' }}>-</span>
+                          <span className="text-slate-600">-</span>
                         )}
                       </td>
-                      <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>
+                      <td className="px-6 py-3 text-slate-500 font-medium">
                         {new Date(media.createdAt).toLocaleDateString()}
                       </td>
-                      <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>
-                        {media.fileSizeBytes ? `${(media.fileSizeBytes / (1024 * 1024)).toFixed(2)} MB` : '-'}
+                      <td className="px-6 py-3 text-slate-500 font-medium">
+                        {media.fileSizeBytes ? `${(media.fileSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '-'}
                       </td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '8px' }}>
+                      <td className="px-6 py-3 text-right">
+                        <div className="inline-flex gap-2">
                           {isReady && (
-                            <button onClick={() => handleShareLink(media)} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>Share</button>
+                            <button onClick={() => handleShareLink(media)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#0CB2EB] transition-colors">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            </button>
                           )}
-                          {!isDeleting && (
-                            <button onClick={() => handleDelete(media.id)} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', color: 'var(--error)', borderColor: 'rgba(239,68,68,0.2)' }}>Delete</button>
-                          )}
+                          <button onClick={() => handleDelete(media.id)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-red-400 transition-colors">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -982,216 +822,147 @@ export default function DashboardClient({
 
       {/* Media Viewer Modal */}
       {activeMediaViewer && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(11, 15, 25, 0.95)',
-          zIndex: 100,
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
+        <div className="fixed inset-0 bg-slate-950/95 z-[100] flex flex-col backdrop-blur-sm">
           {/* Header */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '16px 24px',
-            borderBottom: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-card)'
-          }}>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/50">
             <div>
-              <h3 style={{ margin: '0 0 4px 0', fontSize: '16px' }}>{activeMediaViewer.title}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: 0 }}>
-                Uploaded by {activeMediaViewer.uploader.displayName} on {new Date(activeMediaViewer.createdAt).toLocaleString()}
+              <h3 className="text-lg font-black text-white leading-tight">{activeMediaViewer.title}</h3>
+              <p className="text-xs text-slate-500 font-medium">
+                Captured by {activeMediaViewer.uploader.displayName} • {new Date(activeMediaViewer.createdAt).toLocaleString()}
               </p>
             </div>
             <button
               onClick={() => setActiveMediaViewer(null)}
-              className="btn-secondary"
-              style={{ padding: '8px 16px' }}
+              className="btn-secondary py-2 px-6 rounded-full border-slate-700 hover:bg-white hover:text-black hover:border-white transition-all font-bold"
             >
-              Close Viewer
+              Close
             </button>
           </div>
 
           {/* Media Body */}
-          <div style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '40px',
-            overflow: 'hidden'
-          }}>
-            {activeMediaViewer.type === 'SCREENSHOT' ? (
-              <img
-                src={`/api/media/${activeMediaViewer.id}/file`}
-                alt={activeMediaViewer.title}
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
-                  borderRadius: '8px',
-                  backgroundColor: 'black'
-                }}
-              />
-            ) : (
-              <video
-                src={`/api/media/${activeMediaViewer.id}/file`}
-                controls
-                autoPlay
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
-                  borderRadius: '8px',
-                  backgroundColor: 'black'
-                }}
-              />
-            )}
+          <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+            <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-slate-800">
+              {activeMediaViewer.type === 'SCREENSHOT' ? (
+                <img
+                  src={`/api/media/${activeMediaViewer.id}/file`}
+                  alt={activeMediaViewer.title}
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : (
+                <video
+                  src={`/api/media/${activeMediaViewer.id}/file`}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-full"
+                />
+              )}
+            </div>
           </div>
         </div>
       )}
 
       {/* Workspace Members Modal */}
       {showMembersModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(11, 15, 25, 0.8)',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass-panel" style={{
-            padding: '30px',
-            borderRadius: '16px',
-            maxWidth: '600px',
-            width: '90%',
-            maxHeight: '85vh',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '18px', margin: 0 }}>Workspace Members</h3>
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-xl bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 animate-in fade-in zoom-in duration-300">
+            <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between">
+              <h3 className="text-xl font-black text-white tracking-tight">Workspace Members</h3>
               <button 
                 onClick={() => { setShowMembersModal(false); setInviteError(null); setInviteSuccess(false); }}
-                className="btn-secondary" 
-                style={{ padding: '4px 8px' }}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition-all"
               >
-                ✕
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
 
-            {/* Invite New Member */}
-            {activeWorkspace?.isOwner && (
-              <form onSubmit={handleInvite} style={{
-                backgroundColor: 'rgba(19, 27, 46, 0.4)',
-                border: '1px solid var(--border-color)',
-                padding: '16px',
-                borderRadius: '10px',
-                marginBottom: '20px'
-              }}>
-                <h4 style={{ fontSize: '13px', margin: '0 0 12px 0', color: 'var(--text-muted)' }}>Invite member by email</h4>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="email"
-                    placeholder="name@email.com"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    className="input-text"
-                    required
-                    style={{ flex: 1, padding: '6px 12px', fontSize: '14px' }}
-                  />
-                  <select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as any)}
-                    style={{
-                      backgroundColor: 'var(--bg-main)',
-                      border: '1px solid var(--border-color)',
-                      color: 'var(--text-main)',
-                      padding: '6px 12px',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      outline: 'none'
-                    }}
+            <div className="p-8">
+              {/* Invite New Member */}
+              {activeWorkspace?.isOwner && (
+                <form onSubmit={handleInvite} className="bg-slate-950/50 border border-slate-800 p-6 rounded-2xl mb-8">
+                  <h4 className="text-xs font-black text-[#0CB2EB] uppercase tracking-widest mb-4">Invite New Member</h4>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="email"
+                      placeholder="Email address..."
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      className="input-text flex-1 bg-slate-900 border-slate-800 focus:border-[#0CB2EB]"
+                      required
+                    />
+                    <select
+                      value={inviteRole}
+                      onChange={(e) => setInviteRole(e.target.value as any)}
+                      className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold outline-none"
+                    >
+                      <option value="MEMBER">Member</option>
+                      <option value="OWNER">Owner</option>
+                    </select>
+                    <button type="submit" className="btn-primary py-2 px-6 rounded-lg text-sm shadow-[#0CB2EB]/20">
+                      Invite
+                    </button>
+                  </div>
+
+                  {inviteError && (
+                    <div className="text-red-400 text-xs mt-3 font-bold flex items-center gap-2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      {inviteError}
+                    </div>
+                  )}
+                  {inviteSuccess && (
+                    <div className="text-[#0CB2EB] text-xs mt-3 font-bold flex items-center gap-2">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      Invitation sent successfully!
+                    </div>
+                  )}
+                </form>
+              )}
+
+              {/* Members List */}
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {members.map((member) => (
+                  <div 
+                    key={member.membershipId}
+                    className="flex items-center justify-between p-4 rounded-2xl bg-slate-800/20 border border-slate-800/50"
                   >
-                    <option value="MEMBER">Member</option>
-                    <option value="OWNER">Owner</option>
-                  </select>
-                  <button type="submit" className="btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
-                    Invite
-                  </button>
-                </div>
-
-                {inviteError && (
-                  <div style={{ color: 'var(--error)', fontSize: '12px', marginTop: '8px' }}>{inviteError}</div>
-                )}
-                {inviteSuccess && (
-                  <div style={{ color: 'var(--primary)', fontSize: '12px', marginTop: '8px' }}>Invitation sent successfully!</div>
-                )}
-              </form>
-            )}
-
-            {/* Members List */}
-            <div style={{ flex: 1, overflowY: 'auto' }}>
-              {members.map((member) => (
-                <div 
-                  key={member.membershipId}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 0',
-                    borderBottom: '1px solid var(--border-color)'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    {member.avatarUrl ? (
-                      <img src={member.avatarUrl} style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
-                    ) : (
-                      <div style={{
-                        width: '28px', height: '28px', borderRadius: '50%',
-                        backgroundColor: 'var(--border-color)', display: 'flex',
-                        alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700'
-                      }}>
-                        {member.displayName[0]}
+                    <div className="flex items-center gap-4">
+                      {member.avatarUrl ? (
+                        <img src={member.avatarUrl} className="w-10 h-10 rounded-full border border-slate-700" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-black text-white">
+                          {member.displayName[0]}
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-sm font-bold text-white flex items-center gap-2">
+                          {member.displayName}
+                          {!member.accepted && (
+                            <span className="text-[9px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase font-black tracking-tighter">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-medium">{member.email}</div>
                       </div>
-                    )}
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: '600' }}>
-                        {member.displayName}
-                        {!member.accepted && (
-                          <span style={{
-                            marginLeft: '8px', fontSize: '10px', color: 'var(--warning)',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)', padding: '2px 6px', borderRadius: '4px'
-                          }}>
-                            Pending
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{member.email}</div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <span className="text-[10px] font-black text-[#8A5CF6] uppercase tracking-widest bg-[#8A5CF6]/5 px-2 py-0.5 rounded-full border border-[#8A5CF6]/10">
+                        {member.role}
+                      </span>
+
+                      {activeWorkspace?.isOwner && member.userId !== initialUser.id && (
+                        <button
+                          onClick={() => handleRemoveMember(member.membershipId)}
+                          className="text-slate-500 hover:text-red-400 transition-colors p-1"
+                          title="Remove from workspace"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>
+                        </button>
+                      )}
                     </div>
                   </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--text-dark)', textTransform: 'uppercase', fontWeight: '600' }}>
-                      {member.role}
-                    </span>
-
-                    {/* Remove button: Only workspace owner can delete members, and members can delete themselves */}
-                    {activeWorkspace?.isOwner && member.userId !== initialUser.id && (
-                      <button
-                        onClick={() => handleRemoveMember(member.membershipId)}
-                        style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '11px' }}
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -1199,51 +970,19 @@ export default function DashboardClient({
 
       {/* Share Link Modal */}
       {showShareModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(11, 15, 25, 0.8)',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass-panel" style={{
-            padding: '30px',
-            borderRadius: '16px',
-            maxWidth: '500px',
-            width: '90%',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
-            border: '1px solid var(--border-color)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '18px', margin: 0 }}>Share Captures</h3>
-              <button onClick={() => setShowShareModal(null)} className="btn-secondary" style={{ padding: '4px 8px' }}>✕</button>
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel w-full max-w-md bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 p-8 animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-black text-white tracking-tight">Share Capture</h3>
+              <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors">✕</button>
             </div>
 
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 16px 0', lineHeight: '1.5' }}>
-              Anyone with this link can view this capture, regardless of their workspace membership. We proxy the file from your Google Drive so your account details remain private.
+            <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+              Anyone with this link can view this capture. Loomo acts as a secure proxy to your Google Drive.
             </p>
 
-            <div style={{
-              display: 'flex',
-              backgroundColor: 'var(--bg-main)',
-              border: '1px solid var(--border-color)',
-              padding: '10px 14px',
-              borderRadius: '8px',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '10px',
-              marginBottom: '24px'
-            }}>
-              <span style={{
-                fontSize: '13px',
-                color: 'var(--text-main)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1
-              }}>
+            <div className="flex bg-slate-950 border border-slate-800 rounded-xl p-2 mb-8 items-center gap-2 group focus-within:border-[#0CB2EB] transition-colors">
+              <span className="text-xs font-bold text-slate-300 flex-1 px-3 truncate">
                 {typeof window !== 'undefined' ? `${window.location.origin}/s/${showShareModal.shareToken}` : ''}
               </span>
 
@@ -1252,24 +991,23 @@ export default function DashboardClient({
                   `${window.location.origin}/s/${showShareModal.shareToken}`,
                   showShareModal.id
                 )}
-                className="btn-primary"
-                style={{ padding: '6px 12px', fontSize: '12px' }}
+                className="btn-primary py-2 px-4 text-xs rounded-lg shadow-[#0CB2EB]/20"
               >
-                {copiedId === showShareModal.id ? 'Copied!' : 'Copy'}
+                {copiedId === showShareModal.id ? 'Copied!' : 'Copy Link'}
               </button>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: 'var(--text-dark)' }}>
-                Link is active
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#0CB2EB] animate-pulse"></div>
+                <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Link Active</span>
+              </div>
 
               <button
                 onClick={() => handleRevokeShare(showShareModal)}
-                className="btn-secondary"
-                style={{ padding: '6px 12px', fontSize: '12px', color: 'var(--error)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
+                className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors"
               >
-                Revoke Link
+                Revoke Access
               </button>
             </div>
           </div>

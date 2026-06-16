@@ -3,6 +3,12 @@
   "name": "Loomo Capture Engine",
   "version": "1.0.0",
   "description": "Ambil tangkapan layar area (screenshot) dengan anotasi dan rekam tab aktif Anda. Media di-upload otomatis ke Google Drive pribadi Anda.",
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "permissions": [
     "activeTab",
     "storage",
@@ -17,7 +23,13 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Jam.dev Clone Recorder"
+    "default_title": "Loomo Capture",
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
   "background": {
     "service_worker": "service_worker.js",
