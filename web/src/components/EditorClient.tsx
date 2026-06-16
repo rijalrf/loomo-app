@@ -481,30 +481,14 @@ export default function EditorClient() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#0B0F19',
-      fontFamily: 'sans-serif'
-    }}>
+    <div className="min-h-screen flex flex-col bg-[#0F172A] text-slate-200 font-sans">
       {/* Editor Header */}
-      <header style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 24px',
-        borderBottom: '1px solid var(--border-color)',
-        backgroundColor: '#131B2E',
-        zIndex: 10
-      }}>
+      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl z-50 sticky top-0">
         {/* Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="flex items-center gap-4">
           <button 
-            className="btn-secondary" 
-            style={{ padding: '6px 12px', fontSize: '13px' }}
+            className="btn-secondary py-1.5 px-4 text-xs font-bold border-slate-700 hover:border-slate-500"
             onClick={async () => {
-              // Cleanup local cache so it doesn't trigger auto-import on next open
               localStorage.removeItem(`jam_meta_${id}`);
               try {
                 if (id) {
@@ -524,234 +508,143 @@ export default function EditorClient() {
           >
             ← Cancel
           </button>
+          
+          <div className="flex items-center gap-2 group cursor-pointer" onClick={() => router.push('/')}>
+            <img src="/logo.png" alt="Loomo Logo" className="w-6 h-6 object-contain" />
+            <span className="text-base font-black tracking-tighter text-white">Loomo</span>
+          </div>
+
+          <div className="w-px h-5 bg-slate-800"></div>
+
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Name your screenshot..."
-            style={{
-              background: 'none',
-              border: 'none',
-              borderBottom: '1px dashed var(--text-dark)',
-              color: 'white',
-              fontSize: '15px',
-              fontWeight: '600',
-              padding: '2px 4px',
-              outline: 'none',
-              minWidth: '200px'
-            }}
+            placeholder="Name your capture..."
+            className="bg-transparent border-none text-white text-sm font-bold px-2 py-1 outline-none focus:ring-0 placeholder:text-slate-600 min-w-[240px]"
           />
         </div>
 
         {/* Save */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2 mr-4">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Workspace</span>
+            <select
+              value={selectedWorkspaceId}
+              onChange={(e) => setSelectedWorkspaceId(e.target.value)}
+              className="bg-slate-900 border border-slate-700 text-xs font-bold text-[#0CB2EB] px-2 py-1 rounded outline-none"
+            >
+              {workspaces.map((w) => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+          </div>
+
           <button
             onClick={handleSave}
             disabled={savingState === 'saving'}
-            className="btn-primary"
-            style={{ padding: '8px 16px', fontSize: '13px', gap: '6px' }}
+            className="btn-primary py-2 px-6 text-xs rounded-lg gap-2 shadow-[#0CB2EB]/20"
           >
             {savingState === 'saving' ? (
               <>
-                <div style={{ width: '12px', height: '12px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} className="glow-animation"></div>
-                <span>Saving...</span>
+                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span className="font-bold">Saving...</span>
               </>
             ) : (
-              <span>Save & Share</span>
+              <span className="font-bold uppercase tracking-widest text-[10px]">Save & Share</span>
             )}
           </button>
         </div>
       </header>
 
       {/* Editor Body */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
+      <div className="flex-1 flex overflow-hidden relative">
         
         {/* Left Toolbar */}
         {metadata?.type !== 'recording' && (
-          <div style={{
-            width: '64px',
-            borderRight: '1px solid var(--border-color)',
-            backgroundColor: '#131B2E',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: '20px 0',
-            gap: '12px',
-            zIndex: 5
-          }}>
-          {/* Tool buttons */}
-          <button 
-            onClick={() => setActiveTool('rectangle')}
-            style={{
-              width: '40px', height: '40px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-              backgroundColor: activeTool === 'rectangle' ? 'var(--primary)' : 'transparent',
-              color: activeTool === 'rectangle' ? 'white' : 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title="Rectangle"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            </svg>
-          </button>
+          <div className="w-20 border-r border-slate-800 bg-[#0F172A]/50 backdrop-blur-md flex flex-col items-center py-8 gap-4 z-10 sticky left-0">
+            {/* Tool buttons */}
+            {[
+              { id: 'rectangle', icon: <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>, label: 'Box' },
+              { id: 'circle', icon: <circle cx="12" cy="12" r="10"/>, label: 'Circle' },
+              { id: 'arrow', icon: <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>, label: 'Arrow' },
+              { id: 'highlight', icon: <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M7.5 10.5L12 6l4.5 4.5"/>, label: 'Brush' }
+            ].map((tool) => (
+              <button 
+                key={tool.id}
+                onClick={() => setActiveTool(tool.id as any)}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[#0CB2EB] text-white shadow-[0_0_15px_rgba(12,178,235,0.4)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
+                title={tool.label}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  {tool.icon}
+                </svg>
+              </button>
+            ))}
 
-          <button 
-            onClick={() => setActiveTool('circle')}
-            style={{
-              width: '40px', height: '40px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-              backgroundColor: activeTool === 'circle' ? 'var(--primary)' : 'transparent',
-              color: activeTool === 'circle' ? 'white' : 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title="Circle"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-            </svg>
-          </button>
+            <button 
+              onClick={() => setActiveTool('text')}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[#0CB2EB] text-white shadow-[0_0_15px_rgba(12,178,235,0.4)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
+              title="Text"
+            >
+              T
+            </button>
 
-          <button 
-            onClick={() => setActiveTool('arrow')}
-            style={{
-              width: '40px', height: '40px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-              backgroundColor: activeTool === 'arrow' ? 'var(--primary)' : 'transparent',
-              color: activeTool === 'arrow' ? 'white' : 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title="Arrow"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-          </button>
+            <div className="w-8 h-px bg-slate-800 my-4"></div>
 
-          <button 
-            onClick={() => setActiveTool('highlight')}
-            style={{
-              width: '40px', height: '40px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-              backgroundColor: activeTool === 'highlight' ? 'var(--primary)' : 'transparent',
-              color: activeTool === 'highlight' ? 'white' : 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title="Highlight Brush"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-              <path d="M7.5 10.5L12 6l4.5 4.5"/>
-            </svg>
-          </button>
-
-          <button 
-            onClick={() => setActiveTool('text')}
-            style={{
-              width: '40px', height: '40px', borderRadius: '8px', border: 'none', cursor: 'pointer',
-              backgroundColor: activeTool === 'text' ? 'var(--primary)' : 'transparent',
-              color: activeTool === 'text' ? 'white' : 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            title="Text Tool"
-          >
-            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>T</span>
-          </button>
-
-          <div style={{ width: '30px', height: '1px', backgroundColor: 'var(--border-color)', margin: '8px 0' }}></div>
-
-          {/* Color Palettes */}
-          {['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#FFFFFF', '#000000'].map((color) => (
-            <button
-              key={color}
-              onClick={() => setActiveColor(color)}
-              style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: color,
-                border: activeColor === color ? '2px solid white' : '1px solid var(--border-color)',
-                cursor: 'pointer',
-                boxShadow: activeColor === color ? '0 0 8px rgba(255,255,255,0.4)' : 'none'
-              }}
-            />
-          ))}
-        </div>
-      )}
+            {/* Color Palettes */}
+            <div className="flex flex-col gap-3">
+              {['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8A5CF6', '#FFFFFF', '#000000'].map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setActiveColor(color)}
+                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-125 ${activeColor === color ? 'border-white scale-125' : 'border-slate-800'}`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Edit Area / Canvas Container */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          overflow: 'auto',
-          backgroundColor: '#070A13',
-          padding: '24px',
-          position: 'relative'
-        }}>
+        <div className="flex-1 flex flex-col items-center justify-center overflow-auto bg-slate-950/50 p-6 md:p-12 relative">
           {/* Top Canvas Controls Bar (Undo/Redo/Clear) */}
           {metadata?.type !== 'recording' && (
-            <div className="glass-panel" style={{
-              position: 'absolute',
-              top: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.5)',
-              zIndex: 4
-            }}>
+            <div className="glass-panel absolute top-8 flex items-center gap-2 px-3 py-1.5 rounded-full border-slate-700/50 shadow-2xl z-10">
               <button 
                 onClick={handleUndo} 
                 disabled={historyIndex < 0}
-                className="btn-secondary" 
-                style={{ padding: '4px 8px', fontSize: '12px', border: 'none', opacity: historyIndex < 0 ? 0.4 : 1 }}
+                className="p-2 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                title="Undo (Ctrl+Z)"
               >
-                Undo (Ctrl+Z)
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
               </button>
               <button 
                 onClick={handleRedo} 
                 disabled={historyIndex >= history.length - 1}
-                className="btn-secondary" 
-                style={{ padding: '4px 8px', fontSize: '12px', border: 'none', opacity: historyIndex >= history.length - 1 ? 0.4 : 1 }}
+                className="p-2 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                title="Redo (Ctrl+Y)"
               >
-                Redo (Ctrl+Y)
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
               </button>
-              <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--border-color)' }}></div>
+              <div className="w-px h-4 bg-slate-800"></div>
               <button 
                 onClick={handleClear} 
-                className="btn-secondary" 
-                style={{ padding: '4px 8px', fontSize: '12px', border: 'none', color: 'var(--error)' }}
+                className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors"
               >
-                Clear
+                Clear All
               </button>
             </div>
           )}
  
           {/* Canvas Wrapper */}
-          <div style={{
-            position: 'relative',
-            boxShadow: '0 10px 45px rgba(0,0,0,0.6)',
-            borderRadius: '6px',
-            overflow: 'hidden',
-            backgroundColor: '#0F1626',
-            maxWidth: '100%',
-            maxHeight: 'calc(100vh - 160px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <div className="relative shadow-[0_30px_100px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden bg-slate-900 border border-slate-800 max-w-full max-h-full flex items-center justify-center">
             {metadata?.type === 'recording' ? (
               <video
                 src={imageSrc || undefined}
                 controls
                 autoPlay
-                style={{
-                  display: 'block',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain',
-                  backgroundColor: 'black'
-                }}
+                className="block max-w-full max-h-full object-contain bg-black"
               />
             ) : (
               <canvas
@@ -759,13 +652,7 @@ export default function EditorClient() {
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
-                style={{
-                  display: 'block',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain',
-                  cursor: activeTool === 'text' ? 'text' : 'crosshair'
-                }}
+                className={`block max-w-full max-h-full object-contain ${activeTool === 'text' ? 'cursor-text' : 'cursor-crosshair'}`}
               />
             )}
           </div>
@@ -774,20 +661,12 @@ export default function EditorClient() {
 
       {/* Saving Overlay */}
       {savingState === 'saving' && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(11, 15, 25, 0.85)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass-panel" style={{ padding: '30px', borderRadius: '16px', textAlign: 'center', maxWidth: '350px' }}>
-            <div className="glow-animation" style={{ width: '40px', height: '40px', border: '3px solid var(--primary)', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 20px auto' }}></div>
-            <h3 style={{ fontSize: '16px', margin: '0 0 10px 0' }}>Flattening & Saving</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
-              Applying annotations and uploading capture to your background task queue...
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel p-10 rounded-3xl max-w-xs w-full text-center border-slate-700 animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 rounded-full border-4 border-[#0CB2EB]/20 border-t-[#0CB2EB] animate-spin mx-auto mb-6"></div>
+            <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Saving Media</h3>
+            <p className="text-slate-400 text-sm font-medium leading-relaxed">
+              Applying annotations and uploading to your Google Drive...
             </p>
           </div>
         </div>
@@ -795,26 +674,19 @@ export default function EditorClient() {
 
       {/* Error Modal */}
       {savingState === 'error' && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, width: '100vw', height: '100vh',
-          backgroundColor: 'rgba(11, 15, 25, 0.8)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass-panel" style={{ padding: '30px', borderRadius: '16px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
-            <h3 style={{ color: 'var(--error)', margin: '0 0 12px 0' }}>Save Failed</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>{savingError}</p>
-            <button onClick={() => setSavingState('idle')} className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel p-10 rounded-3xl max-w-sm w-full text-center border-red-500/50 animate-in fade-in zoom-in duration-300">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3 className="text-xl font-black text-white mb-3">Upload Failed</h3>
+            <p className="text-slate-400 text-sm mb-8 font-medium">{savingError}</p>
+            <button onClick={() => setSavingState('idle')} className="btn-primary w-full py-3 rounded-xl font-black uppercase tracking-widest text-[10px]">
               Try Again
             </button>
           </div>
         </div>
       )}
-
-
 
     </div>
   );

@@ -13,27 +13,14 @@ export default function CallbackRedirect({ code }: CallbackRedirectProps) {
   }, [code]);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#0B0F19',
-      color: '#94A3B8',
-      fontFamily: 'sans-serif'
-    }}>
-      <div className="glow-animation" style={{
-        width: '40px',
-        height: '40px',
-        border: '3px solid var(--primary)',
-        borderTopColor: 'transparent',
-        borderRadius: '50%',
-        marginBottom: '20px'
-      }}></div>
-      <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: 'var(--primary)' }}>
-        Connecting your Google Account...
-      </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F172A] text-slate-200 font-sans">
+      <div className="flex flex-col items-center gap-6">
+        <div className="w-12 h-12 border-4 border-slate-800 border-t-[#0CB2EB] rounded-full animate-spin shadow-[0_0_20px_rgba(12,178,235,0.2)]"></div>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm font-black uppercase tracking-widest text-[#0CB2EB]">Connecting Account</p>
+          <p className="text-xs text-slate-500 font-medium">Please wait while we sync with Google...</p>
+        </div>
+      </div>
     </div>
   );
 }

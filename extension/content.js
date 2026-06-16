@@ -224,30 +224,32 @@ function initScreenshotSelection() {
   selectionBox.id = 'jam-screenshot-selection';
   selectionBox.style.cssText = `
     position: absolute;
-    border: 2px dashed #10B981;
-    background: rgba(16, 185, 129, 0.15);
+    border: 2px dashed #0CB2EB;
+    background: rgba(12, 178, 235, 0.15);
     display: none;
     pointer-events: none;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
   `;
   overlay.appendChild(selectionBox);
 
   const tip = document.createElement('div');
   tip.style.cssText = `
     position: absolute;
-    top: 20px;
+    top: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: #0B0F19;
+    background: #0F172A;
     color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-family: sans-serif;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    border: 1px solid #232D3F;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   `;
   tip.textContent = 'Klik & seret mouse untuk memilih area tangkapan layar';
   overlay.appendChild(tip);
@@ -407,17 +409,17 @@ function showFloatingControls() {
   floatingPanel.id = 'jam-floating-controls';
   floatingPanel.style.cssText = `
     position: fixed;
-    bottom: 24px;
-    right: 24px;
+    bottom: 32px;
+    right: 32px;
     z-index: 2147483647;
-    background: #0B0F19;
-    border: 1px solid #232D3F;
-    border-radius: 10px;
-    padding: 10px 16px;
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+    gap: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: white;
     user-select: none;
@@ -464,8 +466,8 @@ function showFloatingControls() {
   const divider = document.createElement('div');
   divider.style.cssText = `
     width: 1px;
-    height: 16px;
-    background: #232D3F;
+    height: 20px;
+    background: #334155;
   `;
   floatingPanel.appendChild(divider);
 
@@ -473,19 +475,29 @@ function showFloatingControls() {
   const pauseBtn = document.createElement('button');
   pauseBtn.id = 'jam-floating-btn-pause';
   pauseBtn.style.cssText = `
-    background: #1F2736;
-    border: 1px solid #232D3F;
+    background: #1E293B;
+    border: 1px solid #334155;
     color: white;
-    border-radius: 6px;
-    padding: 5px 10px;
+    border-radius: 8px;
+    padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
-    font-weight: 600;
-    transition: background 0.15s;
+    font-weight: 800;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   `;
   pauseBtn.textContent = 'Pause';
-  pauseBtn.addEventListener('mouseenter', () => pauseBtn.style.background = '#2A344A');
-  pauseBtn.addEventListener('mouseleave', () => pauseBtn.style.background = '#1F2736');
+  pauseBtn.addEventListener('mouseenter', () => {
+    pauseBtn.style.background = '#334155';
+    pauseBtn.style.borderColor = '#0CB2EB';
+  });
+  pauseBtn.addEventListener('mouseleave', () => {
+    if (!isPaused) {
+      pauseBtn.style.background = '#1E293B';
+      pauseBtn.style.borderColor = '#334155';
+    }
+  });
   
   pauseBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
@@ -501,8 +513,9 @@ function showFloatingControls() {
         if (res && res.success) {
           isPaused = true;
           pauseBtn.textContent = 'Resume';
-          pauseBtn.style.borderColor = '#10B981';
-          pauseBtn.style.color = '#34D399';
+          pauseBtn.style.borderColor = '#8A5CF6';
+          pauseBtn.style.color = '#C4B5FD';
+          pauseBtn.style.background = 'rgba(138, 92, 246, 0.1)';
           dot.classList.remove('jam-blinking');
           dot.style.background = '#F59E0B'; // Indikator warna orange saat pause
           clearInterval(timerInterval);
@@ -517,8 +530,9 @@ function showFloatingControls() {
         if (res && res.success) {
           isPaused = false;
           pauseBtn.textContent = 'Pause';
-          pauseBtn.style.borderColor = '#232D3F';
+          pauseBtn.style.borderColor = '#334155';
           pauseBtn.style.color = 'white';
+          pauseBtn.style.background = '#1E293B';
           dot.classList.add('jam-blinking');
           dot.style.background = '#EF4444';
           startTimer(timerText, dot);
@@ -535,16 +549,25 @@ function showFloatingControls() {
     background: #EF4444;
     border: none;
     color: white;
-    border-radius: 6px;
-    padding: 5px 10px;
+    border-radius: 8px;
+    padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
-    font-weight: 600;
-    transition: background 0.15s;
+    font-weight: 800;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   `;
   stopBtn.textContent = 'Stop';
-  stopBtn.addEventListener('mouseenter', () => stopBtn.style.background = '#DC2626');
-  stopBtn.addEventListener('mouseleave', () => stopBtn.style.background = '#EF4444');
+  stopBtn.addEventListener('mouseenter', () => {
+    stopBtn.style.transform = 'translateY(-1px)';
+    stopBtn.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
+  });
+  stopBtn.addEventListener('mouseleave', () => {
+    stopBtn.style.transform = 'translateY(0)';
+    stopBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+  });
   
   stopBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
