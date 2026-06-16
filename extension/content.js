@@ -1,8 +1,18 @@
+// Helper to check if extension context is still valid (not invalidated due to extension reload/update)
+function isExtensionValid() {
+  try {
+    return typeof chrome !== 'undefined' && chrome.runtime && !!chrome.runtime.id;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Global error handling to log content script errors to server
 window.addEventListener('error', (event) => {
   // Only handle content script errors, avoid capturing target page errors here
   if (event.filename && event.filename.includes('chrome-extension://')) {
     try {
+      if (!isExtensionValid()) return;
       chrome.runtime.sendMessage({
         action: 'WRITE_LOG_TO_SERVER',
         payload: { level: 'error', context: 'content-script', message: `Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}` }
@@ -36,6 +46,7 @@ let isPaused = false;
 // 2. Jembatan Komunikasi: Halaman Utama -> Content Script -> Background Service Worker
 window.addEventListener('message', function (event) {
   if (event.data && event.data.source === 'jam-injected-script') {
+    if (!isExtensionValid()) return;
     chrome.runtime.sendMessage({
       source: 'jam-extension-content',
       type: event.data.type,
@@ -87,11 +98,13 @@ if (isLoomoHost) {
   // Close the popup window when the web app dispatches the loomo_close_window event
   window.addEventListener('loomo_close_window', () => {
     console.log('[Jam Extension Content] Menutup jendela popup sesuai permintaan Loomo app...');
+    if (!isExtensionValid()) return;
     chrome.runtime.sendMessage({ action: 'CLOSE_CURRENT_WINDOW' });
   });
 }
 
 function syncSession() {
+  if (!isExtensionValid()) return;
   const session = localStorage.getItem('gdrive_user_session');
   if (session) {
     try {
@@ -111,6 +124,7 @@ function syncSession() {
 
 async function importPendingJamFromExtension() {
   console.log('[Jam Extension Content] Mendeteksi data transfer ke backoffice...');
+  if (!isExtensionValid()) return;
   
   chrome.runtime.sendMessage({ action: 'GET_PENDING_JAM' }, async (response) => {
     if (chrome.runtime.lastError) {
@@ -284,6 +298,11 @@ function initScreenshotSelection() {
       return;
     }
 
+    if (!isExtensionValid()) {
+      alert('Extension context is no longer active. Please reload the page to take a screenshot.');
+      return;
+    }
+
     chrome.runtime.sendMessage({
       source: 'jam-extension-content',
       action: 'CAPTURE_VISIBLE_TAB'
@@ -367,6 +386,8 @@ function saveScreenshotJam(imageBase64, width, height) {
     networkRequests: [],
     userActions: []
   };
+
+  if (!isExtensionValid()) return;
 
   chrome.runtime.sendMessage({
     source: 'jam-extension-content',
@@ -464,6 +485,10 @@ function showFloatingControls() {
   pauseBtn.addEventListener('mouseleave', () => pauseBtn.style.background = '#1F2736');
   
   pauseBtn.addEventListener('click', () => {
+    if (!isExtensionValid()) {
+      alert('Extension context is no longer active. Please reload the page to control recording.');
+      return;
+    }
     if (!isPaused) {
       // Jeda Perekaman (Pause)
       chrome.runtime.sendMessage({
@@ -519,6 +544,10 @@ function showFloatingControls() {
   stopBtn.addEventListener('mouseleave', () => stopBtn.style.background = '#EF4444');
   
   stopBtn.addEventListener('click', () => {
+    if (!isExtensionValid()) {
+      alert('Extension context is no longer active. Please reload the page to control recording.');
+      return;
+    }
     chrome.runtime.sendMessage({
       source: 'jam-extension-content',
       action: 'STOP_RECORDING'
