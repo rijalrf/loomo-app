@@ -270,12 +270,6 @@ export default function DashboardClient({
 
   // Modals & Popups
   const [activeMediaViewer, setActiveMediaViewer] = useState<Media | null>(null);
-  const [showMembersModal, setShowMembersModal] = useState(false);
-  const [members, setMembers] = useState<Member[]>([]);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'MEMBER' | 'OWNER'>('MEMBER');
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const [inviteSuccess, setInviteSuccess] = useState(false);
   
   // Sharing Dialog
   const [showShareModal, setShowShareModal] = useState<Media | null>(null);
@@ -362,25 +356,7 @@ export default function DashboardClient({
     };
   }, [mediaList]);
 
-  // Load Workspace Members
-  const fetchMembers = async () => {
-    if (!activeWorkspaceId) return;
-    try {
-      const res = await fetch(`/api/workspace/members?workspaceId=${activeWorkspaceId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMembers(data.members);
-      }
-    } catch (e) {
-      clientLogger.error('dashboard-client', 'Failed to fetch workspace members:', e);
-    }
-  };
 
-  useEffect(() => {
-    if (showMembersModal) {
-      fetchMembers();
-    }
-  }, [showMembersModal, activeWorkspaceId]);
 
   // Actions
   const handleRename = async (id: string) => {
@@ -438,56 +414,7 @@ export default function DashboardClient({
     }
   };
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setInviteError(null);
-    setInviteSuccess(false);
 
-    try {
-      const res = await fetch('/api/workspace/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: inviteEmail,
-          role: inviteRole,
-          workspaceId: activeWorkspaceId
-        })
-      });
-      
-      const data = await res.json();
-      if (res.ok) {
-        toast.success(`Invitation sent successfully to ${inviteEmail}`);
-        setInviteSuccess(true);
-        setInviteEmail('');
-        fetchMembers();
-      } else {
-        toast.error(data.error || 'Invitation failed');
-        setInviteError(data.error || 'Invitation failed');
-      }
-    } catch (err) {
-      toast.error('Network error. Failed to send invitation.');
-      setInviteError('Network error');
-    }
-  };
-
-  const handleRemoveMember = async (membershipId: string) => {
-    if (!confirm('Remove this member from the workspace?')) return;
-    try {
-      const res = await fetch(`/api/workspace/members/${membershipId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        toast.success('Member removed successfully');
-        fetchMembers();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to remove member');
-      }
-    } catch (e) {
-      toast.error('Failed to remove member');
-      clientLogger.error('dashboard-client', 'Failed to remove member:', e);
-    }
-  };
 
   const handleShareLink = async (media: Media) => {
     if (media.shareToken) {
@@ -600,7 +527,7 @@ export default function DashboardClient({
             </button>
 
             <button
-              onClick={() => setShowMembersModal(true)}
+              onClick={() => router.push('/settings')}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
             >
               <Settings size={18} />
@@ -1068,119 +995,7 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* Workspace Members Modal */}
-      {showMembersModal && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-xl bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 animate-in fade-in zoom-in duration-300">
-            <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-xl font-black text-white tracking-tight">Workspace Members</h3>
-              <button 
-                onClick={() => { setShowMembersModal(false); setInviteError(null); setInviteSuccess(false); }}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition-all"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
 
-            <div className="p-8">
-              {/* Invite New Member */}
-              {activeWorkspace?.isOwner && (
-                <form onSubmit={handleInvite} className="bg-slate-950/50 border border-slate-800 p-6 rounded-2xl mb-8">
-                  <h4 className="text-xs font-black text-[#0CB2EB] uppercase tracking-widest mb-4">Invite New Member</h4>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      type="email"
-                      placeholder="Email address..."
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      className="input-text flex-1 bg-slate-900 border-slate-800 focus:border-[#0CB2EB]"
-                      required
-                    />
-                    <CustomSelect
-                      value={inviteRole}
-                      onChange={(val) => setInviteRole(val as any)}
-                      options={[
-                        { value: 'MEMBER', label: 'Member' },
-                        { value: 'OWNER', label: 'Owner' }
-                      ]}
-                      size="sm"
-                      buttonClassName="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold outline-none flex items-center justify-between gap-2 cursor-pointer focus:border-[#0CB2EB] transition-all"
-                    />
-                    <button type="submit" className="btn-primary py-2 px-6 rounded-lg text-sm shadow-[#0CB2EB]/20">
-                      Invite
-                    </button>
-                  </div>
-
-                  {inviteError && (
-                    <div className="text-red-400 text-xs mt-3 font-bold flex items-center gap-2">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                      {inviteError}
-                    </div>
-                  )}
-                  {inviteSuccess && (
-                    <div className="text-[#0CB2EB] text-xs mt-3 font-bold flex items-center gap-2">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      Invitation sent successfully!
-                    </div>
-                  )}
-                </form>
-              )}
-
-              {/* Members List */}
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                {members.map((member) => (
-                  <div 
-                    key={member.membershipId}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-slate-800/20 border border-slate-800/50"
-                  >
-                    <div className="flex items-center gap-4">
-                      {member.avatarUrl ? (
-                        <img 
-                          src={member.avatarUrl} 
-                          alt={member.displayName}
-                          className="w-10 h-10 rounded-full border border-slate-700" 
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-black text-white">
-                          {member.displayName[0]}
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-sm font-bold text-white flex items-center gap-2">
-                          {member.displayName}
-                          {!member.accepted && (
-                            <span className="text-[9px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase font-black tracking-tighter">
-                              Pending
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-slate-500 font-medium">{member.email}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <span className="text-[10px] font-black text-[#8A5CF6] uppercase tracking-widest bg-[#8A5CF6]/5 px-2 py-0.5 rounded-full border border-[#8A5CF6]/10">
-                        {member.role}
-                      </span>
-
-                      {activeWorkspace?.isOwner && member.userId !== initialUser.id && (
-                        <button
-                          onClick={() => handleRemoveMember(member.membershipId)}
-                          className="text-slate-500 hover:text-red-400 transition-colors p-1"
-                          title="Remove from workspace"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Share Link Modal */}
       {showShareModal && (
