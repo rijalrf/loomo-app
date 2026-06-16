@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
+import { toast } from 'sonner';
 
 interface User {
   id: string;
@@ -253,10 +254,13 @@ export default function DashboardClient({
         method: 'DELETE'
       });
       if (!res.ok) {
-        alert('Failed to delete media');
+        toast.error('Failed to delete media');
         fetchMedia(); // restore
+      } else {
+        toast.success('Media queued for deletion successfully');
       }
     } catch (e) {
+      toast.error('Failed to delete media');
       clientLogger.error('dashboard-client', 'Failed to delete media:', e);
       fetchMedia();
     }
@@ -280,13 +284,16 @@ export default function DashboardClient({
       
       const data = await res.json();
       if (res.ok) {
+        toast.success(`Invitation sent successfully to ${inviteEmail}`);
         setInviteSuccess(true);
         setInviteEmail('');
         fetchMembers();
       } else {
+        toast.error(data.error || 'Invitation failed');
         setInviteError(data.error || 'Invitation failed');
       }
     } catch (err) {
+      toast.error('Network error. Failed to send invitation.');
       setInviteError('Network error');
     }
   };
@@ -298,12 +305,14 @@ export default function DashboardClient({
         method: 'DELETE'
       });
       if (res.ok) {
+        toast.success('Member removed successfully');
         fetchMembers();
       } else {
         const data = await res.json();
-        alert(data.error || 'Failed to remove member');
+        toast.error(data.error || 'Failed to remove member');
       }
     } catch (e) {
+      toast.error('Failed to remove member');
       clientLogger.error('dashboard-client', 'Failed to remove member:', e);
     }
   };
@@ -322,8 +331,12 @@ export default function DashboardClient({
           const updatedMedia = { ...media, shareToken: data.shareToken, visibility: data.visibility };
           setMediaList(prev => prev.map(m => m.id === media.id ? updatedMedia : m));
           setShowShareModal(updatedMedia);
+          toast.success('Share link generated successfully');
+        } else {
+          toast.error('Failed to generate share link');
         }
       } catch (e) {
+        toast.error('Failed to generate share link');
         clientLogger.error('dashboard-client', 'Failed to create share link:', e);
       }
     }
@@ -336,10 +349,14 @@ export default function DashboardClient({
         method: 'DELETE'
       });
       if (res.ok) {
+        toast.success('Share link revoked successfully');
         setMediaList(prev => prev.map(m => m.id === media.id ? { ...m, shareToken: null } : m));
         setShowShareModal(null);
+      } else {
+        toast.error('Failed to revoke share link');
       }
     } catch (e) {
+      toast.error('Failed to revoke share link');
       clientLogger.error('dashboard-client', 'Failed to revoke share link:', e);
     }
   };
@@ -347,6 +364,7 @@ export default function DashboardClient({
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
+    toast.success('Copied to clipboard');
     setTimeout(() => setCopiedId(null), 2000);
   };
 

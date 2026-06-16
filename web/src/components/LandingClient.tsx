@@ -1,5 +1,7 @@
 'use client';
 
+import { toast } from 'sonner';
+
 export default function LandingClient() {
   const handleLogin = () => {
     window.location.href = '/api/auth/google';
@@ -183,7 +185,7 @@ export default function LandingClient() {
             fontSize: '13px',
             fontWeight: '600',
             cursor: 'pointer'
-          }} onClick={() => alert('Loomo Chrome Extension is ready! Load the folder "extension" inside Chrome developer mode.')}>
+          }} onClick={() => toast.info('Loomo Chrome Extension is ready! Load the folder "extension" inside Chrome developer mode.')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10a10 10 0 0 0-10-10z"/>
               <path d="M12 6v12M6 12h12"/>
