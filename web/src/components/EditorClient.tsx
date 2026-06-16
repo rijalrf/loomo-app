@@ -5,6 +5,77 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexeddb';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
+import { ChevronDown, Check } from 'lucide-react';
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  className = ""
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  className?: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selected = options.find(o => o.value === value);
+
+  return (
+    <div className={`relative inline-block ${className}`} ref={ref}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between gap-1.5 bg-slate-900 border border-slate-700 text-xs font-bold text-[#0CB2EB] px-2 py-1 rounded outline-none cursor-pointer"
+      >
+        <span>{selected ? selected.label : 'Select...'}</span>
+        <ChevronDown size={12} className="text-slate-500" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-1 z-50 min-w-[140px] bg-[#0B0F19]/95 backdrop-blur-md border border-slate-800 rounded-lg shadow-2xl p-1 animate-in fade-in duration-150">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-md text-xs font-bold transition-colors ${
+                option.value === value
+                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <span className="flex-1 truncate text-left">{option.label}</span>
+              {option.value === value && (
+                <Check size={12} className="text-[#0CB2EB]" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface Annotation {
   id: string;
@@ -529,15 +600,11 @@ export default function EditorClient() {
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2 mr-4">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Workspace</span>
-            <select
+            <CustomSelect
               value={selectedWorkspaceId}
-              onChange={(e) => setSelectedWorkspaceId(e.target.value)}
-              className="bg-slate-900 border border-slate-700 text-xs font-bold text-[#0CB2EB] px-2 py-1 rounded outline-none"
-            >
-              {workspaces.map((w) => (
-                <option key={w.id} value={w.id}>{w.name}</option>
-              ))}
-            </select>
+              onChange={(val) => setSelectedWorkspaceId(val)}
+              options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
+            />
           </div>
 
           <button

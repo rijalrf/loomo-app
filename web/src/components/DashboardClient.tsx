@@ -4,6 +4,178 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
+import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown, Settings } from 'lucide-react';
+
+interface SelectOption<T> {
+  value: T;
+  label: string;
+  icon?: React.ReactNode;
+}
+
+interface CustomSelectProps<T> {
+  value: T;
+  onChange: (value: T) => void;
+  options: SelectOption<T>[];
+  className?: string;
+  buttonClassName?: string;
+  placeholder?: string;
+  size?: 'sm' | 'md';
+  align?: 'left' | 'right';
+}
+
+function CustomSelect<T extends string | number>({
+  value,
+  onChange,
+  options,
+  className = '',
+  buttonClassName = '',
+  placeholder = 'Select option',
+  size = 'md',
+  align = 'left'
+}: CustomSelectProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(o => o.value === value);
+
+  const py = size === 'sm' ? 'py-1.5' : 'py-2.5';
+  const px = size === 'sm' ? 'px-2.5' : 'px-4';
+  const text = size === 'sm' ? 'text-xs' : 'text-sm';
+  const rounded = size === 'sm' ? 'rounded-lg' : 'rounded-xl';
+
+  const defaultBtnClass = `w-full flex items-center justify-between gap-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white ${px} ${py} ${rounded} ${text} font-semibold outline-none focus:border-[#0CB2EB] focus:ring-1 focus:ring-[#0CB2EB] transition-all cursor-pointer`;
+
+  return (
+    <div className={`relative inline-block ${className}`} ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={buttonClassName || defaultBtnClass}
+      >
+        <span className="flex items-center gap-2 truncate">
+          {selectedOption?.icon}
+          {selectedOption ? selectedOption.label : placeholder}
+        </span>
+        <ChevronDown
+          size={size === 'sm' ? 14 : 16}
+          className={`text-slate-500 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className={`absolute z-50 mt-2 min-w-full w-max max-w-[280px] bg-[#0B0F19]/95 backdrop-blur-xl border border-slate-800 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] p-1 animate-in fade-in slide-in-from-top-1 duration-150 ${align === 'right' ? 'right-0' : 'left-0'}`}>
+          <div className="max-h-60 overflow-y-auto custom-scrollbar">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors ${
+                  option.value === value
+                    ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
+                    : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
+                }`}
+              >
+                {option.icon}
+                <span className="flex-1 truncate">{option.label}</span>
+                {option.value === value && (
+                  <Check size={14} className="text-[#0CB2EB] shrink-0" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MediaVisibilitySelect({
+  value,
+  onChange,
+  direction = 'down'
+}: {
+  value: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
+  onChange: (value: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY') => void;
+  direction?: 'up' | 'down';
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const options = {
+    PRIVATE: { label: 'Private', color: 'bg-slate-500' },
+    UNLISTED: { label: 'Unlisted', color: 'bg-[#0CB2EB]' },
+    WORKSPACE_ONLY: { label: 'Workspace', color: 'bg-[#8A5CF6]' }
+  };
+
+  const current = options[value];
+
+  return (
+    <div className="relative inline-block text-left" ref={containerRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1.5 bg-transparent text-[11px] font-bold text-slate-400 outline-none cursor-pointer uppercase tracking-tight hover:text-white transition-all"
+      >
+        <span className={`w-1.5 h-1.5 rounded-full ${current.color}`}></span>
+        <span>{current.label}</span>
+        <ChevronDown size={10} className="text-slate-500" />
+      </button>
+
+      {isOpen && (
+        <div className={`absolute ${direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 z-50 w-32 bg-[#0B0F19]/95 backdrop-blur-xl border border-slate-800 rounded-lg shadow-2xl p-1 animate-in fade-in duration-150`}>
+          {(Object.keys(options) as Array<keyof typeof options>).map((optKey) => {
+            const opt = options[optKey];
+            return (
+              <button
+                key={optKey}
+                type="button"
+                onClick={() => {
+                  onChange(optKey);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors ${
+                  optKey === value
+                    ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${opt.color}`}></span>
+                <span className="flex-1 text-left">{opt.label}</span>
+                {optKey === value && (
+                  <Check size={10} className="text-[#0CB2EB]" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface User {
   id: string;
@@ -98,12 +270,6 @@ export default function DashboardClient({
 
   // Modals & Popups
   const [activeMediaViewer, setActiveMediaViewer] = useState<Media | null>(null);
-  const [showMembersModal, setShowMembersModal] = useState(false);
-  const [members, setMembers] = useState<Member[]>([]);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'MEMBER' | 'OWNER'>('MEMBER');
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const [inviteSuccess, setInviteSuccess] = useState(false);
   
   // Sharing Dialog
   const [showShareModal, setShowShareModal] = useState<Media | null>(null);
@@ -118,6 +284,7 @@ export default function DashboardClient({
 
   // Active Workspace
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
+  const totalPages = Math.ceil(totalMedia / 10);
 
   // Load Media List on workspace/filter change
   const fetchMedia = async () => {
@@ -125,7 +292,7 @@ export default function DashboardClient({
       const queryParams = new URLSearchParams({
         workspaceId: activeWorkspaceId,
         page: String(page),
-        limit: '20'
+        limit: '10'
       });
       if (filterType !== 'ALL') queryParams.append('type', filterType.toLowerCase());
       if (filterStatus !== 'ALL') queryParams.append('status', filterStatus.toLowerCase());
@@ -190,25 +357,7 @@ export default function DashboardClient({
     };
   }, [mediaList]);
 
-  // Load Workspace Members
-  const fetchMembers = async () => {
-    if (!activeWorkspaceId) return;
-    try {
-      const res = await fetch(`/api/workspace/members?workspaceId=${activeWorkspaceId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMembers(data.members);
-      }
-    } catch (e) {
-      clientLogger.error('dashboard-client', 'Failed to fetch workspace members:', e);
-    }
-  };
 
-  useEffect(() => {
-    if (showMembersModal) {
-      fetchMembers();
-    }
-  }, [showMembersModal, activeWorkspaceId]);
 
   // Actions
   const handleRename = async (id: string) => {
@@ -266,56 +415,7 @@ export default function DashboardClient({
     }
   };
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setInviteError(null);
-    setInviteSuccess(false);
 
-    try {
-      const res = await fetch('/api/workspace/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: inviteEmail,
-          role: inviteRole,
-          workspaceId: activeWorkspaceId
-        })
-      });
-      
-      const data = await res.json();
-      if (res.ok) {
-        toast.success(`Invitation sent successfully to ${inviteEmail}`);
-        setInviteSuccess(true);
-        setInviteEmail('');
-        fetchMembers();
-      } else {
-        toast.error(data.error || 'Invitation failed');
-        setInviteError(data.error || 'Invitation failed');
-      }
-    } catch (err) {
-      toast.error('Network error. Failed to send invitation.');
-      setInviteError('Network error');
-    }
-  };
-
-  const handleRemoveMember = async (membershipId: string) => {
-    if (!confirm('Remove this member from the workspace?')) return;
-    try {
-      const res = await fetch(`/api/workspace/members/${membershipId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        toast.success('Member removed successfully');
-        fetchMembers();
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to remove member');
-      }
-    } catch (e) {
-      toast.error('Failed to remove member');
-      clientLogger.error('dashboard-client', 'Failed to remove member:', e);
-    }
-  };
 
   const handleShareLink = async (media: Media) => {
     if (media.shareToken) {
@@ -377,78 +477,122 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0F172A] text-slate-200">
-      {/* Navbar */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-50">
-        {/* Logo and Workspace Selector */}
-        <div className="flex items-center gap-6">
+    <div className="min-h-screen flex bg-[#0F172A] text-slate-200">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-slate-800 bg-[#0B0F19] flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30">
+        <div className="flex flex-col gap-6 p-6">
+          {/* Logo */}
           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => router.push('/')}>
             <img src="/logo.png" alt="Loomo Logo" className="w-7 h-7 object-contain transition-transform group-hover:scale-110" />
             <span className="text-xl font-black tracking-tighter text-white">Loomo</span>
           </div>
 
-          <div className="w-px h-5 bg-slate-800"></div>
+          <div className="h-px bg-slate-800"></div>
 
           {/* Workspace Switcher */}
-          <div className="flex items-center gap-3">
-            <select
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Workspace</label>
+            <CustomSelect
               value={activeWorkspaceId}
-              onChange={(e) => {
-                setActiveWorkspaceId(e.target.value);
+              onChange={(val) => {
+                setActiveWorkspaceId(val);
                 setPage(1);
               }}
-              className="bg-[#1E293B] border border-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-colors cursor-pointer"
+              options={workspaces.map(w => ({
+                value: w.id,
+                label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
+                icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
+              }))}
+              className="w-full"
+              buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
+            />
+          </div>
+
+          {/* Sidebar Menu */}
+          <nav className="flex flex-col gap-1.5 mt-4">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Navigation</label>
+            
+            <button
+              onClick={() => {
+                setFilterType('ALL');
+                setPage(1);
+              }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'ALL'
+                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
             >
-              {workspaces.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name} {w.isOwner ? '(Owner)' : ''}
-                </option>
-              ))}
-            </select>
+              <Folder size={18} />
+              <span>All Media</span>
+            </button>
 
             <button
-              onClick={() => setShowMembersModal(true)}
-              className="btn-secondary py-1.5 px-3 text-xs gap-1.5 border-slate-700 hover:border-[#0CB2EB]"
+              onClick={() => router.push('/settings')}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-              <span>Members</span>
+              <Settings size={18} />
+              <span>Settings</span>
             </button>
-          </div>
+
+            <a
+              href="/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+            >
+              <BookOpen size={18} />
+              <span>Documentation</span>
+            </a>
+          </nav>
         </div>
 
-        {/* Profile Info and Logout */}
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex flex-col items-end">
-            <div className="text-sm font-bold text-white leading-none">{initialUser.displayName}</div>
-            <div className="text-[10px] text-slate-500 font-medium">{initialUser.email}</div>
-          </div>
-          {initialUser.avatarUrl ? (
-            <img 
-              src={initialUser.avatarUrl} 
-              alt={initialUser.displayName} 
-              className="w-9 h-9 rounded-full border border-slate-700 p-0.5"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-white border border-slate-700">
-              {initialUser.displayName[0]}
-            </div>
-          )}
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-slate-800 bg-[#080D16]/50">
           <button
             onClick={handleLogout}
-            className="text-xs font-bold text-slate-500 hover:text-red-400 transition-colors"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
           >
-            Sign Out
+            <LogOut size={14} />
+            <span>Sign Out</span>
           </button>
         </div>
-      </header>
+      </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Top Header */}
+        <header className="flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <span className="px-2.5 py-1 bg-slate-800/80 rounded-md text-[10px] font-black uppercase text-[#0CB2EB] tracking-wider border border-slate-700/60">
+              Dashboard
+            </span>
+            <span className="text-slate-600">/</span>
+            <span className="text-sm text-slate-300 font-bold">{activeWorkspace?.name}</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-col items-end">
+              <div className="text-sm font-bold text-white leading-none">{initialUser.displayName}</div>
+              <div className="text-[10px] text-slate-500 font-medium">{initialUser.email}</div>
+            </div>
+            {initialUser.avatarUrl ? (
+              <img 
+                src={initialUser.avatarUrl} 
+                alt={initialUser.displayName} 
+                className="w-9 h-9 rounded-full border border-slate-700 p-0.5"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-white border border-slate-700">
+                {initialUser.displayName[0]}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Content Body */}
+        <main className="flex-1 p-6 md:p-10 w-full">
         
         {/* Title and stats */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -463,76 +607,79 @@ export default function DashboardClient({
         </div>
 
         {/* Toolbar: Search, Filters, Sorting, Toggle View */}
-        <div className="glass-panel p-4 rounded-xl flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 border-slate-800">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 w-full">
           {/* Search and Filters */}
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto flex-1">
             <div className="relative flex-1 min-w-[240px]">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-              </svg>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
                 type="text"
                 placeholder="Search captures..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-text w-full pl-10 text-sm bg-slate-900/50"
+                className="w-full bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-white pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none focus:bg-slate-900/80 focus:border-[#0CB2EB] focus:ring-1 focus:ring-[#0CB2EB] transition-all"
               />
             </div>
 
-            <select
+            <CustomSelect
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
-              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB]"
-            >
-              <option value="ALL">All Types</option>
-              <option value="SCREENSHOT">Screenshots</option>
-              <option value="RECORDING">Recordings</option>
-            </select>
+              onChange={(val) => {
+                setFilterType(val as any);
+                setPage(1);
+              }}
+              options={[
+                { value: 'ALL', label: 'All Types', icon: <Folder size={14} className="text-slate-400" /> },
+                { value: 'SCREENSHOT', label: 'Screenshots', icon: <ImageIcon size={14} className="text-[#0CB2EB]" /> },
+                { value: 'RECORDING', label: 'Recordings', icon: <Video size={14} className="text-[#8A5CF6]" /> }
+              ]}
+              className="w-full sm:w-auto"
+            />
 
-            <select
+            <CustomSelect
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB]"
-            >
-              <option value="ALL">Any Status</option>
-              <option value="READY">Ready</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="FAILED">Failed</option>
-            </select>
+              onChange={(val) => {
+                setFilterStatus(val as any);
+                setPage(1);
+              }}
+              options={[
+                { value: 'ALL', label: 'Any Status', icon: <Folder size={14} className="text-slate-400" /> },
+                { value: 'READY', label: 'Ready', icon: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> },
+                { value: 'PROCESSING', label: 'Processing', icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB] animate-pulse" /> },
+                { value: 'FAILED', label: 'Failed', icon: <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> }
+              ]}
+              className="w-full sm:w-auto"
+            />
           </div>
 
           {/* Sorting and Toggle */}
           <div className="flex items-center gap-3 w-full lg:w-auto">
-            <select
+            <CustomSelect
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-slate-900 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-sm font-medium outline-none focus:border-[#0CB2EB] flex-1 lg:flex-none"
-            >
-              <option value="DATE_DESC">Recently Captured</option>
-              <option value="DATE_ASC">Oldest First</option>
-              <option value="NAME_ASC">Name (A-Z)</option>
-              <option value="SIZE_DESC">File Size</option>
-            </select>
+              onChange={(val) => setSortBy(val as any)}
+              options={[
+                { value: 'DATE_DESC', label: 'Recently Captured' },
+                { value: 'DATE_ASC', label: 'Oldest First' },
+                { value: 'NAME_ASC', label: 'Name (A-Z)' },
+                { value: 'SIZE_DESC', label: 'File Size' }
+              ]}
+              className="w-full lg:w-auto flex-1 lg:flex-none"
+            />
 
             {/* View Toggle */}
-            <div className="flex bg-slate-900 border border-slate-700 rounded-lg p-1">
+            <div className="flex bg-slate-900/40 border border-slate-800 rounded-xl p-1 shrink-0">
               <button
                 onClick={() => setIsGridView(true)}
-                className={`p-1.5 rounded-md transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="Grid View"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                </svg>
+                <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setIsGridView(false)}
-                className={`p-1.5 rounded-md transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="List View"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
+                <List size={18} />
               </button>
             </div>
           </div>
@@ -585,19 +732,11 @@ export default function DashboardClient({
                           alt={media.title}
                           className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        {/* Type Indicator Overlay */}
-                        <div className="absolute top-2 left-2 z-10">
-                          <span className={`px-2 py-1 rounded-md text-[10px] font-black tracking-widest uppercase shadow-lg ${media.type === 'SCREENSHOT' ? 'bg-[#0CB2EB] text-white' : 'bg-[#8A5CF6] text-white'}`}>
-                            {media.type}
-                          </span>
-                        </div>
                         {/* Play icon for recordings */}
                         {media.type === 'RECORDING' && (
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                             <div className="w-12 h-12 rounded-full bg-[#0CB2EB]/90 flex items-center justify-center text-white shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                              </svg>
+                              <Play size={20} fill="currentColor" />
                             </div>
                           </div>
                         )}
@@ -638,6 +777,11 @@ export default function DashboardClient({
 
                   {/* Card Info */}
                   <div className="p-4 flex flex-col flex-1">
+                    <div className="mb-2">
+                      <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${media.type === 'SCREENSHOT' ? 'bg-[#0CB2EB]/10 text-[#0CB2EB]' : 'bg-[#8A5CF6]/10 text-[#8A5CF6]'}`}>
+                        {media.type}
+                      </span>
+                    </div>
                     <div className="flex items-start justify-between gap-2 mb-3">
                       {renamingId === media.id ? (
                         <input
@@ -661,7 +805,7 @@ export default function DashboardClient({
                       {isReady && renamingId !== media.id && (
                         <button
                           onClick={() => { setRenamingId(media.id); setRenamingTitle(media.title); }}
-                          className="text-slate-500 hover:text-[#0CB2EB] transition-colors p-1"
+                          className="text-slate-500 hover:text-[#0CB2EB] transition-colors p-1 cursor-pointer"
                           title="Rename"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -685,18 +829,11 @@ export default function DashboardClient({
                     {/* Card Actions Footer */}
                     <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
                       {isReady ? (
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${media.visibility === 'PRIVATE' ? 'bg-slate-600' : media.visibility === 'UNLISTED' ? 'bg-[#0CB2EB]' : 'bg-[#8A5CF6]'}`}></div>
-                          <select
-                            value={media.visibility}
-                            onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
-                            className="bg-transparent text-[11px] font-bold text-slate-400 outline-none cursor-pointer uppercase tracking-tight hover:text-white transition-colors"
-                          >
-                            <option value="PRIVATE" className="bg-[#1E293B]">Private</option>
-                            <option value="UNLISTED" className="bg-[#1E293B]">Unlisted</option>
-                            <option value="WORKSPACE_ONLY" className="bg-[#1E293B]">Workspace</option>
-                          </select>
-                        </div>
+                        <MediaVisibilitySelect
+                          value={media.visibility}
+                          onChange={(val) => handleVisibilityChange(media.id, val)}
+                          direction="up"
+                        />
                       ) : (
                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Processing</span>
                       )}
@@ -705,7 +842,7 @@ export default function DashboardClient({
                         {isReady && (
                           <button
                             onClick={() => handleShareLink(media)}
-                            className="p-2 rounded-lg bg-slate-900/50 text-slate-400 hover:text-[#0CB2EB] hover:bg-[#0CB2EB]/10 border border-slate-800 transition-all"
+                            className="p-2 rounded-lg bg-slate-900/50 text-slate-400 hover:text-[#0CB2EB] hover:bg-[#0CB2EB]/10 border border-slate-800 transition-all cursor-pointer"
                             title="Share"
                           >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -715,7 +852,7 @@ export default function DashboardClient({
                         )}
                         <button
                           onClick={() => handleDelete(media.id)}
-                          className="p-2 rounded-lg bg-slate-900/50 text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-slate-800 transition-all"
+                          className="p-2 rounded-lg bg-slate-900/50 text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-slate-800 transition-all cursor-pointer"
                           title="Delete"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -779,15 +916,11 @@ export default function DashboardClient({
                       </td>
                       <td className="px-6 py-3">
                         {isReady ? (
-                          <select
+                          <MediaVisibilitySelect
                             value={media.visibility}
-                            onChange={(e) => handleVisibilityChange(media.id, e.target.value as any)}
-                            className="bg-transparent border-none text-slate-400 text-xs font-bold focus:ring-0 outline-none uppercase tracking-tighter"
-                          >
-                            <option value="PRIVATE" className="bg-[#0F172A]">Private</option>
-                            <option value="UNLISTED" className="bg-[#0F172A]">Unlisted</option>
-                            <option value="WORKSPACE_ONLY" className="bg-[#0F172A]">Workspace</option>
-                          </select>
+                            onChange={(val) => handleVisibilityChange(media.id, val)}
+                            direction="down"
+                          />
                         ) : (
                           <span className="text-slate-600">-</span>
                         )}
@@ -801,11 +934,11 @@ export default function DashboardClient({
                       <td className="px-6 py-3 text-right">
                         <div className="inline-flex gap-2">
                           {isReady && (
-                            <button onClick={() => handleShareLink(media)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#0CB2EB] transition-colors">
+                            <button onClick={() => handleShareLink(media)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#0CB2EB] transition-colors cursor-pointer">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                             </button>
                           )}
-                          <button onClick={() => handleDelete(media.id)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-red-400 transition-colors">
+                          <button onClick={() => handleDelete(media.id)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-red-400 transition-colors cursor-pointer">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                           </button>
                         </div>
@@ -818,7 +951,66 @@ export default function DashboardClient({
           </div>
         )}
 
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-10 border-t border-slate-800 pt-6 gap-4">
+            <div className="text-xs text-slate-500 font-semibold">
+              Showing page <span className="text-white">{page}</span> of <span className="text-white">{totalPages}</span> ({totalMedia} captures)
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              >
+                Previous
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pNum = idx + 1;
+                  // Only show current page, 1 page before/after, first page, and last page for spacing if pages is large
+                  if (
+                    totalPages > 5 &&
+                    pNum !== 1 &&
+                    pNum !== totalPages &&
+                    Math.abs(pNum - page) > 1
+                  ) {
+                    if (pNum === 2 && page > 3) return <span key={pNum} className="text-slate-600 px-1">...</span>;
+                    if (pNum === totalPages - 1 && page < totalPages - 2) return <span key={pNum} className="text-slate-600 px-1">...</span>;
+                    return null;
+                  }
+                  
+                  return (
+                    <button
+                      key={pNum}
+                      onClick={() => setPage(pNum)}
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black transition-all cursor-pointer ${
+                        page === pNum
+                          ? 'bg-[#0CB2EB] text-white shadow-lg'
+                          : 'bg-slate-900/20 hover:bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {pNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
       </main>
+    </div>
 
       {/* Media Viewer Modal */}
       {activeMediaViewer && (
@@ -861,112 +1053,7 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* Workspace Members Modal */}
-      {showMembersModal && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-xl bg-slate-900/90 rounded-3xl overflow-hidden shadow-2xl border-slate-700/50 animate-in fade-in zoom-in duration-300">
-            <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="text-xl font-black text-white tracking-tight">Workspace Members</h3>
-              <button 
-                onClick={() => { setShowMembersModal(false); setInviteError(null); setInviteSuccess(false); }}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:text-white hover:bg-slate-800 transition-all"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
 
-            <div className="p-8">
-              {/* Invite New Member */}
-              {activeWorkspace?.isOwner && (
-                <form onSubmit={handleInvite} className="bg-slate-950/50 border border-slate-800 p-6 rounded-2xl mb-8">
-                  <h4 className="text-xs font-black text-[#0CB2EB] uppercase tracking-widest mb-4">Invite New Member</h4>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      type="email"
-                      placeholder="Email address..."
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      className="input-text flex-1 bg-slate-900 border-slate-800 focus:border-[#0CB2EB]"
-                      required
-                    />
-                    <select
-                      value={inviteRole}
-                      onChange={(e) => setInviteRole(e.target.value as any)}
-                      className="bg-slate-900 border border-slate-800 text-white px-4 py-2 rounded-lg text-sm font-bold outline-none"
-                    >
-                      <option value="MEMBER">Member</option>
-                      <option value="OWNER">Owner</option>
-                    </select>
-                    <button type="submit" className="btn-primary py-2 px-6 rounded-lg text-sm shadow-[#0CB2EB]/20">
-                      Invite
-                    </button>
-                  </div>
-
-                  {inviteError && (
-                    <div className="text-red-400 text-xs mt-3 font-bold flex items-center gap-2">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                      {inviteError}
-                    </div>
-                  )}
-                  {inviteSuccess && (
-                    <div className="text-[#0CB2EB] text-xs mt-3 font-bold flex items-center gap-2">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
-                      Invitation sent successfully!
-                    </div>
-                  )}
-                </form>
-              )}
-
-              {/* Members List */}
-              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                {members.map((member) => (
-                  <div 
-                    key={member.membershipId}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-slate-800/20 border border-slate-800/50"
-                  >
-                    <div className="flex items-center gap-4">
-                      {member.avatarUrl ? (
-                        <img src={member.avatarUrl} className="w-10 h-10 rounded-full border border-slate-700" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-black text-white">
-                          {member.displayName[0]}
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-sm font-bold text-white flex items-center gap-2">
-                          {member.displayName}
-                          {!member.accepted && (
-                            <span className="text-[9px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase font-black tracking-tighter">
-                              Pending
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[10px] text-slate-500 font-medium">{member.email}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <span className="text-[10px] font-black text-[#8A5CF6] uppercase tracking-widest bg-[#8A5CF6]/5 px-2 py-0.5 rounded-full border border-[#8A5CF6]/10">
-                        {member.role}
-                      </span>
-
-                      {activeWorkspace?.isOwner && member.userId !== initialUser.id && (
-                        <button
-                          onClick={() => handleRemoveMember(member.membershipId)}
-                          className="text-slate-500 hover:text-red-400 transition-colors p-1"
-                          title="Remove from workspace"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Share Link Modal */}
       {showShareModal && (
