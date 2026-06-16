@@ -377,27 +377,28 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0F172A] text-slate-200">
-      {/* Navbar */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-50">
-        {/* Logo and Workspace Selector */}
-        <div className="flex items-center gap-6">
+    <div className="min-h-screen flex bg-[#0F172A] text-slate-200">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-slate-800 bg-[#0B0F19] flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30">
+        <div className="flex flex-col gap-6 p-6">
+          {/* Logo */}
           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => router.push('/')}>
             <img src="/logo.png" alt="Loomo Logo" className="w-7 h-7 object-contain transition-transform group-hover:scale-110" />
             <span className="text-xl font-black tracking-tighter text-white">Loomo</span>
           </div>
 
-          <div className="w-px h-5 bg-slate-800"></div>
+          <div className="h-px bg-slate-800"></div>
 
           {/* Workspace Switcher */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Workspace</label>
             <select
               value={activeWorkspaceId}
               onChange={(e) => {
                 setActiveWorkspaceId(e.target.value);
                 setPage(1);
               }}
-              className="bg-[#1E293B] border border-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-colors cursor-pointer"
+              className="w-full bg-[#1E293B] border border-slate-700 text-white px-3 py-2 rounded-lg text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-colors cursor-pointer"
             >
               {workspaces.map((w) => (
                 <option key={w.id} value={w.id}>
@@ -405,50 +406,140 @@ export default function DashboardClient({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Sidebar Menu */}
+          <nav className="flex flex-col gap-1.5 mt-4">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Navigation</label>
+            
+            <button
+              onClick={() => {
+                setFilterType('ALL');
+                setPage(1);
+              }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'ALL'
+                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>📁</span>
+              <span>All Captures</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setFilterType('SCREENSHOT');
+                setPage(1);
+              }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'SCREENSHOT'
+                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>📸</span>
+              <span>Screenshots</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setFilterType('RECORDING');
+                setPage(1);
+              }}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'RECORDING'
+                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
+              }`}
+            >
+              <span>🎥</span>
+              <span>Recordings</span>
+            </button>
 
             <button
               onClick={() => setShowMembersModal(true)}
-              className="btn-secondary py-1.5 px-3 text-xs gap-1.5 border-slate-700 hover:border-[#0CB2EB]"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-              <span>Members</span>
+              <span>👥</span>
+              <span>Workspace Members</span>
             </button>
-          </div>
+
+            <a
+              href="/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
+            >
+              <span>📖</span>
+              <span>Documentation</span>
+            </a>
+          </nav>
         </div>
 
-        {/* Profile Info and Logout */}
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex flex-col items-end">
-            <div className="text-sm font-bold text-white leading-none">{initialUser.displayName}</div>
-            <div className="text-[10px] text-slate-500 font-medium">{initialUser.email}</div>
-          </div>
-          {initialUser.avatarUrl ? (
-            <img 
-              src={initialUser.avatarUrl} 
-              alt={initialUser.displayName} 
-              className="w-9 h-9 rounded-full border border-slate-700 p-0.5"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-white border border-slate-700">
-              {initialUser.displayName[0]}
+        {/* Sidebar Footer User Profile */}
+        <div className="p-4 border-t border-slate-800 bg-[#080D16]/50 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            {initialUser.avatarUrl ? (
+              <img 
+                src={initialUser.avatarUrl} 
+                alt={initialUser.displayName} 
+                className="w-10 h-10 rounded-full border border-slate-700 p-0.5 shrink-0"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-slate-850 flex items-center justify-center text-sm font-bold text-white border border-slate-700 shrink-0">
+                {initialUser.displayName[0]}
+              </div>
+            )}
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-bold text-white truncate leading-tight">{initialUser.displayName}</span>
+              <span className="text-[10px] text-slate-500 truncate leading-none mt-0.5">{initialUser.email}</span>
             </div>
-          )}
+          </div>
           <button
             onClick={handleLogout}
-            className="text-xs font-bold text-slate-500 hover:text-red-400 transition-colors"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg"
           >
             Sign Out
           </button>
         </div>
-      </header>
+      </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Top Header */}
+        <header className="flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <span className="px-2.5 py-1 bg-slate-800/80 rounded-md text-[10px] font-black uppercase text-[#0CB2EB] tracking-wider border border-slate-700/60">
+              Dashboard
+            </span>
+            <span className="text-slate-600">/</span>
+            <span className="text-sm text-slate-300 font-bold">{activeWorkspace?.name}</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-col items-end">
+              <div className="text-sm font-bold text-white leading-none">{initialUser.displayName}</div>
+              <div className="text-[10px] text-slate-500 font-medium">{initialUser.email}</div>
+            </div>
+            {initialUser.avatarUrl ? (
+              <img 
+                src={initialUser.avatarUrl} 
+                alt={initialUser.displayName} 
+                className="w-9 h-9 rounded-full border border-slate-700 p-0.5"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-sm font-bold text-white border border-slate-700">
+                {initialUser.displayName[0]}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Content Body */}
+        <main className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">
         
         {/* Title and stats */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -819,6 +910,7 @@ export default function DashboardClient({
         )}
 
       </main>
+    </div>
 
       {/* Media Viewer Modal */}
       {activeMediaViewer && (
@@ -926,7 +1018,12 @@ export default function DashboardClient({
                   >
                     <div className="flex items-center gap-4">
                       {member.avatarUrl ? (
-                        <img src={member.avatarUrl} className="w-10 h-10 rounded-full border border-slate-700" />
+                        <img 
+                          src={member.avatarUrl} 
+                          alt={member.displayName}
+                          className="w-10 h-10 rounded-full border border-slate-700" 
+                          referrerPolicy="no-referrer"
+                        />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm font-black text-white">
                           {member.displayName[0]}
