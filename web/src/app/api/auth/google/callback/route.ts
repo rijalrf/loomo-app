@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const error = searchParams.get('error');
+  const state = searchParams.get('state') || 'login'; // 'login' or 'register'
 
   if (error) {
     logger.error('google-oauth-callback', `Error from Google: ${error}`);
@@ -65,6 +66,12 @@ export async function GET(request: NextRequest) {
     let user = await prisma.user.findUnique({
       where: { googleId }
     });
+
+    // Enforce isolation: if flow is login but user is not registered, redirect with error
+    if (state === 'login' && !user) {
+      logger.info('google-oauth-callback', `Access denied: email ${email} is not registered.`);
+      return NextResponse.redirect(new URL(`/login?error=not_registered&email=${encodeURIComponent(email)}`, request.url));
+    }
 
     const encryptedAccessToken = encrypt(access_token);
     const encryptedRefreshToken = refresh_token ? encrypt(refresh_token) : undefined;

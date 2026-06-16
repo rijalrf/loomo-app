@@ -24,12 +24,20 @@ export default function LandingClient() {
             <span className="text-xl font-black tracking-tight text-white">Loomo</span>
           </div>
 
-          <button 
-            onClick={handleLogin}
-            className="btn-primary py-2 px-5 text-sm rounded-lg"
-          >
-            Login
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleLogin}
+              className="text-sm font-bold text-slate-400 hover:text-white px-3 py-2 transition-colors cursor-pointer"
+            >
+              Login
+            </button>
+            <Link 
+              href="/register"
+              className="btn-primary py-2 px-5 text-sm rounded-lg cursor-pointer"
+            >
+              Daftar Gratis
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -54,22 +62,22 @@ export default function LandingClient() {
             All files are saved directly in your <strong>personal Google Drive</strong>. Fast, 100% private, secure, and no extra subscription fees.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-start items-center w-full">
+             <Link 
+               href="/register" 
+               className="btn-primary py-3.5 px-8 text-base text-white hover:text-white flex items-center justify-center gap-2 rounded-lg w-full sm:w-auto transition-all duration-300 font-bold cursor-pointer"
+             >
+               Mulai Sekarang (Daftar)
+             </Link>
              <a 
                href="/loomo-extension.zip" 
                download 
-               className="btn-primary py-3.5 px-8 text-base text-white hover:text-white flex items-center justify-center gap-2 rounded-lg w-full sm:w-auto transition-all duration-300 font-bold"
+               className="btn-secondary py-3.5 px-8 text-base text-white hover:text-white flex items-center justify-center border border-slate-700 hover:border-[#0CB2EB]/50 bg-slate-900/40 rounded-lg w-full sm:w-auto transition-all duration-300 font-semibold cursor-pointer gap-2"
              >
                <svg className="w-5 h-5 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                </svg>
                Download Extension
              </a>
-             <Link 
-               href="/docs" 
-               className="btn-secondary py-3.5 px-8 text-base text-white hover:text-white flex items-center justify-center border border-slate-700 hover:border-[#0CB2EB]/50 bg-slate-900/40 rounded-lg w-full sm:w-auto transition-all duration-300 font-semibold"
-             >
-               Documentation
-             </Link>
           </div>
         </div>
 

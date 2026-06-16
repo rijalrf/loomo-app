@@ -35,6 +35,7 @@ const DEPARTMENTS = [
 export default function OnboardingJourney({ user, onComplete }: OnboardingJourneyProps) {
   const [step, setStep] = useState(1);
   const [workspaceName, setWorkspaceName] = useState(`${user.displayName.split(' ')[0]}'s Workspace`);
+  const [workspaceDesc, setWorkspaceDesc] = useState('');
   const [selectedDept, setSelectedDept] = useState('engineering');
   const [emails, setEmails] = useState<string[]>(['']);
   const [submitting, setSubmitting] = useState(false);
@@ -74,6 +75,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: workspaceName,
+          description: workspaceDesc,
           department: DEPARTMENTS.find(d => d.id === selectedDept)?.label || selectedDept,
           members: validEmails
         })
@@ -147,6 +149,17 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                     onChange={(e) => setWorkspaceName(e.target.value)}
                     className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-white text-base py-3 px-4 rounded-xl outline-none focus:ring-1 focus:ring-[#0CB2EB] transition-all"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Workspace Description</label>
+                  <input
+                    type="text"
+                    placeholder="Briefly describe the purpose of this workspace (optional)..."
+                    value={workspaceDesc}
+                    onChange={(e) => setWorkspaceDesc(e.target.value)}
+                    className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-white text-base py-3 px-4 rounded-xl outline-none focus:ring-1 focus:ring-[#0CB2EB] transition-all"
                   />
                 </div>
 

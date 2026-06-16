@@ -273,6 +273,8 @@ export default function DashboardClient({
   const [activeMediaViewer, setActiveMediaViewer] = useState<Media | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [newWorkspaceDesc, setNewWorkspaceDesc] = useState('');
+  const [newWorkspaceDept, setNewWorkspaceDept] = useState('Engineering & Product');
   const [creatingWorkspace, setCreatingWorkspace] = useState(false);
   
   // Sharing Dialog
@@ -372,7 +374,11 @@ export default function DashboardClient({
       const res = await fetch('/api/workspace', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newWorkspaceName })
+        body: JSON.stringify({
+          name: newWorkspaceName,
+          description: newWorkspaceDesc,
+          department: newWorkspaceDept
+        })
       });
       const data = await res.json();
       if (res.ok) {
@@ -382,6 +388,8 @@ export default function DashboardClient({
         setPage(1);
         setShowCreateModal(false);
         setNewWorkspaceName('');
+        setNewWorkspaceDesc('');
+        setNewWorkspaceDept('Engineering & Product');
       } else {
         toast.error(data.error || 'Failed to create workspace');
       }
@@ -1163,7 +1171,7 @@ export default function DashboardClient({
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-white tracking-tight">Create Workspace</h3>
               <button 
-                onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); }}
+                onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-white transition-colors cursor-pointer"
               >
                 ✕
@@ -1184,10 +1192,37 @@ export default function DashboardClient({
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Short Description</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Collaborative space for marketing team (optional)..."
+                  value={newWorkspaceDesc}
+                  onChange={(e) => setNewWorkspaceDesc(e.target.value)}
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Department / Team</label>
+                <select
+                  value={newWorkspaceDept}
+                  onChange={(e) => setNewWorkspaceDept(e.target.value)}
+                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all cursor-pointer font-medium"
+                >
+                  <option value="Engineering & Product" className="bg-[#0B0F19] text-white">Engineering & Product</option>
+                  <option value="Design & Creative" className="bg-[#0B0F19] text-white">Design & Creative</option>
+                  <option value="Marketing & Sales" className="bg-[#0B0F19] text-white">Marketing & Sales</option>
+                  <option value="Operations & HR" className="bg-[#0B0F19] text-white">Operations & HR</option>
+                  <option value="Personal & Individual" className="bg-[#0B0F19] text-white">Personal & Individual</option>
+                  <option value="Other / Custom" className="bg-[#0B0F19] text-white">Other / Custom</option>
+                </select>
+              </div>
+
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); }}
+                  onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
                   className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white border border-slate-800 hover:bg-slate-800/40 transition-all cursor-pointer"
                 >
                   Cancel

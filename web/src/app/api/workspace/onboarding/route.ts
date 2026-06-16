@@ -13,13 +13,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, department, members } = body;
+    const { name, description, department, members } = body;
 
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Workspace name is required' }, { status: 400 });
     }
 
     const trimmedName = name.trim();
+    const trimmedDesc = description ? description.trim() : null;
     const trimmedDept = department ? department.trim() : null;
 
     // Create the workspace and set the owner in a transaction
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
       const newWorkspace = await tx.workspace.create({
         data: {
           name: trimmedName,
+          description: trimmedDesc,
           department: trimmedDept,
           createdBy: session.userId
         }
