@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown } from 'lucide-react';
+import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown, Settings } from 'lucide-react';
 
 interface SelectOption<T> {
   value: T;
@@ -596,45 +596,15 @@ export default function DashboardClient({
               }`}
             >
               <Folder size={18} />
-              <span>All Captures</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setFilterType('SCREENSHOT');
-                setPage(1);
-              }}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                filterType === 'SCREENSHOT'
-                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-              }`}
-            >
-              <ImageIcon size={18} />
-              <span>Screenshots</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setFilterType('RECORDING');
-                setPage(1);
-              }}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                filterType === 'RECORDING'
-                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
-              }`}
-            >
-              <Video size={18} />
-              <span>Recordings</span>
+              <span>All Media</span>
             </button>
 
             <button
               onClick={() => setShowMembersModal(true)}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
             >
-              <Users size={18} />
-              <span>Workspace Members</span>
+              <Settings size={18} />
+              <span>Settings</span>
             </button>
 
             <a
