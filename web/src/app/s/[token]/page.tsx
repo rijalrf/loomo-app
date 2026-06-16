@@ -165,13 +165,6 @@ export default async function SharePage({ params }: SharePageProps) {
             </svg>
             <span>Download Original</span>
           </a>
-          <Link 
-            href="/" 
-            className="btn-secondary" 
-            style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}
-          >
-            Get Loomo App
-          </Link>
         </div>
       </div>
 
