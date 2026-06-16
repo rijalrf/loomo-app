@@ -102,139 +102,117 @@ export default async function SharePage({ params }: SharePageProps) {
 
   return (
     <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
+      position: 'fixed',
+      top: 0, left: 0, width: '100vw', height: '100vh',
       backgroundColor: '#0B0F19',
       color: '#F8FAFC',
-      fontFamily: 'sans-serif'
+      fontFamily: 'sans-serif',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
-      {/* Mini Header */}
-      <header style={{
+      {/* Header */}
+      <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '16px 24px',
         borderBottom: '1px solid #232D3F',
-        backgroundColor: '#131B2E'
+        backgroundColor: '#131B2E',
+        zIndex: 10
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '4px',
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)',
-            boxShadow: '0 0 8px var(--primary)'
-          }}></div>
-          <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em' }}>Loomo</span>
-        </div>
-
-        <Link href="/" className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px', textDecoration: 'none' }}>
-          Get Loomo App
-        </Link>
-      </header>
-
-      {/* Main View Area */}
-      <main style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '40px 20px',
-        maxWidth: '1000px',
-        width: '100%',
-        margin: '0 auto'
-      }}>
-        {/* Media Details Card Header */}
-        <div style={{ width: '100%', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
-            <h1 style={{ fontSize: '24px', fontWeight: '800', margin: '0 0 6px 0' }}>{media.title}</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#94A3B8' }}>
-              <span>Shared by {media.uploader.displayName}</span>
-              <span>•</span>
-              <span>{new Date(media.createdAt).toLocaleDateString()}</span>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: '4px',
+              background: 'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)',
+              boxShadow: '0 0 8px var(--primary)'
+            }}></div>
+            <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '-0.02em', color: '#F8FAFC' }}>Loomo</span>
           </div>
-
+          
+          <div style={{ width: '1px', height: '24px', backgroundColor: '#232D3F' }}></div>
+          
+          {/* Title & Metadata */}
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '600', color: '#F8FAFC' }}>{media.title}</h3>
+            <p style={{ color: '#94A3B8', fontSize: '12px', margin: 0 }}>
+              Uploaded by {media.uploader.displayName} on {new Date(media.createdAt).toLocaleString()}
+            </p>
+          </div>
+        </div>
+        
+        {/* Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <a 
             href={fileUrl} 
             download={media.title}
             className="btn-primary" 
+            style={{ 
+              padding: '8px 16px', 
+              fontSize: '13px', 
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>Download Original</span>
+          </a>
+          <Link 
+            href="/" 
+            className="btn-secondary" 
             style={{ padding: '8px 16px', fontSize: '13px', textDecoration: 'none' }}
           >
-            Download Original
-          </a>
-        </div>
-
-        {/* Media Container */}
-        <div className="glass-panel" style={{
-          width: '100%',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          backgroundColor: '#070A13',
-          border: '1px solid #232D3F',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '400px',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.5)',
-          marginBottom: '40px'
-        }}>
-          {media.type === 'SCREENSHOT' ? (
-            <img 
-              src={fileUrl} 
-              alt={media.title}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '75vh',
-                objectFit: 'contain',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <video 
-              src={fileUrl}
-              controls
-              autoPlay
-              style={{
-                width: '100%',
-                maxHeight: '75vh',
-                display: 'block',
-                backgroundColor: 'black'
-              }}
-            />
-          )}
-        </div>
-
-        {/* Call to Action Footer */}
-        <div style={{
-          textAlign: 'center',
-          maxWidth: '500px',
-          padding: '30px',
-          borderRadius: '16px',
-          backgroundColor: '#131B2E',
-          border: '1px solid #232D3F'
-        }}>
-          <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', fontWeight: '700' }}>Want to capture visual feedback like this?</h3>
-          <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 20px 0', lineHeight: '1.5' }}>
-            Loomo is a lightweight Chrome extension that lets you capture screens, annotate, and record walkthroughs. 100% stored in your own Google Drive.
-          </p>
-          <Link href="/" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', padding: '10px 20px' }}>
-            Get Loomo Free
+            Get Loomo App
           </Link>
         </div>
-      </main>
+      </div>
 
-      {/* Footer */}
-      <footer style={{
-        textAlign: 'center',
-        padding: '24px',
-        fontSize: '12px',
-        color: '#64748B',
-        borderTop: '1px solid #232D3F'
+      {/* Media Body */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px',
+        overflow: 'hidden',
+        position: 'relative'
       }}>
-        Powering async feedback. Loomo © {new Date().getFullYear()}
-      </footer>
+        {media.type === 'SCREENSHOT' ? (
+          <img 
+            src={fileUrl} 
+            alt={media.title}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
+              borderRadius: '8px',
+              backgroundColor: 'black'
+            }}
+          />
+        ) : (
+          <video 
+            src={fileUrl}
+            controls
+            autoPlay
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
+              borderRadius: '8px',
+              backgroundColor: 'black'
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
