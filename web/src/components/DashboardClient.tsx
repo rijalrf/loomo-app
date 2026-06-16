@@ -478,26 +478,8 @@ export default function DashboardClient({
           </nav>
         </div>
 
-        {/* Sidebar Footer User Profile */}
-        <div className="p-4 border-t border-slate-800 bg-[#080D16]/50 flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            {initialUser.avatarUrl ? (
-              <img 
-                src={initialUser.avatarUrl} 
-                alt={initialUser.displayName} 
-                className="w-10 h-10 rounded-full border border-slate-700 p-0.5 shrink-0"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-slate-850 flex items-center justify-center text-sm font-bold text-white border border-slate-700 shrink-0">
-                {initialUser.displayName[0]}
-              </div>
-            )}
-            <div className="flex flex-col min-w-0">
-              <span className="text-xs font-bold text-white truncate leading-tight">{initialUser.displayName}</span>
-              <span className="text-[10px] text-slate-500 truncate leading-none mt-0.5">{initialUser.email}</span>
-            </div>
-          </div>
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-slate-800 bg-[#080D16]/50">
           <button
             onClick={handleLogout}
             className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
@@ -541,7 +523,7 @@ export default function DashboardClient({
         </header>
 
         {/* Content Body */}
-        <main className="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-6 md:p-10 w-full">
         
         {/* Title and stats */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
