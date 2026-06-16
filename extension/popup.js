@@ -188,7 +188,7 @@ function updateUI(recording, elapsed) {
     btnAction.className = 'btn btn-stop';
     btnScreenshot.style.display = 'none';
   } else {
-    statusDisplay.textContent = 'Idle';
+    statusDisplay.textContent = 'Active';
     statusDot.className = 'status-dot';
     
     // Feather Icon: video (Mulai)
