@@ -1,3 +1,5 @@
+# Loomo UI Color Palette Guideline
+
 Buatkan kode antarmuka pengguna (UI) menggunakan Next.js, React, dan Tailwind CSS untuk aplikasi web bernama "Loomo" dengan tema khusus Dark Mode. Loomo adalah platform berbasis ekstensi Chrome dan web app untuk mengambil tangkapan layar (area capture) dan merekam layar peramban.
 
 Gaya Desain:
