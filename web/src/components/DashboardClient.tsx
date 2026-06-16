@@ -284,6 +284,7 @@ export default function DashboardClient({
 
   // Active Workspace
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
+  const totalPages = Math.ceil(totalMedia / 10);
 
   // Load Media List on workspace/filter change
   const fetchMedia = async () => {
@@ -291,7 +292,7 @@ export default function DashboardClient({
       const queryParams = new URLSearchParams({
         workspaceId: activeWorkspaceId,
         page: String(page),
-        limit: '20'
+        limit: '10'
       });
       if (filterType !== 'ALL') queryParams.append('type', filterType.toLowerCase());
       if (filterStatus !== 'ALL') queryParams.append('status', filterStatus.toLowerCase());
@@ -947,6 +948,64 @@ export default function DashboardClient({
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-10 border-t border-slate-800 pt-6 gap-4">
+            <div className="text-xs text-slate-500 font-semibold">
+              Showing page <span className="text-white">{page}</span> of <span className="text-white">{totalPages}</span> ({totalMedia} captures)
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              >
+                Previous
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pNum = idx + 1;
+                  // Only show current page, 1 page before/after, first page, and last page for spacing if pages is large
+                  if (
+                    totalPages > 5 &&
+                    pNum !== 1 &&
+                    pNum !== totalPages &&
+                    Math.abs(pNum - page) > 1
+                  ) {
+                    if (pNum === 2 && page > 3) return <span key={pNum} className="text-slate-600 px-1">...</span>;
+                    if (pNum === totalPages - 1 && page < totalPages - 2) return <span key={pNum} className="text-slate-600 px-1">...</span>;
+                    return null;
+                  }
+                  
+                  return (
+                    <button
+                      key={pNum}
+                      onClick={() => setPage(pNum)}
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black transition-all cursor-pointer ${
+                        page === pNum
+                          ? 'bg-[#0CB2EB] text-white shadow-lg'
+                          : 'bg-slate-900/20 hover:bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {pNum}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
 
