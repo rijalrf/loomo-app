@@ -190,6 +190,7 @@ interface Workspace {
   name: string;
   role: string;
   isOwner: boolean;
+  saveToOwnerDrive?: boolean;
 }
 
 interface Media {

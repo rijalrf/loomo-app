@@ -31,16 +31,17 @@ model User {
 }
 
 model Workspace {
-  id          String            @id @default(uuid())
-  name        String
-  description String?
-  department  String?
-  createdBy   String            @map("created_by")
-  createdAt   DateTime          @default(now()) @map("created_at")
+  id               String            @id @default(uuid())
+  name             String
+  description      String?
+  department       String?
+  saveToOwnerDrive Boolean           @default(true) @map("save_to_owner_drive")
+  createdBy        String            @map("created_by")
+  createdAt        DateTime          @default(now()) @map("created_at")
   
-  owner       User              @relation("WorkspaceOwner", fields: [createdBy], references: [id], onDelete: Cascade)
-  members     WorkspaceMember[]
-  media       Media[]
+  owner            User              @relation("WorkspaceOwner", fields: [createdBy], references: [id], onDelete: Cascade)
+  members          WorkspaceMember[]
+  media            Media[]
 
   @@map("workspaces")
 }
