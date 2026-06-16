@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { Folder, BookOpen, LogOut, ChevronDown, Check, Settings, Users, Plus, Trash2 } from 'lucide-react';
+import { Folder, BookOpen, LogOut, ChevronDown, Check, Settings, Users, Plus, Trash2, AlertCircle } from 'lucide-react';
 
 interface User {
   id: string;
@@ -448,13 +448,13 @@ export default function SettingsClient({
 
                 {inviteError && (
                   <div className="text-red-400 text-xs mt-4 font-bold flex items-center gap-2">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <AlertCircle size={12} />
                     {inviteError}
                   </div>
                 )}
                 {inviteSuccess && (
                   <div className="text-[#0CB2EB] text-xs mt-4 font-bold flex items-center gap-2">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <Check size={12} className="text-[#0CB2EB]" />
                     Invitation sent successfully!
                   </div>
                 )}
