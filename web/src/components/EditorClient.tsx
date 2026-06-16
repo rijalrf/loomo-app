@@ -567,8 +567,8 @@ export default function EditorClient() {
             {[
               { id: 'rectangle', icon: <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>, label: 'Box' },
               { id: 'circle', icon: <circle cx="12" cy="12" r="10"/>, label: 'Circle' },
-              { id: 'arrow', icon: <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>, label: 'Arrow' },
-              { id: 'highlight', icon: <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M7.5 10.5L12 6l4.5 4.5"/>, label: 'Brush' }
+              { id: 'arrow', icon: <><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></>, label: 'Arrow' },
+              { id: 'highlight', icon: <><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M7.5 10.5L12 6l4.5 4.5"/></>, label: 'Brush' }
             ].map((tool) => (
               <button 
                 key={tool.id}

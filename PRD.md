@@ -61,7 +61,7 @@ Teams and individuals struggle to communicate visual feedback efficiently. Takin
 
 ### 3.1 High-Level Components
 
-```
+```text
 ┌─────────────────────┐       ┌──────────────────────────────────┐
 │  Chrome Extension    │──────▶│  Next.js App (App Router)        │
 │  (Capture Client)    │       │  ┌────────────────────────────┐  │
@@ -97,7 +97,7 @@ Media upload to Google Drive is **fully automatic**. Files are temporarily store
 
 **Loomo = Wrapper/Viewer.** Loomo does not permanently store any media files. All media is served from Google Drive. Loomo acts as a branded viewer layer on top of Google Drive.
 
-```
+```text
 User saves media (Editor / Recording Stop)
         │
         ▼
@@ -158,6 +158,7 @@ User saves media (Editor / Recording Stop)
 ```
 
 **Key Design Principles:**
+
 1. **Loomo = wrapper only.** No permanent file storage on the Loomo server.
 2. **Temp files kept until Drive success.** Server temp is the safety net; only deleted after confirmed upload.
 3. **Media not viewable during processing.** Dashboard shows "Processing..." placeholder until Drive upload completes.
@@ -165,35 +166,35 @@ User saves media (Editor / Recording Stop)
 
 ### 3.3 Tech Stack
 
-| Layer          | Technology                            | Notes                                                            |
-| -------------- | ------------------------------------- | ---------------------------------------------------------------- |
-| Capture Client | Chrome Extension (Manifest V3)        | `chrome.tabCapture`, `chrome.desktopCapture` APIs                |
-| Frontend       | Next.js (App Router), React           | SSR + CSR hybrid                                                 |
-| Backend API    | Next.js Route Handlers                | REST endpoints                                                   |
-| Database       | PostgreSQL (external, outside Docker) | User data, media metadata, OAuth tokens, upload job queue        |
-| File Storage   | **Google Drive** (per-user)           | Permanent storage. Loomo server only holds temp files during upload |
-| Deployment     | Docker containers                     | Next.js app containerized                                        |
-| Authentication | **Google OAuth 2.0**                  | Via `client_secret_devnote.json`, NextAuth.js or custom handler  |
-| Background Jobs| Server-side queue (in-process or Bull) | Async upload workers, retry logic                               |
+| Layer           | Technology                             | Notes                                                               |
+| --------------- | -------------------------------------- | ------------------------------------------------------------------- |
+| Capture Client  | Chrome Extension (Manifest V3)         | `chrome.tabCapture`, `chrome.desktopCapture` APIs                   |
+| Frontend        | Next.js (App Router), React            | SSR + CSR hybrid                                                    |
+| Backend API     | Next.js Route Handlers                 | REST endpoints                                                      |
+| Database        | PostgreSQL (external, outside Docker)  | User data, media metadata, OAuth tokens, upload job queue           |
+| File Storage    | **Google Drive** (per-user)            | Permanent storage. Loomo server only holds temp files during upload |
+| Deployment      | Docker containers                      | Next.js app containerized                                           |
+| Authentication  | **Google OAuth 2.0**                   | Via `client_secret_devnote.json`, NextAuth.js or custom handler     |
+| Background Jobs | Server-side queue (in-process or Bull) | Async upload workers, retry logic                                   |
 
 ### 3.4 Google Drive Integration Details
 
-| Config               | Value                                                                 |
-| -------------------- | --------------------------------------------------------------------- |
-| OAuth Client Config  | `client_secret_devnote.json`                                          |
-| Project ID           | `jam-report`                                                          |
-| OAuth Scopes         | `openid`, `email`, `profile`, `https://www.googleapis.com/auth/drive.file` |
-| Drive API Version    | v3                                                                    |
-| Loomo Folder Name    | `Loomo` (auto-created in user's Drive root)                           |
-| Subfolder Structure  | `Loomo/Screenshots/`, `Loomo/Recordings/`                             |
-| Token Storage        | `access_token` + `refresh_token` encrypted in PostgreSQL              |
-| Token Refresh        | Automatic via `refresh_token` when `access_token` expires             |
+| Config              | Value                                                                      |
+| ------------------- | -------------------------------------------------------------------------- |
+| OAuth Client Config | `client_secret_devnote.json`                                               |
+| Project ID          | `jam-report`                                                               |
+| OAuth Scopes        | `openid`, `email`, `profile`, `https://www.googleapis.com/auth/drive.file` |
+| Drive API Version   | v3                                                                         |
+| Loomo Folder Name   | `Loomo` (auto-created in user's Drive root)                                |
+| Subfolder Structure | `Loomo/Screenshots/`, `Loomo/Recordings/`                                  |
+| Token Storage       | `access_token` + `refresh_token` encrypted in PostgreSQL                   |
+| Token Refresh       | Automatic via `refresh_token` when `access_token` expires                  |
 
 > **Note:** The scope `drive.file` only grants access to files created by Loomo, NOT the user's entire Drive. This is the least-privilege approach.
 
 ### 3.5 Data Model
 
-```
+```plan
 ┌────────────────────┐     ┌──────────────┐     ┌──────────────────────┐
 │       User          │     │  Workspace   │     │       Media          │
 ├────────────────────┤     ├──────────────┤     ├──────────────────────┤
@@ -248,6 +249,7 @@ User saves media (Editor / Recording Stop)
 ```
 
 > **Key changes:**
+>
 > - `title` field added (user-editable media name).
 > - `drive_thumbnail_url` replaces `drive_view_url` / `drive_download_url` (thumbnail fetched from Drive API).
 > - `upload_status` now includes `"deleting"` state for async Drive deletion.
@@ -374,11 +376,12 @@ After an area capture is completed, the raw image is NOT uploaded immediately. I
 Users can insert geometric shapes to annotate specific areas of the image.
 
 **Supported Shapes:**
-| Shape | Behavior |
-|-------|----------|
-| Rectangle | Click-and-drag to draw. Resizable via corner handles. |
-| Circle / Ellipse | Click-and-drag to draw. Resizable. |
-| Arrow | Click start point, drag to end point. Directional head. |
+
+| Shape            | Behavior                                                |
+| ---------------- | ------------------------------------------------------- |
+| Rectangle        | Click-and-drag to draw. Resizable via corner handles.   |
+| Circle / Ellipse | Click-and-drag to draw. Resizable.                      |
+| Arrow            | Click start point, drag to end point. Directional head. |
 
 **Acceptance Criteria:**
 
@@ -508,7 +511,8 @@ Public-facing page introducing Loomo.
 Authentication is exclusively via Google OAuth 2.0. No email/password registration. The OAuth flow uses credentials from `client_secret_devnote.json`.
 
 **OAuth Flow:**
-```
+
+```text
 User clicks "Sign in with Google"
         │
         ▼
@@ -535,11 +539,11 @@ Server sets session cookie → user is logged in
 
 **Features:**
 
-| Feature           | Route                    | Method                              |
-| ----------------- | ------------------------ | ----------------------------------- |
-| Login             | `/auth/google`           | Redirect to Google OAuth            |
-| OAuth Callback    | `/auth/google/callback`  | Handle auth code, create session    |
-| Logout            | `/auth/logout`           | Clear session, optionally revoke token |
+| Feature        | Route                   | Method                                 |
+| -------------- | ----------------------- | -------------------------------------- |
+| Login          | `/auth/google`          | Redirect to Google OAuth               |
+| OAuth Callback | `/auth/google/callback` | Handle auth code, create session       |
+| Logout         | `/auth/logout`          | Clear session, optionally revoke token |
 
 **Acceptance Criteria:**
 
@@ -564,17 +568,18 @@ Centralized backoffice view for managing all screenshots and recordings. Users c
 
 **Media Card States:**
 
-| `upload_status` | Card Appearance | Interactions Available |
-|-----------------|-----------------|------------------------|
-| `processing` | Placeholder icon + "Processing..." label | Delete only |
-| `uploading` | Placeholder icon + "Uploading..." label | Delete only |
-| `ready` | **Thumbnail preview** from Drive + title, date, size | View, Play, Share, Rename, Delete, Change Visibility |
-| `failed` | Error icon + "Upload failed" label | Delete only (auto-retry still running) |
-| `deleting` | Faded card + "Deleting..." label | None (non-interactive) |
+| `upload_status` | Card Appearance                                      | Interactions Available                               |
+| --------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| `processing`    | Placeholder icon + "Processing..." label             | Delete only                                          |
+| `uploading`     | Placeholder icon + "Uploading..." label              | Delete only                                          |
+| `ready`         | **Thumbnail preview** from Drive + title, date, size | View, Play, Share, Rename, Delete, Change Visibility |
+| `failed`        | Error icon + "Upload failed" label                   | Delete only (auto-retry still running)               |
+| `deleting`      | Faded card + "Deleting..." label                     | None (non-interactive)                               |
 
 **Acceptance Criteria:**
 
 ##### Display
+
 - [ ] Media displayed in grid view (default) or list view (toggle).
 - [ ] Each ready media card shows: **thumbnail preview**, title, type icon (image/video), date, file size.
 - [ ] Thumbnails are fetched from Google Drive API (`thumbnailLink`) and cached/proxied via Loomo server.
@@ -584,6 +589,7 @@ Centralized backoffice view for managing all screenshots and recordings. Users c
 - [ ] Transition between states happens automatically (via polling or SSE) without page refresh.
 
 ##### Management Actions
+
 - [ ] **View/Play**: Click on ready media card opens the Built-in Media Viewer (`FR-WEB-004`).
 - [ ] **Rename**: Inline edit or modal to change media title. Updates DB only (not the Drive filename).
 - [ ] **Change Visibility**: Dropdown to switch between `private`, `unlisted`, `workspace_only`.
@@ -591,12 +597,14 @@ Centralized backoffice view for managing all screenshots and recordings. Users c
 - [ ] **Delete**: Confirmation dialog → marks media as `deleting` → card shows "Deleting..." → job scheduler deletes from Drive → removes DB record → card disappears.
 
 ##### Sorting & Filtering
+
 - [ ] Sort options: date created (default), file size, name.
 - [ ] Search/filter by: media type (screenshot/recording), date range, upload status.
 - [ ] Pagination or infinite scroll (max 20 items per page).
 
 ##### Async Delete Flow
-```
+
+```text
 User clicks "Delete" → Confirmation dialog
         │
         ▼
@@ -690,7 +698,8 @@ Per-media access level management.
 Each media item can generate a **Loomo-branded shareable URL** (`loomo.app/s/xxx`). Recipients open the link in any browser and view the media on a custom Loomo share page. The file is fetched from Google Drive and served through the Loomo server. **The recipient never sees a Google Drive URL.** Share is only available for media with `upload_status = "ready"`.
 
 **Share Flow:**
-```
+
+```text
 User clicks "Share" on media (only available when status = "ready")
         │
         ▼
@@ -746,45 +755,45 @@ Public share page renders:
 
 ### 5.1 Authentication (Google OAuth)
 
-| ID        | Method | Endpoint                      | Description                                    | Auth Required |
-| --------- | ------ | ----------------------------- | ---------------------------------------------- | ------------- |
-| `API-001` | `GET`  | `/api/auth/google`            | Redirect to Google OAuth consent screen        | No            |
-| `API-002` | `GET`  | `/api/auth/google/callback`   | Handle OAuth callback, create session          | No            |
-| `API-003` | `POST` | `/api/auth/logout`            | Invalidate session, optionally revoke token    | Yes           |
-| `API-004` | `GET`  | `/api/auth/me`                | Get current authenticated user info            | Yes           |
+| ID        | Method | Endpoint                    | Description                                 | Auth Required |
+| --------- | ------ | --------------------------- | ------------------------------------------- | ------------- |
+| `API-001` | `GET`  | `/api/auth/google`          | Redirect to Google OAuth consent screen     | No            |
+| `API-002` | `GET`  | `/api/auth/google/callback` | Handle OAuth callback, create session       | No            |
+| `API-003` | `POST` | `/api/auth/logout`          | Invalidate session, optionally revoke token | Yes           |
+| `API-004` | `GET`  | `/api/auth/me`              | Get current authenticated user info         | Yes           |
 
 ### 5.2 Media
 
-| ID        | Method   | Endpoint                      | Description                                                  | Auth Required |
-| --------- | -------- | ----------------------------- | ------------------------------------------------------------ | ------------- |
-| `API-005` | `POST`   | `/api/media/upload`           | Save file to server temp, return mediaId (Drive sync auto)   | Yes           |
-| `API-006` | `GET`    | `/api/media`                  | List user's media with upload_status + thumbnail (paginated) | Yes           |
-| `API-007` | `GET`    | `/api/media/:id`              | Get single media detail (includes upload_status, thumbnail)  | Yes           |
-| `API-008` | `GET`    | `/api/media/:id/file`         | Proxy media file from Google Drive (only if status=ready)    | Yes           |
-| `API-009` | `GET`    | `/api/media/:id/thumbnail`    | Proxy thumbnail from Google Drive API                        | Yes           |
-| `API-010` | `DELETE` | `/api/media/:id`              | Mark as deleting, queue async Drive delete via job scheduler | Yes           |
-| `API-011` | `PATCH`  | `/api/media/:id`              | Update media title and/or visibility                         | Yes           |
+| ID        | Method   | Endpoint                   | Description                                                  | Auth Required |
+| --------- | -------- | -------------------------- | ------------------------------------------------------------ | ------------- |
+| `API-005` | `POST`   | `/api/media/upload`        | Save file to server temp, return mediaId (Drive sync auto)   | Yes           |
+| `API-006` | `GET`    | `/api/media`               | List user's media with upload_status + thumbnail (paginated) | Yes           |
+| `API-007` | `GET`    | `/api/media/:id`           | Get single media detail (includes upload_status, thumbnail)  | Yes           |
+| `API-008` | `GET`    | `/api/media/:id/file`      | Proxy media file from Google Drive (only if status=ready)    | Yes           |
+| `API-009` | `GET`    | `/api/media/:id/thumbnail` | Proxy thumbnail from Google Drive API                        | Yes           |
+| `API-010` | `DELETE` | `/api/media/:id`           | Mark as deleting, queue async Drive delete via job scheduler | Yes           |
+| `API-011` | `PATCH`  | `/api/media/:id`           | Update media title and/or visibility                         | Yes           |
 
 ### 5.3 Sharing
 
-| ID        | Method   | Endpoint                     | Description                                                | Auth Required |
-| --------- | -------- | ---------------------------- | ---------------------------------------------------------- | ------------- |
-| `API-012` | `GET`    | `/api/share/:token`          | Render Loomo share page (public, only if status=ready)     | No            |
-| `API-013` | `GET`    | `/api/share/:token/file`     | Proxy shared media file from Google Drive                  | No            |
-| `API-014` | `POST`   | `/api/media/:id/share`       | Generate Loomo share link (only if status=ready)           | Yes           |
-| `API-015` | `DELETE` | `/api/media/:id/share`       | Revoke share link (regenerate token)                       | Yes           |
+| ID        | Method   | Endpoint                 | Description                                            | Auth Required |
+| --------- | -------- | ------------------------ | ------------------------------------------------------ | ------------- |
+| `API-012` | `GET`    | `/api/share/:token`      | Render Loomo share page (public, only if status=ready) | No            |
+| `API-013` | `GET`    | `/api/share/:token/file` | Proxy shared media file from Google Drive              | No            |
+| `API-014` | `POST`   | `/api/media/:id/share`   | Generate Loomo share link (only if status=ready)       | Yes           |
+| `API-015` | `DELETE` | `/api/media/:id/share`   | Revoke share link (regenerate token)                   | Yes           |
 
 ### 5.4 Workspace
 
-| ID        | Method   | Endpoint                     | Description                                    | Auth Required |
-| --------- | -------- | ---------------------------- | ---------------------------------------------- | ------------- |
-| `API-016` | `POST`   | `/api/workspace/invite`      | Invite member by email                         | Yes           |
-| `API-017` | `GET`    | `/api/workspace/members`     | List workspace members                         | Yes           |
-| `API-018` | `DELETE` | `/api/workspace/members/:id` | Remove workspace member                        | Yes           |
+| ID        | Method   | Endpoint                     | Description             | Auth Required |
+| --------- | -------- | ---------------------------- | ----------------------- | ------------- |
+| `API-016` | `POST`   | `/api/workspace/invite`      | Invite member by email  | Yes           |
+| `API-017` | `GET`    | `/api/workspace/members`     | List workspace members  | Yes           |
+| `API-018` | `DELETE` | `/api/workspace/members/:id` | Remove workspace member | Yes           |
 
 ### 5.5 Media Serving Logic (Loomo as Wrapper)
 
-```
+```text
 GET /api/media/:id/file  OR  GET /api/share/:token/file
         │
         ▼
@@ -885,21 +894,21 @@ GET /api/media/:id/file  OR  GET /api/share/:token/file
 
 ### Constraints
 
-| ID        | Constraint                                                              |
-| --------- | ----------------------------------------------------------------------- |
-| `CON-001` | Extension is Chrome-only (Manifest V3).                                 |
-| `CON-002` | PostgreSQL database is hosted externally (outside Docker).              |
-| `CON-003` | Max upload file size: 500 MB.                                           |
-| `CON-004` | Max recording duration: 30 minutes.                                     |
-| `CON-005` | Supported image formats: PNG, JPEG.                                     |
-| `CON-006` | Supported video formats: WebM, MP4.                                     |
-| `CON-007` | Authentication is Google OAuth only (no email/password).                 |
-| `CON-008` | File storage is user's Google Drive (requires `drive.file` scope).      |
-| `CON-009` | Google Drive API rate limit: 12,000 queries/min per project.            |
-| `CON-010` | Google Drive free tier: 15 GB per user (shared with Gmail, Photos).     |
-| `CON-011` | Server needs temp disk storage for files awaiting async Drive upload.   |
-| `CON-012` | Media is not viewable/shareable until Drive upload completes.           |
-| `CON-013` | Loomo server acts as wrapper only — no permanent file storage.          |
+| ID        | Constraint                                                            |
+| --------- | --------------------------------------------------------------------- |
+| `CON-001` | Extension is Chrome-only (Manifest V3).                               |
+| `CON-002` | PostgreSQL database is hosted externally (outside Docker).            |
+| `CON-003` | Max upload file size: 500 MB.                                         |
+| `CON-004` | Max recording duration: 30 minutes.                                   |
+| `CON-005` | Supported image formats: PNG, JPEG.                                   |
+| `CON-006` | Supported video formats: WebM, MP4.                                   |
+| `CON-007` | Authentication is Google OAuth only (no email/password).              |
+| `CON-008` | File storage is user's Google Drive (requires `drive.file` scope).    |
+| `CON-009` | Google Drive API rate limit: 12,000 queries/min per project.          |
+| `CON-010` | Google Drive free tier: 15 GB per user (shared with Gmail, Photos).   |
+| `CON-011` | Server needs temp disk storage for files awaiting async Drive upload. |
+| `CON-012` | Media is not viewable/shareable until Drive upload completes.         |
+| `CON-013` | Loomo server acts as wrapper only — no permanent file storage.        |
 
 ### Assumptions
 
@@ -916,41 +925,41 @@ GET /api/media/:id/file  OR  GET /api/share/:token/file
 
 ## 8. Glossary
 
-| Term                      | Definition                                                                                                                               |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Area Capture**          | A screenshot taken by selecting a rectangular region on a web page using a crosshair tool.                                               |
-| **Workplace / Workspace** | A shared collection of media assets belonging to a team or individual. Members of a workspace can access shared media.                   |
-| **Preview Editor**        | The in-browser annotation tool where users add shapes, text, and highlights to a captured screenshot before uploading.                   |
-| **Flatten**               | The process of merging all annotation layers (shapes, text, highlights) into a single rasterized image file.                             |
-| **Share Token**           | A cryptographically random string used in a URL to grant access to a specific media item without authentication.                         |
-| **Visibility**            | The access level of a media item: `private`, `unlisted`, or `workspace_only`.                                                            |
-| **Route Handler**         | Next.js App Router's server-side API endpoint (replaces the old `pages/api` pattern).                                                    |
-| **Google OAuth 2.0**      | Authentication protocol where users sign in via their Google account. Loomo uses this for login and Google Drive access.                 |
-| **drive.file scope**      | Google OAuth scope that grants access only to files created by the requesting app (Loomo), not the user's entire Drive.                  |
-| **Async Upload**          | Non-blocking upload pattern where the API returns immediately and a background worker handles the actual file transfer to Google Drive.   |
-| **Upload Job**            | A queued task representing a pending file upload to Google Drive, with status tracking and retry logic.                                   |
-| **Refresh Token**         | Long-lived Google OAuth token stored encrypted in DB, used to obtain new access tokens without re-prompting the user.                    |
+| Term                      | Definition                                                                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Area Capture**          | A screenshot taken by selecting a rectangular region on a web page using a crosshair tool.                                                   |
+| **Workplace / Workspace** | A shared collection of media assets belonging to a team or individual. Members of a workspace can access shared media.                       |
+| **Preview Editor**        | The in-browser annotation tool where users add shapes, text, and highlights to a captured screenshot before uploading.                       |
+| **Flatten**               | The process of merging all annotation layers (shapes, text, highlights) into a single rasterized image file.                                 |
+| **Share Token**           | A cryptographically random string used in a URL to grant access to a specific media item without authentication.                             |
+| **Visibility**            | The access level of a media item: `private`, `unlisted`, or `workspace_only`.                                                                |
+| **Route Handler**         | Next.js App Router's server-side API endpoint (replaces the old `pages/api` pattern).                                                        |
+| **Google OAuth 2.0**      | Authentication protocol where users sign in via their Google account. Loomo uses this for login and Google Drive access.                     |
+| **drive.file scope**      | Google OAuth scope that grants access only to files created by the requesting app (Loomo), not the user's entire Drive.                      |
+| **Async Upload**          | Non-blocking upload pattern where the API returns immediately and a background worker handles the actual file transfer to Google Drive.      |
+| **Upload Job**            | A queued task representing a pending file upload to Google Drive, with status tracking and retry logic.                                      |
+| **Refresh Token**         | Long-lived Google OAuth token stored encrypted in DB, used to obtain new access tokens without re-prompting the user.                        |
 | **Wrapper/Viewer**        | Loomo's role as a UI layer on top of Google Drive. Loomo does not permanently store files; it proxies media from Drive through branded URLs. |
-| **Temp Storage**          | Temporary file storage on the Loomo server. Files are held here only until successfully uploaded to Google Drive, then deleted.           |
+| **Temp Storage**          | Temporary file storage on the Loomo server. Files are held here only until successfully uploaded to Google Drive, then deleted.              |
 
 ---
 
 ## 9. Open Questions
 
-| ID       | Question                                                                        | Status       | Decision                                       |
-| -------- | ------------------------------------------------------------------------------- | ------------ | ---------------------------------------------- |
-| `OQ-001` | What file storage solution to use?                                              | ✅ Resolved  | Google Drive (per-user, via `drive.file` scope) |
-| `OQ-002` | Which auth library? (NextAuth.js, custom handler?)                              | 🔴 Open      | —                                                              |
-| `OQ-003` | Should we support Google/OAuth sign-in in v1?                                   | ✅ Resolved  | Yes — Google OAuth is the only auth method                     |
-| `OQ-004` | Maximum number of workspaces per user?                                          | 🔴 Open      | —                                                              |
-| `OQ-005` | Should recordings include webcam overlay option?                                | 🔴 Open      | —                                                              |
-| `OQ-006` | Should we implement soft-delete with a retention period?                        | 🔴 Open      | —                                                              |
-| `OQ-007` | What to do when user's Google Drive is full?                                    | 🔴 Open      | —                                                              |
-| `OQ-008` | Should shared media be proxied through Loomo server or served via Drive direct?  | ✅ Resolved  | Always proxied via Loomo server (Loomo = wrapper)              |
-| `OQ-009` | How to handle if user revokes Loomo's Google Drive access externally?            | 🔴 Open      | —                                                              |
-| `OQ-010` | Queue implementation: in-process (BullMQ/Redis) or DB-based (pg-boss)?          | 🔴 Open      | —                                                              |
-| `OQ-011` | Server temp cleanup policy?                                                      | ✅ Resolved  | Delete temp ONLY after confirmed successful Drive upload       |
-| `OQ-012` | Should server temp use disk or binary blob in PostgreSQL?                        | 🔴 Open      | —                                                              |
+| ID       | Question                                                                        | Status      | Decision                                                 |
+| -------- | ------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------- |
+| `OQ-001` | What file storage solution to use?                                              | ✅ Resolved | Google Drive (per-user, via `drive.file` scope)          |
+| `OQ-002` | Which auth library? (NextAuth.js, custom handler?)                              | 🔴 Open     | —                                                        |
+| `OQ-003` | Should we support Google/OAuth sign-in in v1?                                   | ✅ Resolved | Yes — Google OAuth is the only auth method               |
+| `OQ-004` | Maximum number of workspaces per user?                                          | 🔴 Open     | —                                                        |
+| `OQ-005` | Should recordings include webcam overlay option?                                | 🔴 Open     | —                                                        |
+| `OQ-006` | Should we implement soft-delete with a retention period?                        | 🔴 Open     | —                                                        |
+| `OQ-007` | What to do when user's Google Drive is full?                                    | 🔴 Open     | —                                                        |
+| `OQ-008` | Should shared media be proxied through Loomo server or served via Drive direct? | ✅ Resolved | Always proxied via Loomo server (Loomo = wrapper)        |
+| `OQ-009` | How to handle if user revokes Loomo's Google Drive access externally?           | 🔴 Open     | —                                                        |
+| `OQ-010` | Queue implementation: in-process (BullMQ/Redis) or DB-based (pg-boss)?          | 🔴 Open     | —                                                        |
+| `OQ-011` | Server temp cleanup policy?                                                     | ✅ Resolved | Delete temp ONLY after confirmed successful Drive upload |
+| `OQ-012` | Should server temp use disk or binary blob in PostgreSQL?                       | 🔴 Open     | —                                                        |
 
 ---
 
@@ -959,8 +968,8 @@ GET /api/media/:id/file  OR  GET /api/share/:token/file
 | Version | Date       | Author | Changes                                                                                                                                                                        |
 | ------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1.0     | —          | Rijal  | Initial PRD.                                                                                                                                                                   |
-| 2.0     | 2026-06-16 | Rijal  | Restructured for AI readability. Added: requirement IDs, acceptance criteria, user stories, data model, API contracts, glossary, success metrics, constraints, open questions.  |
+| 2.0     | 2026-06-16 | Rijal  | Restructured for AI readability. Added: requirement IDs, acceptance criteria, user stories, data model, API contracts, glossary, success metrics, constraints, open questions. |
 | 3.0     | 2026-06-16 | Rijal  | Major architecture change: Google OAuth login, Google Drive storage (per-user), async upload with background job queue. Removed email/password auth. Added UploadJob entity.   |
 | 3.1     | 2026-06-16 | Rijal  | Upload redesigned to be fully invisible (no user-facing status/retry). Share links always Loomo-branded URLs.                                                                  |
 | 3.2     | 2026-06-16 | Rijal  | Loomo = wrapper/viewer only. Media only viewable after Drive upload. Temp deleted only after Drive success. All media served by proxying from Google Drive.                    |
-| 3.3     | 2026-06-16 | Rijal  | Enhanced media management: thumbnails via Drive API, rename, async delete via job scheduler. BackgroundJob entity replaces UploadJob (handles both upload & delete).            |
+| 3.3     | 2026-06-16 | Rijal  | Enhanced media management: thumbnails via Drive API, rename, async delete via job scheduler. BackgroundJob entity replaces UploadJob (handles both upload & delete).           |
