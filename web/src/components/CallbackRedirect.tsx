@@ -4,13 +4,15 @@ import { useEffect } from 'react';
 
 interface CallbackRedirectProps {
   code: string;
+  state?: string;
 }
 
-export default function CallbackRedirect({ code }: CallbackRedirectProps) {
+export default function CallbackRedirect({ code, state }: CallbackRedirectProps) {
   useEffect(() => {
     // Redirect browser to the API Route Handler which can safely set cookies
-    window.location.href = `/api/auth/google/callback?code=${encodeURIComponent(code)}`;
-  }, [code]);
+    const stateParam = state ? `&state=${encodeURIComponent(state)}` : '';
+    window.location.href = `/api/auth/google/callback?code=${encodeURIComponent(code)}${stateParam}`;
+  }, [code, state]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F172A] text-slate-200 font-sans">
