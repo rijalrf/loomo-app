@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import { User, Folder, Lock } from 'lucide-react';
 
 function LoginCard() {
   const searchParams = useSearchParams();
@@ -79,7 +80,7 @@ function LoginCard() {
 
         <div className="space-y-3 pt-2">
           <div className="flex gap-3 items-start">
-            <span className="text-base">👤</span>
+            <User className="text-[#0CB2EB] shrink-0 mt-0.5" size={18} />
             <div>
               <strong className="text-slate-200 block">Profil & Alamat Email</strong>
               <span>Digunakan untuk membuat akun Loomo Anda dan menampilkan nama serta avatar Anda di dashboard.</span>
@@ -87,7 +88,7 @@ function LoginCard() {
           </div>
 
           <div className="flex gap-3 items-start">
-            <span className="text-base">📁</span>
+            <Folder className="text-[#0CB2EB] shrink-0 mt-0.5" size={18} />
             <div>
               <strong className="text-slate-200 block">Google Drive (Akses Terbatas: drive.file)</strong>
               <span>Izin membuat, membaca, dan mengubah folder khusus bernama <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-300 font-mono">Loomo</code> di root Drive Anda. Loomo hanya dapat mengakses file yang dibuat/diunggah melalui Loomo.</span>
@@ -95,7 +96,7 @@ function LoginCard() {
           </div>
 
           <div className="flex gap-3 items-start">
-            <span className="text-base">🔒</span>
+            <Lock className="text-[#0CB2EB] shrink-0 mt-0.5" size={18} />
             <div>
               <strong className="text-slate-200 block">Privasi Data Mutlak</strong>
               <span>Loomo <strong className="text-red-400">TIDAK BISA</strong> melihat, mengedit, atau mengakses berkas-berkas pribadi Anda yang lain di Google Drive. File Anda tetap aman 100%.</span>

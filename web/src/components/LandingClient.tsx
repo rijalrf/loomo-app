@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Zap } from "lucide-react";
 
 export default function LandingClient() {
   const handleLogin = () => {
@@ -181,7 +182,7 @@ export default function LandingClient() {
         <section id="features" className="scroll-mt-24">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8A5CF6]/10 text-xs text-[#8A5CF6] mb-3 font-semibold">
-              <span>🚀</span>
+              <Zap size={14} className="text-[#8A5CF6] fill-[#8A5CF6]" />
               <span>Loomo Power</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
