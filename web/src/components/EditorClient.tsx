@@ -436,8 +436,13 @@ export default function EditorClient() {
       localStorage.removeItem(`jam_meta_${id}`);
       await deleteVideoFromIndexedDB(id);
 
-      // 5. Set success state
-      setSavingState('success');
+      // 5. Success behavior
+      if (isPopup) {
+        alert(`Berhasil! Link share publik telah disalin ke clipboard:\n${shareLink}`);
+        window.close();
+      } else {
+        setSavingState('success');
+      }
 
     } catch (err: any) {
       clientLogger.error('editor-client', 'Error saving annotated screenshot:', err);

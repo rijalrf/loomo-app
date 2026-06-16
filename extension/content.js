@@ -68,9 +68,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     } else if (message.action === 'INIT_SCREENSHOT_SELECTION') {
       initScreenshotSelection(); // Mulai tangkapan layar area
       sendResponse({ status: 'Screenshot selection initialized' });
-    } else if (message.action === 'SHOW_EDITOR_IFRAME') {
-      showEditorIframe(message.payload.id);
-      sendResponse({ status: 'Editor iframe shown' });
     }
   }
 });
@@ -558,92 +555,4 @@ function generateUUID() {
   });
 }
 
-// 7. Tampilkan Iframe Editor Anotasi pada Halaman Target (Modal Overlay)
-function showEditorIframe(id) {
-  if (document.getElementById('loomo-editor-overlay')) return;
 
-  const overlay = document.createElement('div');
-  overlay.id = 'loomo-editor-overlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 2147483647;
-    background: rgba(11, 15, 25, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-  `;
-
-  const panel = document.createElement('div');
-  panel.style.cssText = `
-    width: 90vw;
-    height: 85vh;
-    max-width: 1100px;
-    max-height: 750px;
-    background: #0B0F19;
-    border: 1px solid #232D3F;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-  `;
-
-  const closeBtn = document.createElement('button');
-  closeBtn.innerHTML = '&times;';
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    background: transparent;
-    border: none;
-    color: #8B94A3;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 10;
-    transition: color 0.15s ease;
-  `;
-  closeBtn.onmouseover = () => { closeBtn.style.color = '#EF4444'; };
-  closeBtn.onmouseout = () => { closeBtn.style.color = '#8B94A3'; };
-  closeBtn.onclick = () => {
-    document.body.removeChild(overlay);
-  };
-  panel.appendChild(closeBtn);
-
-  const iframe = document.createElement('iframe');
-  iframe.src = `http://localhost:8999/?importPending=true&isPopup=true&embed=true&driveFileId=${id}`;
-  iframe.style.cssText = `
-    width: 100%;
-    height: 100%;
-    border: none;
-    background: transparent;
-  `;
-  panel.appendChild(iframe);
-  overlay.appendChild(panel);
-  document.body.appendChild(overlay);
-}
-
-// 8. Logika Menerima Pesan Sukses Simpan dari Iframe
-window.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'LOOMO_SAVE_SUCCESS') {
-    const shareLink = event.data.shareLink;
-    
-    // Salin link ke clipboard di context parent window
-    navigator.clipboard.writeText(shareLink).then(() => {
-      // Hapus overlay modal editor
-      const overlay = document.getElementById('loomo-editor-overlay');
-      if (overlay) {
-        document.body.removeChild(overlay);
-      }
-      // Munculkan alert success
-      alert(`Berhasil! Link share publik telah disalin ke clipboard:\n${shareLink}`);
-    }).catch((err) => {
-      alert(`Berhasil disimpan! Salin link berikut:\n${shareLink}`);
-    });
-  }
-});

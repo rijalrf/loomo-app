@@ -148,14 +148,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         pending_jam_metadata: metadata,
         pending_jam_video: imageBase64
       }, () => {
-        const tabId = (sender && sender.tab) ? sender.tab.id : null;
-        if (tabId) {
-          chrome.tabs.sendMessage(tabId, {
-            source: 'jam-extension-background',
-            action: 'SHOW_EDITOR_IFRAME',
-            payload: { id: metadata.id }
-          });
-        }
+        const backofficeUrl = `http://localhost:8999/?importPending=true&isPopup=true`;
+        chrome.windows.create({
+          url: backofficeUrl,
+          type: 'popup',
+          width: 1024,
+          height: 768
+        });
       });
     }
   }
