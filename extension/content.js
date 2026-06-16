@@ -303,61 +303,64 @@ function initScreenshotSelection() {
       return;
     }
 
-    chrome.runtime.sendMessage({
-      source: 'jam-extension-content',
-      action: 'CAPTURE_VISIBLE_TAB'
-    }, (response) => {
-      if (chrome.runtime.lastError) {
-        alert('Gagal mengambil screenshot: ' + chrome.runtime.lastError.message);
-        return;
-      }
-      if (!response) {
-        alert('Gagal mengambil screenshot: Tidak ada respon dari background service worker.');
-        return;
-      }
-      if (response.error) {
-        alert('Gagal mengambil screenshot: ' + response.error);
-        return;
-      }
-      if (!response.dataUrl) {
-        alert('Gagal mengambil screenshot: URL data gambar kosong.');
-        return;
-      }
+    // Tunggu repaint browser (150ms) agar overlay hijau benar-benar hilang dari layar sebelum ditangkap
+    setTimeout(() => {
+      chrome.runtime.sendMessage({
+        source: 'jam-extension-content',
+        action: 'CAPTURE_VISIBLE_TAB'
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          alert('Gagal mengambil screenshot: ' + chrome.runtime.lastError.message);
+          return;
+        }
+        if (!response) {
+          alert('Gagal mengambil screenshot: Tidak ada respon dari background service worker.');
+          return;
+        }
+        if (response.error) {
+          alert('Gagal mengambil screenshot: ' + response.error);
+          return;
+        }
+        if (!response.dataUrl) {
+          alert('Gagal mengambil screenshot: URL data gambar kosong.');
+          return;
+        }
 
-      // Potong gambar menggunakan kanvas HTML5
-      const img = new Image();
-      img.src = response.dataUrl;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const dpr = window.devicePixelRatio || 1;
-        
-        // Sesuaikan dimensi dengan Device Pixel Ratio browser
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        ctx.imageSmoothingEnabled = false;
-        
-        ctx.drawImage(
-          img,
-          rect.left * dpr,
-          rect.top * dpr,
-          rect.width * dpr,
-          rect.height * dpr,
-          0,
-          0,
-          rect.width * dpr,
-          rect.height * dpr
-        );
+        // Potong gambar menggunakan kanvas HTML5
+        const img = new Image();
+        img.src = response.dataUrl;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const dpr = window.devicePixelRatio || 1;
+          
+          // Sesuaikan dimensi dengan Device Pixel Ratio browser
+          canvas.width = rect.width * dpr;
+          canvas.height = rect.height * dpr;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          
+          ctx.imageSmoothingEnabled = false;
+          
+          ctx.drawImage(
+            img,
+            rect.left * dpr,
+            rect.top * dpr,
+            rect.width * dpr,
+            rect.height * dpr,
+            0,
+            0,
+            rect.width * dpr,
+            rect.height * dpr
+          );
 
-        const croppedBase64 = canvas.toDataURL('image/png');
-        
-        // Simpan metadata dan gambar tangkapan layar
-        saveScreenshotJam(croppedBase64, rect.width, rect.height);
-      };
-    });
+          const croppedBase64 = canvas.toDataURL('image/png');
+          
+          // Simpan metadata dan gambar tangkapan layar
+          saveScreenshotJam(croppedBase64, rect.width, rect.height);
+        };
+      });
+    }, 150);
   };
 
   overlay.addEventListener('mousedown', handleMouseDown);
