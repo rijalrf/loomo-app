@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String            @id @default(uuid())
+  googleId         String            @unique @map("google_id")
+  email            String            @unique
+  displayName      String            @map("display_name")
+  avatarUrl        String            @map("avatar_url")
+  accessToken      String            @map("access_token") // Store encrypted
+  refreshToken     String?           @map("refresh_token") // Store encrypted
+  tokenExpiresAt   DateTime?         @map("token_expires_at")
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  
+  workspacesOwned  Workspace[]       @relation("WorkspaceOwner")
+  memberships      WorkspaceMember[]
+  mediaUploaded    Media[]
+  backgroundJobs   BackgroundJob[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id          String            @id @default(uuid())
+  name        String
+  createdBy   String            @map("created_by")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  
+  owner       User              @relation("WorkspaceOwner", fields: [createdBy], references: [id], onDelete: Cascade)
+  members     WorkspaceMember[]
+  media       Media[]
+
+  @@map("workspaces")
+}
+
+enum Role {
+  OWNER
+  MEMBER
+}
+
+model WorkspaceMember {
+  id          String    @id @default(uuid())
+  workspaceId String    @map("workspace_id")
+  userId      String    @map("user_id")
+  role        Role      @default(MEMBER)
+  invitedAt   DateTime  @default(now()) @map("invited_at")
+  acceptedAt  DateTime? @map("accepted_at")
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+}
+
+enum MediaType {
+  SCREENSHOT
+  RECORDING
+}
+
+enum Visibility {
+  PRIVATE
+  UNLISTED
+  WORKSPACE_ONLY
+}
+
+enum UploadStatus {
+  PROCESSING
+  UPLOADING
+  READY
+  FAILED
+  DELETING
+}
+
+model Media {
+  id                String       @id @default(uuid())
+  workspaceId       String       @map("workspace_id")
+  uploadedBy        String       @map("uploaded_by")
+  title             String
+  type              MediaType
+  driveFileId       String?      @map("drive_file_id")
+  driveThumbnailUrl String?      @map("drive_thumbnail_url")
+  fileSizeBytes     Int?         @map("file_size_bytes")
+  mimeType          String?      @map("mime_type")
+  shareToken        String?      @unique @map("share_token")
+  visibility        Visibility   @default(PRIVATE)
+  uploadStatus      UploadStatus @default(PROCESSING) @map("upload_status")
+  uploadRetries     Int          @default(0) @map("upload_retries")
+  durationSeconds   Int          @default(0) @map("duration_seconds")
+  width             Int?
+  height            Int?
+  createdAt         DateTime     @default(now()) @map("created_at")
+  deletedAt         DateTime?    @map("deleted_at")
+
+  workspace         Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  uploader          User         @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+  jobs              BackgroundJob[]
+
+  @@map("media")
+}
+
+enum JobType {
+  UPLOAD
+  DELETE
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model BackgroundJob {
+  id            String    @id @default(uuid())
+  mediaId       String    @map("media_id")
+  userId        String    @map("user_id")
+  jobType       JobType   @map("job_type")
+  status        JobStatus @default(QUEUED)
+  tempFilePath  String?   @map("temp_file_path")
+  errorMessage  String?   @map("error_message")
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(5) @map("max_attempts")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  startedAt     DateTime? @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+
+  media         Media     @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("background_jobs")
+}

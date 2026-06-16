@@ -1,0 +1,10 @@
+# dependencies
+node_modules/
+web/node_modules/
+web/.next/
+web/.env*
+web/loomo_logs.txt
+web/uploads/
+.DS_Store
+*.log
+client_secret_devnote.json
