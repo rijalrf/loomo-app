@@ -18,6 +18,7 @@ interface Workspace {
   name: string;
   role: string;
   isOwner: boolean;
+  saveToOwnerDrive?: boolean;
 }
 
 interface Member {
@@ -170,6 +171,7 @@ export default function SettingsClient({
   const [inviteRole, setInviteRole] = useState<'MEMBER' | 'OWNER'>('MEMBER');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [updatingStorage, setUpdatingStorage] = useState(false);
 
   // Active Workspace
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
@@ -269,6 +271,33 @@ export default function SettingsClient({
     } catch (e) {
       toast.error('Failed to remove member');
       clientLogger.error('settings-client', 'Failed to remove member:', e);
+    }
+  };
+
+  const handleUpdateStorageSetting = async (saveToOwnerDrive: boolean) => {
+    if (!activeWorkspaceId) return;
+    setUpdatingStorage(true);
+    try {
+      const res = await fetch('/api/workspace', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: activeWorkspaceId,
+          saveToOwnerDrive
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success('Storage settings updated successfully!');
+        setWorkspaces(prev => prev.map(w => w.id === activeWorkspaceId ? { ...w, saveToOwnerDrive: data.workspace.saveToOwnerDrive } : w));
+      } else {
+        toast.error(data.error || 'Failed to update storage settings');
+      }
+    } catch (e) {
+      clientLogger.error('settings-client', 'Failed to update workspace storage settings:', e);
+      toast.error('Network error. Failed to update storage settings.');
+    } finally {
+      setUpdatingStorage(false);
     }
   };
 
@@ -462,6 +491,81 @@ export default function SettingsClient({
             ) : (
               <div className="bg-slate-900/20 border border-slate-800/50 p-6 rounded-2xl text-slate-400 text-xs font-semibold">
                 Only workspace owners can invite new members or manage membership settings.
+              </div>
+            )}
+
+            {/* Workspace Storage Settings */}
+            {activeWorkspace?.isOwner && (
+              <div className="bg-slate-900/40 border border-slate-800 p-6 md:p-8 rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <h3 className="text-base font-black text-white tracking-tight mb-2">Workspace Storage Location</h3>
+                <p className="text-xs text-slate-500 font-medium mb-6">
+                  Configure where files (screenshots and recordings) uploaded by members are saved. By default, files are uploaded to the workspace owner&apos;s Google Drive.
+                </p>
+
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-3">
+                    <button
+                      type="button"
+                      disabled={updatingStorage}
+                      onClick={() => handleUpdateStorageSetting(true)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                        activeWorkspace.saveToOwnerDrive !== false
+                          ? 'bg-[#0CB2EB]/10 border-[#0CB2EB] text-white shadow-[0_0_15px_rgba(12,178,235,0.05)]'
+                          : 'bg-slate-950/25 border-slate-800 hover:border-slate-700/85 text-slate-400'
+                      }`}
+                    >
+                      <div className="pt-0.5">
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          activeWorkspace.saveToOwnerDrive !== false ? 'border-[#0CB2EB]' : 'border-slate-600'
+                        }`}>
+                          {activeWorkspace.saveToOwnerDrive !== false && (
+                            <div className="w-2 h-2 rounded-full bg-[#0CB2EB]" />
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-white mb-1">Workspace Owner&apos;s Google Drive (Default)</div>
+                        <p className="text-xs text-slate-400">
+                          All files uploaded by members will be stored in the workspace owner&apos;s Google Drive. Recommended for team-wide storage consolidation.
+                        </p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={updatingStorage}
+                      onClick={() => handleUpdateStorageSetting(false)}
+                      className={`flex items-start gap-4 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                        activeWorkspace.saveToOwnerDrive === false
+                          ? 'bg-[#0CB2EB]/10 border-[#0CB2EB] text-white shadow-[0_0_15px_rgba(12,178,235,0.05)]'
+                          : 'bg-slate-950/25 border-slate-800 hover:border-slate-700/85 text-slate-400'
+                      }`}
+                    >
+                      <div className="pt-0.5">
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                          activeWorkspace.saveToOwnerDrive === false ? 'border-[#0CB2EB]' : 'border-slate-600'
+                        }`}>
+                          {activeWorkspace.saveToOwnerDrive === false && (
+                            <div className="w-2 h-2 rounded-full bg-[#0CB2EB]" />
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-white mb-1">Individual Member&apos;s Google Drive</div>
+                        <p className="text-xs text-slate-400">
+                          Files will be stored in the personal Google Drive of the member who uploads them. Useful for individual quota conservation.
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {updatingStorage && (
+                    <div className="flex items-center gap-2 text-[#0CB2EB] text-xs font-bold mt-2 animate-pulse">
+                      <div className="w-3.5 h-3.5 border-2 border-[#0CB2EB]/30 border-t-[#0CB2EB] rounded-full animate-spin"></div>
+                      <span>Saving storage configuration...</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

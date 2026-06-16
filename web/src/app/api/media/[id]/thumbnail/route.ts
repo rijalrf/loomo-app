@@ -2,6 +2,7 @@ import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
+import { getDriveOwnerId } from '@/lib/workspace';
 
 export async function GET(
   request: NextRequest,
@@ -45,7 +46,9 @@ export async function GET(
     if (media.driveFileId) {
       try {
         const { getFreshAccessToken, getFileMetadata } = await import('@/lib/gdrive');
-        const accessToken = await getFreshAccessToken(media.uploadedBy);
+        // Resolve correct drive owner (workspace owner or uploader)
+        const targetUserId = getDriveOwnerId(media.workspace, media.uploadedBy);
+        const accessToken = await getFreshAccessToken(targetUserId);
         const metadata = await getFileMetadata(accessToken, media.driveFileId);
         if (metadata.thumbnailLink) {
           thumbnailUrl = metadata.thumbnailLink;

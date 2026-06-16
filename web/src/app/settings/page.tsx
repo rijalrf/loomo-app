@@ -33,7 +33,8 @@ export default async function SettingsPage() {
     id: membership.workspace.id,
     name: membership.workspace.name,
     role: membership.role,
-    isOwner: membership.workspace.createdBy === dbUser.id
+    isOwner: membership.workspace.createdBy === dbUser.id,
+    saveToOwnerDrive: membership.workspace.saveToOwnerDrive
   }));
 
   if (workspaces.length === 0) {

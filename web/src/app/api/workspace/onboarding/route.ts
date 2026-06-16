@@ -25,11 +25,13 @@ export async function POST(request: NextRequest) {
 
     // Create the workspace and set the owner in a transaction
     const workspace = await prisma.$transaction(async (tx) => {
+      const defaultSaveToOwner = process.env.DEFAULT_SAVE_TO_OWNER_DRIVE !== 'false';
       const newWorkspace = await tx.workspace.create({
         data: {
           name: trimmedName,
           description: trimmedDesc,
           department: trimmedDept,
+          saveToOwnerDrive: defaultSaveToOwner,
           createdBy: session.userId
         }
       });

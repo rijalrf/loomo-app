@@ -63,7 +63,8 @@ export default async function Home({ searchParams }: PageProps) {
     id: membership.workspace.id,
     name: membership.workspace.name,
     role: membership.role,
-    isOwner: membership.workspace.createdBy === dbUser.id
+    isOwner: membership.workspace.createdBy === dbUser.id,
+    saveToOwnerDrive: membership.workspace.saveToOwnerDrive
   }));
 
   const activeWorkspaceId = workspaces[0]?.id || '';

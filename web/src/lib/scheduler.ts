@@ -3,6 +3,7 @@ import path from 'path';
 import { prisma } from './db';
 import { getFreshAccessToken, getOrCreateLoomoFolders, uploadToDrive, deleteFromDrive } from './gdrive';
 import { logger } from './logger';
+import { getDriveOwnerId } from './workspace';
 
 let isSchedulerRunning = false;
 let schedulerIntervalId: NodeJS.Timeout | null = null;
@@ -59,8 +60,20 @@ async function processJob(job: any) {
   });
 
   try {
-    // Get fresh token for the user who owns the job
-    const accessToken = await getFreshAccessToken(job.userId);
+    // Fetch media and workspace to find the storage target user
+    const media = await prisma.media.findUnique({
+      where: { id: job.mediaId },
+      include: { workspace: true }
+    });
+
+    if (!media) {
+      throw new Error(`Media record not found for job ${job.id}`);
+    }
+
+    // Resolve target user ID based on workspace settings:
+    const targetUserId = getDriveOwnerId(media.workspace, media.uploadedBy);
+
+    const accessToken = await getFreshAccessToken(targetUserId);
 
     if (job.jobType === 'UPLOAD') {
       await handleUploadJob(job, accessToken);
