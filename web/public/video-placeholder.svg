@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" width="100%" height="100%">
+  <rect width="400" height="250" fill="#0F172A" rx="8" />
+  <defs>
+    <linearGradient id="video-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(160, 75)" stroke="url(#video-grad)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 10 C0 4.477 4.477 0 10 0 L55 0 C60.523 0 65 4.477 65 10 L65 50 C65 55.523 60.523 60 55 60 L10 60 C4.477 60 0 55.523 0 50 Z" />
+    <polygon points="25,20 45,30 25,40" fill="url(#video-grad)" />
+    <path d="M65 20 L80 10 L80 50 L65 40 Z" fill="url(#video-grad)" />
+  </g>
+  <text x="200" y="180" fill="#64748B" font-family="sans-serif" font-size="14" font-weight="600" text-anchor="middle">Video Recording</text>
+  <text x="200" y="200" fill="#475569" font-family="sans-serif" font-size="12" text-anchor="middle">Processing or no preview available</text>
+</svg>
