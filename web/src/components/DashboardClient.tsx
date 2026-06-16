@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
+import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check } from 'lucide-react';
 
 interface User {
   id: string;
@@ -423,7 +424,7 @@ export default function DashboardClient({
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
             >
-              <span>📁</span>
+              <Folder size={18} />
               <span>All Captures</span>
             </button>
 
@@ -438,7 +439,7 @@ export default function DashboardClient({
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
             >
-              <span>📸</span>
+              <ImageIcon size={18} />
               <span>Screenshots</span>
             </button>
 
@@ -453,7 +454,7 @@ export default function DashboardClient({
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
             >
-              <span>🎥</span>
+              <Video size={18} />
               <span>Recordings</span>
             </button>
 
@@ -461,7 +462,7 @@ export default function DashboardClient({
               onClick={() => setShowMembersModal(true)}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
             >
-              <span>👥</span>
+              <Users size={18} />
               <span>Workspace Members</span>
             </button>
 
@@ -471,7 +472,7 @@ export default function DashboardClient({
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/40 transition-all"
             >
-              <span>📖</span>
+              <BookOpen size={18} />
               <span>Documentation</span>
             </a>
           </nav>
@@ -499,9 +500,10 @@ export default function DashboardClient({
           </div>
           <button
             onClick={handleLogout}
-            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg"
+            className="w-full py-2 bg-slate-800 hover:bg-red-500/10 hover:text-red-400 transition-colors text-xs font-bold text-slate-400 rounded-lg flex items-center justify-center gap-2"
           >
-            Sign Out
+            <LogOut size={14} />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -558,9 +560,7 @@ export default function DashboardClient({
           {/* Search and Filters */}
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto flex-1">
             <div className="relative flex-1 min-w-[240px]">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-              </svg>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
                 type="text"
                 placeholder="Search captures..."
@@ -612,18 +612,14 @@ export default function DashboardClient({
                 className={`p-1.5 rounded-md transition-all ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="Grid View"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                </svg>
+                <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setIsGridView(false)}
                 className={`p-1.5 rounded-md transition-all ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="List View"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
+                <List size={18} />
               </button>
             </div>
           </div>
@@ -686,9 +682,7 @@ export default function DashboardClient({
                         {media.type === 'RECORDING' && (
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
                             <div className="w-12 h-12 rounded-full bg-[#0CB2EB]/90 flex items-center justify-center text-white shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform">
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                              </svg>
+                              <Play size={20} fill="currentColor" />
                             </div>
                           </div>
                         )}
