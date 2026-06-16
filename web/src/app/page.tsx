@@ -14,6 +14,7 @@ interface PageProps {
     code?: string;
     error?: string;
     driveFileId?: string;
+    state?: string;
   }>;
 }
 
@@ -22,7 +23,7 @@ export default async function Home({ searchParams }: PageProps) {
   
   // 1. If code is present from Google, redirect via client component to Route Handler
   if (query.code) {
-    return <CallbackRedirect code={query.code} />;
+    return <CallbackRedirect code={query.code} state={query.state} />;
   }
 
   // 2. Normal rendering flow
