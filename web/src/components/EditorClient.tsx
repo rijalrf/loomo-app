@@ -438,7 +438,6 @@ export default function EditorClient() {
 
       // 5. Success behavior
       if (isPopup) {
-        alert(`Berhasil! Link share publik telah disalin ke clipboard:\n${shareLink}`);
         window.close();
       } else {
         setSavingState('success');
