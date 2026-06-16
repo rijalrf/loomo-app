@@ -69,6 +69,11 @@ export default function PendingImportHandler() {
       formData.append('type', 'recording');
       formData.append('durationSeconds', String(metadata.duration || 0));
       
+      const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
+      if (savedWorkspaceId) {
+        formData.append('workspaceId', savedWorkspaceId);
+      }
+      
       if (metadata.systemInfo?.viewportSize) {
         const [w, h] = metadata.systemInfo.viewportSize.split('x');
         formData.append('width', w);
@@ -86,17 +91,47 @@ export default function PendingImportHandler() {
         throw new Error(errJson.error || 'Server upload failed');
       }
 
+      const uploadResult = await response.json();
+      const mediaId = uploadResult.mediaId;
+
+      setUploadState(prev => ({ ...prev, progress: 'Generating public share link...' }));
+
+      // 3b. Generate public share link
+      const shareRes = await fetch(`/api/media/${mediaId}/share`, {
+        method: 'POST'
+      });
+
+      if (shareRes.ok) {
+        const shareData = await shareRes.json();
+        const shareLink = `${window.location.origin}/s/${shareData.shareToken}`;
+        
+        // Copy to clipboard
+        try {
+          await navigator.clipboard.writeText(shareLink);
+        } catch (clipErr) {
+          console.warn('Failed to copy to clipboard automatically:', clipErr);
+        }
+      }
+
       setUploadState(prev => ({ ...prev, progress: 'Upload complete! Finalizing...' }));
 
       // 4. Cleanup local storage and IndexedDB
       localStorage.removeItem(`jam_meta_${id}`);
       await deleteVideoFromIndexedDB(id);
 
-      // 5. Success! Clear query parameters and reload list
-      setTimeout(() => {
-        router.push('/');
-        window.location.reload();
-      }, 1000);
+      // 5. Success behavior
+      const isPopup = searchParams.get('isPopup') === 'true';
+      if (isPopup) {
+        window.dispatchEvent(new CustomEvent('loomo_close_window'));
+        setTimeout(() => {
+          window.close();
+        }, 100);
+      } else {
+        setTimeout(() => {
+          router.push('/');
+          window.location.reload();
+        }, 1000);
+      }
 
     } catch (err: any) {
       clientLogger.error('pending-import-handler', 'Video upload failed:', err);

@@ -326,6 +326,7 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     id: generateUUID(),
     title: `Jam Bug Report (Ekstensi) - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
     createdAt: new Date().toISOString(),
+    type: 'recording', // Tipe: Recording
     duration: durationSec || 1,
     systemInfo: {
       browser: 'Google Chrome (Extension)',
@@ -345,9 +346,14 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
-    // D. Buka tab baru mengarah ke Backoffice dengan instruksi importPending
-    const backofficeUrl = `http://localhost:8999/?importPending=true`;
-    chrome.tabs.create({ url: backofficeUrl });
+    // D. Buka window popup mengarah ke Backoffice dengan instruksi importPending dan isPopup=true
+    const backofficeUrl = `http://localhost:8999/?importPending=true&isPopup=true`;
+    chrome.windows.create({
+      url: backofficeUrl,
+      type: 'popup',
+      width: 1024,
+      height: 768
+    });
   });
 }
 
