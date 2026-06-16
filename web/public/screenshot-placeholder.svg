@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 250" width="100%" height="100%">
+  <rect width="400" height="250" fill="#0F172A" rx="8" />
+  <defs>
+    <linearGradient id="screenshot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(160, 75)" stroke="url(#screenshot-grad)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="0" y="0" width="80" height="60" rx="6" />
+    <circle cx="25" cy="22" r="8" />
+    <path d="M5 50 L25 30 L45 45 L55 35 L75 50" />
+  </g>
+  <text x="200" y="180" fill="#64748B" font-family="sans-serif" font-size="14" font-weight="600" text-anchor="middle">Screenshot</text>
+  <text x="200" y="200" fill="#475569" font-family="sans-serif" font-size="12" text-anchor="middle">Processing or no preview available</text>
+</svg>

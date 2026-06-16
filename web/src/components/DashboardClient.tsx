@@ -142,6 +142,10 @@ export default function DashboardClient({
   };
 
   useEffect(() => {
+    // Skip fetching media if we are about to redirect for importing data from extension
+    const isImportPending = new URLSearchParams(window.location.search).get('importPending') === 'true';
+    if (isImportPending) return;
+
     if (activeWorkspaceId) {
       fetchMedia();
     }

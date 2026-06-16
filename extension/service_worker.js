@@ -318,14 +318,15 @@ async function createOffscreenDocument() {
 async function saveRecordingAndRedirect(videoDataBase64) {
   // A. Hapus offscreen document karena perekaman selesai
   chrome.offscreen.closeDocument().catch(() => {});
-
+  
   const durationSec = Math.round((Date.now() - startTime) / 1000);
-
+ 
   // B. Susun objek Metadata Jam
   const metadata = {
     id: generateUUID(),
-    title: `Jam Bug Report (Ekstensi) - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
+    title: `Loomo Recording - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
     createdAt: new Date().toISOString(),
+    type: 'recording', // Tipe: Recording
     duration: durationSec || 1,
     systemInfo: {
       browser: 'Google Chrome (Extension)',
@@ -339,15 +340,20 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     networkRequests: networkRequests,
     userActions: userActions
   };
-
+ 
   // C. Simpan sementara di chrome.storage.local agar bisa dibaca halaman localhost:8999
   chrome.storage.local.set({
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
-    // D. Buka tab baru mengarah ke Backoffice dengan instruksi importPending
-    const backofficeUrl = `http://localhost:8999/?importPending=true`;
-    chrome.tabs.create({ url: backofficeUrl });
+    // D. Buka window popup mengarah ke Backoffice dengan instruksi importPending dan isPopup=true
+    const backofficeUrl = `http://localhost:8999/?importPending=true&isPopup=true`;
+    chrome.windows.create({
+      url: backofficeUrl,
+      type: 'popup',
+      width: 1024,
+      height: 768
+    });
   });
 }
 

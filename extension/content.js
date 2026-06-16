@@ -100,6 +100,13 @@ function syncSession() {
   } else {
     chrome.storage.local.remove('gdrive_user_session');
   }
+
+  const activeWorkspace = localStorage.getItem('loomo_active_workspace_id');
+  if (activeWorkspace) {
+    chrome.storage.local.set({ loomo_active_workspace_id: activeWorkspace });
+  } else {
+    chrome.storage.local.remove('loomo_active_workspace_id');
+  }
 }
 
 async function importPendingJamFromExtension() {
@@ -560,5 +567,7 @@ function generateUUID() {
     return v.toString(16);
   });
 }
+
+
 
 

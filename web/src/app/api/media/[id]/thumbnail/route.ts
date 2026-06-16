@@ -37,7 +37,7 @@ export async function GET(
     }
 
     if (media.uploadStatus !== 'READY') {
-      return NextResponse.json({ status: 'PROCESSING' }, { status: 202 });
+      return NextResponse.redirect(new URL(media.type === 'SCREENSHOT' ? '/screenshot-placeholder.svg' : '/video-placeholder.svg', request.url));
     }
 
     let thumbnailUrl = media.driveThumbnailUrl;
@@ -61,13 +61,13 @@ export async function GET(
     }
 
     if (!thumbnailUrl) {
-      return NextResponse.redirect(new URL(media.type === 'SCREENSHOT' ? '/screenshot-placeholder.png' : '/video-placeholder.png', request.url));
+      return NextResponse.redirect(new URL(media.type === 'SCREENSHOT' ? '/screenshot-placeholder.svg' : '/video-placeholder.svg', request.url));
     }
 
     // Fetch the thumbnail image from Google Drive
     const thumbRes = await fetch(thumbnailUrl);
     if (!thumbRes.ok) {
-      return NextResponse.redirect(new URL(media.type === 'SCREENSHOT' ? '/screenshot-placeholder.png' : '/video-placeholder.png', request.url));
+      return NextResponse.redirect(new URL(media.type === 'SCREENSHOT' ? '/screenshot-placeholder.svg' : '/video-placeholder.svg', request.url));
     }
 
     return new NextResponse(thumbRes.body, {
