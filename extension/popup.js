@@ -129,14 +129,14 @@ btnScreenshot.addEventListener('click', () => {
 
 // 3. Klik Buka Backoffice
 btnDashboard.addEventListener('click', () => {
-  chrome.tabs.create({ url: 'http://localhost:8999/' });
+  chrome.tabs.create({ url: `${globalThis.LoomoConfig.API_BASE_URL}/` });
 });
 
 // 3c. Klik Sign In Google
 const btnLoginGoogle = document.getElementById('btn-login-google');
 if (btnLoginGoogle) {
   btnLoginGoogle.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'http://localhost:8999/api/auth/google' });
+    chrome.tabs.create({ url: `${globalThis.LoomoConfig.API_BASE_URL}/api/auth/google` });
   });
 }
 
