@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
-import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -96,7 +95,7 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error: any) {
-    logger.error('workspace-onboarding-api', `Error: ${error.message || String(error)}`);
+    console.error(`[workspace-onboarding-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -105,7 +104,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit)
     });
   } catch (error: any) {
-    logger.error('media-list-api', `Error: ${error.message || String(error)}`);
+    console.error(`[media-list-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

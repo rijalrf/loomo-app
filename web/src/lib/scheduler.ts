@@ -6,7 +6,6 @@ import {
   uploadToDrive,
   deleteFromDrive,
 } from "./gdrive";
-import { logger } from "./logger";
 import { getDriveOwnerId } from "./workspace";
 
 let isSchedulerRunning = false;
@@ -25,7 +24,7 @@ export function startScheduler() {
 
   // Run immediately on start
   runSchedulerOnce().catch((err) =>
-    logger.error("scheduler", `Error in initial run: ${err.message || err}`),
+    console.error("scheduler", `Error in initial run: ${err.message || err}`),
   );
 
   // Run every 10 seconds
@@ -53,7 +52,7 @@ export async function runSchedulerOnce() {
       await processJob(job);
     }
   } catch (error: any) {
-    logger.error(
+    console.error(
       "scheduler",
       `Scheduler run failed: ${error.message || error}`,
     );
@@ -63,7 +62,7 @@ export async function runSchedulerOnce() {
 }
 
 async function processJob(job: any) {
-  logger.info(
+  console.log(
     "scheduler",
     `Processing job ${job.id} (Type: ${job.jobType}, Media: ${job.mediaId})`,
   );
@@ -100,7 +99,7 @@ async function processJob(job: any) {
       await handleDeleteJob(job, accessToken);
     }
   } catch (error: any) {
-    logger.error(
+    console.error(
       "scheduler",
       `Job ${job.id} failed: ${error.message || error}`,
     );
@@ -156,7 +155,7 @@ async function handleUploadJob(job: any, accessToken: string) {
   const cleanTitle = media.title.replace(/[^a-zA-Z0-9]/g, "_");
   const driveFilename = `${media.workspaceId}_${media.id}_${cleanTitle}.${fileExt}`;
 
-  logger.info(
+  console.log(
     "scheduler",
     `Uploading filename ${driveFilename} to Google Drive...`,
   );
@@ -185,9 +184,9 @@ async function handleUploadJob(job: any, accessToken: string) {
   // 6. Delete local temp file
   try {
     await fs.unlink(job.tempFilePath);
-    logger.info("scheduler", `Deleted local temp file: ${job.tempFilePath}`);
+    console.log("scheduler", `Deleted local temp file: ${job.tempFilePath}`);
   } catch (err: any) {
-    logger.error(
+    console.error(
       "scheduler",
       `Failed to delete temp file ${job.tempFilePath}: ${err.message || err}`,
     );
@@ -202,7 +201,7 @@ async function handleUploadJob(job: any, accessToken: string) {
     },
   });
 
-  logger.info("scheduler", `Job ${job.id} completed successfully!`);
+  console.log("scheduler", `Job ${job.id} completed successfully!`);
 }
 
 async function handleDeleteJob(job: any, accessToken: string) {
@@ -220,7 +219,7 @@ async function handleDeleteJob(job: any, accessToken: string) {
 
   // 1. Delete from Google Drive if driveFileId exists
   if (media.driveFileId) {
-    logger.info(
+    console.log(
       "scheduler",
       `Deleting file ${media.driveFileId} from Google Drive...`,
     );
@@ -231,7 +230,7 @@ async function handleDeleteJob(job: any, accessToken: string) {
   if (job.tempFilePath) {
     try {
       await fs.unlink(job.tempFilePath);
-      logger.info("scheduler", `Deleted local temp file: ${job.tempFilePath}`);
+      console.log("scheduler", `Deleted local temp file: ${job.tempFilePath}`);
     } catch (err) {
       // Ignored if file does not exist
     }
@@ -247,7 +246,7 @@ async function handleDeleteJob(job: any, accessToken: string) {
     where: { id: job.id },
   });
 
-  logger.info(
+  console.log(
     "scheduler",
     `Job ${job.id} (delete) completed and database cleaned up successfully!`,
   );

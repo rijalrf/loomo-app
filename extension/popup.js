@@ -1,25 +1,14 @@
-// Global error handling to log popup script errors to server
+// Global error handling to log popup script errors to console
 window.addEventListener('error', (event) => {
-  try {
-    chrome.runtime.sendMessage({
-      action: 'WRITE_LOG_TO_SERVER',
-      payload: { level: 'error', context: 'popup', message: `Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}` }
-    });
-  } catch (e) {}
+  console.error(`[popup] Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}`);
 });
 window.addEventListener('unhandledrejection', (event) => {
-  try {
-    chrome.runtime.sendMessage({
-      action: 'WRITE_LOG_TO_SERVER',
-      payload: { level: 'error', context: 'popup', message: `Unhandled Promise Rejection: ${event.reason}` }
-    });
-  } catch (e) {}
+  console.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
 });
 
 const btnAction = document.getElementById('btn-action');
 const btnScreenshot = document.getElementById('btn-screenshot');
 const btnDashboard = document.getElementById('btn-view-dashboard');
-const btnCopyLogs = document.getElementById('btn-copy-logs');
 const statusDisplay = document.getElementById('status-display');
 const statusContainer = document.getElementById('status-container');
 const loginWarning = document.getElementById('login-warning');
@@ -31,13 +20,12 @@ chrome.storage.local.get(['gdrive_user_session'], (result) => {
   const session = result.gdrive_user_session;
   
   if (!session || !session.token) {
-    // Belum login: Tampilkan warning dan sembunyikan tombol rekam/screenshot/dashboard/copy-logs
+    // Belum login: Tampilkan warning dan sembunyikan tombol rekam/screenshot/dashboard
     loginWarning.style.display = 'block';
     statusContainer.style.display = 'none';
     btnAction.style.display = 'none';
     btnScreenshot.style.display = 'none';
     if (btnDashboard) btnDashboard.style.display = 'none';
-    if (btnCopyLogs) btnCopyLogs.style.display = 'none';
   } else {
     // Sudah login: Tampilkan engine rekam
     loginWarning.style.display = 'none';
@@ -45,7 +33,6 @@ chrome.storage.local.get(['gdrive_user_session'], (result) => {
     btnAction.style.display = 'flex';
     btnScreenshot.style.display = 'flex';
     if (btnDashboard) btnDashboard.style.display = 'flex';
-    if (btnCopyLogs) btnCopyLogs.style.display = 'none';
     
     // Ambil status perekaman aktif saat ini dari service worker
     chrome.runtime.sendMessage(
@@ -71,7 +58,7 @@ btnAction.addEventListener('click', async () => {
       { source: 'jam-extension-popup', action: 'START_RECORDING' },
       (response) => {
         if (chrome.runtime.lastError) {
-          ExtensionLogger.error('popup', `[Popup] Gagal rekam: ${chrome.runtime.lastError.message}`);
+          console.error(`[popup] [Popup] Gagal rekam: ${chrome.runtime.lastError.message}`);
           btnAction.disabled = false;
           return;
         }
@@ -92,7 +79,7 @@ btnAction.addEventListener('click', async () => {
       { source: 'jam-extension-popup', action: 'STOP_RECORDING' },
       (response) => {
         if (chrome.runtime.lastError) {
-          ExtensionLogger.error('popup', `[Popup] Gagal stop: ${chrome.runtime.lastError.message}`);
+          console.error(`[popup] [Popup] Gagal stop: ${chrome.runtime.lastError.message}`);
           btnAction.disabled = false;
           return;
         }
@@ -140,37 +127,7 @@ if (btnLoginGoogle) {
   });
 }
 
-// 3b. Klik Salin Log Diagnostik
-if (btnCopyLogs) {
-  btnCopyLogs.addEventListener('click', async () => {
-    btnCopyLogs.disabled = true;
-    try {
-      const logs = await ExtensionLogger.getLogs();
-      if (logs.length === 0) {
-        alert('Belum ada log diagnostik tercatat.');
-        btnCopyLogs.disabled = false;
-        return;
-      }
-      
-      await navigator.clipboard.writeText(logs.join('\n'));
-      
-      const originalText = btnCopyLogs.innerHTML;
-      btnCopyLogs.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        Tersalin!
-      `;
-      btnCopyLogs.style.color = '#10B981';
-      setTimeout(() => {
-        btnCopyLogs.innerHTML = originalText;
-        btnCopyLogs.style.color = '#64748B';
-        btnCopyLogs.disabled = false;
-      }, 2000);
-    } catch (err) {
-      alert('Gagal menyalin log: ' + err.message);
-      btnCopyLogs.disabled = false;
-    }
-  });
-}
+// Copy logs function removed
 
 // 4. Helper Update UI dengan Feather Icons (Inline SVG)
 function updateUI(recording, elapsed) {

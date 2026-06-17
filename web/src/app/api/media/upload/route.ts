@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest) {
 
     // 4. Trigger the scheduler in the background (non-blocking)
     runSchedulerOnce().catch(err => {
-      logger.error('upload-api', `Error running scheduler in background: ${err.message || String(err)}`);
+      console.error(`[upload-api] Error running scheduler in background: ${err.message || String(err)}`);
     });
 
     return NextResponse.json({
@@ -114,7 +113,7 @@ export async function POST(request: NextRequest) {
       status: 'PROCESSING'
     });
   } catch (error: any) {
-    logger.error('upload-api', `Error: ${error.message || String(error)}`);
+    console.error(`[upload-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

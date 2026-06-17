@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -64,7 +63,7 @@ export async function GET(
       uploader: media.uploader
     });
   } catch (error: any) {
-    logger.error('share-details-api', `Error: ${error.message || String(error)}`);
+    console.error(`[share-details-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

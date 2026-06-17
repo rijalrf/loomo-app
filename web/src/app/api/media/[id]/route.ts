@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -47,7 +46,7 @@ export async function GET(
 
     return NextResponse.json(media);
   } catch (error: any) {
-    logger.error('media-get-api', `Error: ${error.message || String(error)}`);
+    console.error(`[media-get-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -119,7 +118,7 @@ export async function PATCH(
 
     return NextResponse.json(updatedMedia);
   } catch (error: any) {
-    logger.error('media-patch-api', `Error: ${error.message || String(error)}`);
+    console.error(`[media-patch-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -190,12 +189,12 @@ export async function DELETE(
 
     // 3. Trigger scheduler
     runSchedulerOnce().catch(err => {
-      logger.error('delete-api', `Error running scheduler in background: ${err.message || String(err)}`);
+      console.error(`[delete-api] Error running scheduler in background: ${err.message || String(err)}`);
     });
 
     return NextResponse.json({ success: true, status: 'DELETING' });
   } catch (error: any) {
-    logger.error('delete-api', `Error: ${error.message || String(error)}`);
+    console.error(`[delete-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -1,17 +1,11 @@
 import './config.js';
-import './logger.js';
-const ExtensionLogger = globalThis.ExtensionLogger;
 
-// Global error handling to log background service worker errors to server
+// Global error handling to log background service worker errors to console
 self.addEventListener('error', (event) => {
-  if (typeof ExtensionLogger !== 'undefined') {
-    ExtensionLogger.error('background', `Unhandled error: ${event.message} at ${event.filename}:${event.lineno}`);
-  }
+  console.error(`[background] Unhandled error: ${event.message} at ${event.filename}:${event.lineno}`);
 });
 self.addEventListener('unhandledrejection', (event) => {
-  if (typeof ExtensionLogger !== 'undefined') {
-    ExtensionLogger.error('background', `Unhandled promise rejection: ${event.reason}`);
-  }
+  console.error(`[background] Unhandled promise rejection: ${event.reason}`);
 });
 
 // State Perekaman Global di Background
@@ -25,16 +19,7 @@ let userActions = [];
 
 // Mendengarkan pesan dari Content Script, Popup, dan Offscreen Document
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Jembatan Penulisan Log Fisik (dari content script / popup)
-  if (message.action === 'WRITE_LOG_TO_SERVER') {
-    const { level, context, message: msgText } = message.payload;
-    fetch(`${globalThis.LoomoConfig.API_BASE_URL}/api/log`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ level, context, message: msgText })
-    }).catch(() => {});
-    return false; 
-  }
+  // Jembatan Penulisan Log Fisik removed
 
   // Handle closing the current popup/window
   if (message.action === 'CLOSE_CURRENT_WINDOW') {
@@ -91,12 +76,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             // Jika belum diinjeksi, injeksi programmatically!
             chrome.scripting.executeScript({
               target: { tabId: activeTab.id },
-              files: ['logger.js']
-            }).then(() => {
-              return chrome.scripting.executeScript({
-                target: { tabId: activeTab.id },
-                files: ['content.js']
-              });
+              files: ['content.js']
             }).then(() => {
               // Tunggu sejenak agar skrip terinisialisasi
               setTimeout(() => {
@@ -141,7 +121,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               console.warn('[Jam Extension] captureVisibleTab failed for windowId, falling back to default:', errMsg);
               performCapture(null);
             } else {
-              ExtensionLogger.error('background', `[Jam Extension] captureVisibleTab error: ${chrome.runtime.lastError.message}`);
+              console.error(`[background] [Jam Extension] captureVisibleTab error: ${chrome.runtime.lastError.message}`);
               sendResponse({ error: chrome.runtime.lastError.message });
             }
           } else {
@@ -223,10 +203,6 @@ async function startRecordingFlow(sendResponse) {
       try {
         await chrome.scripting.executeScript({
           target: { tabId: activeTabId },
-          files: ['logger.js']
-        });
-        await chrome.scripting.executeScript({
-          target: { tabId: activeTabId },
           files: ['content.js']
         });
         await new Promise(r => setTimeout(r, 150));
@@ -264,7 +240,7 @@ async function startRecordingFlow(sendResponse) {
 
     sendResponse({ success: true });
   } catch (err) {
-    ExtensionLogger.error('background', `Gagal memulai alur perekaman: ${err.message || String(err)}`);
+    console.error(`[background] Gagal memulai alur perekaman: ${err.message || String(err)}`);
     isRecording = false;
     sendResponse({ success: false, error: err.message });
   }
