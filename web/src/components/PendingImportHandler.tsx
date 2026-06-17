@@ -167,8 +167,8 @@ export default function PendingImportHandler() {
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full border-4 border-[#0CB2EB]/20 border-t-[#0CB2EB] animate-spin mb-6"></div>
-            <div className="text-sm font-black text-[#0CB2EB] uppercase tracking-widest">
+            <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mb-6"></div>
+            <div className="text-sm font-black text-[var(--primary)] uppercase tracking-widest">
               {uploadState.progress}
             </div>
           </div>

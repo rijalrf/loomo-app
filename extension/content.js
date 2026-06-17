@@ -513,7 +513,7 @@ function showFloatingControls() {
         if (res && res.success) {
           isPaused = true;
           pauseBtn.textContent = 'Resume';
-          pauseBtn.style.borderColor = '#8A5CF6';
+          pauseBtn.style.borderColor = '#6366F1';
           pauseBtn.style.color = '#C4B5FD';
           pauseBtn.style.background = 'rgba(138, 92, 246, 0.1)';
           dot.classList.remove('jam-blinking');

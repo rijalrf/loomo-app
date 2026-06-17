@@ -10,8 +10,8 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-slate-300 font-sans flex items-center justify-center p-6 relative selection:bg-cyan-500/30">
       {/* Background blur effects */}
-      <div className="absolute top-[15%] left-[15%] w-[350px] h-[350px] bg-[#0CB2EB]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
-      <div className="absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-[#8A5CF6]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+      <div className="absolute top-[15%] left-[15%] w-[350px] h-[350px] bg-[var(--primary)]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+      <div className="absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-[var(--secondary)]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
 
       <div className="w-full max-w-md z-10">
         {/* Logo and title */}
@@ -29,7 +29,7 @@ export default function RegisterPage() {
           {/* Google Register Button */}
           <button 
             onClick={handleGoogleRegister}
-            className="w-full bg-[#1E293B] hover:bg-[#334155] border border-slate-800 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-lg cursor-pointer"
+            className="btn-secondary w-full py-3 px-6 text-base font-bold bg-[#1E293B]/60 hover:border-[var(--primary)]"
           >
             {/* Google G Logo SVG */}
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -67,14 +67,14 @@ export default function RegisterPage() {
 
             <p>
               Sudah memiliki akun?{' '}
-              <Link href="/login" className="text-[#0CB2EB] hover:underline font-semibold">
+              <Link href="/login" className="text-[var(--primary)] hover:underline font-semibold">
                 Masuk di sini
               </Link>.
             </p>
 
             <div className="pt-4 border-t border-slate-800 text-[10px] text-center text-slate-500">
               Dengan mendaftar, Anda menyetujui Ketentuan Layanan Loomo.<br/>
-              Kembali ke <Link href="/" className="text-[#0CB2EB] hover:underline font-semibold">Halaman Utama</Link>.
+              Kembali ke <Link href="/" className="text-[var(--primary)] hover:underline font-semibold">Halaman Utama</Link>.
             </div>
           </div>
         </div>
