@@ -54,7 +54,7 @@ function CustomSelect<T extends string | number>({
   const text = size === 'sm' ? 'text-xs' : 'text-sm';
   const rounded = size === 'sm' ? 'rounded-lg' : 'rounded-xl';
 
-  const defaultBtnClass = `w-full flex items-center justify-between gap-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white ${px} ${py} ${rounded} ${text} font-semibold outline-none focus:border-[#0CB2EB] focus:ring-1 focus:ring-[#0CB2EB] transition-all cursor-pointer`;
+  const defaultBtnClass = `w-full flex items-center justify-between gap-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white ${px} ${py} ${rounded} ${text} font-semibold outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all cursor-pointer`;
 
   return (
     <div className={`relative inline-block ${className}`} ref={containerRef}>
@@ -86,14 +86,14 @@ function CustomSelect<T extends string | number>({
                 }}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
                   option.value === value
-                    ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] font-bold'
+                    ? 'bg-[var(--primary)]/15 text-[var(--primary)] font-bold'
                     : 'text-slate-400 hover:bg-slate-800/40 hover:text-white'
                 }`}
               >
                 {option.icon}
                 <span className="flex-1 truncate">{option.label}</span>
                 {option.value === value && (
-                  <Check size={14} className="text-[#0CB2EB] shrink-0" />
+                  <Check size={14} className="text-[var(--primary)] shrink-0" />
                 )}
               </button>
             ))}
@@ -128,8 +128,8 @@ function MediaVisibilitySelect({
 
   const options = {
     PRIVATE: { label: 'Private', color: 'bg-slate-500' },
-    UNLISTED: { label: 'Unlisted', color: 'bg-[#0CB2EB]' },
-    WORKSPACE_ONLY: { label: 'Workspace', color: 'bg-[#8A5CF6]' }
+    UNLISTED: { label: 'Unlisted', color: 'bg-[var(--primary)]' },
+    WORKSPACE_ONLY: { label: 'Workspace', color: 'bg-[var(--secondary)]' }
   };
 
   const current = options[value];
@@ -160,14 +160,14 @@ function MediaVisibilitySelect({
                 }}
                 className={`w-full flex items-center gap-2 px-2 py-1.5 text-left rounded-md text-[11px] font-bold uppercase transition-colors cursor-pointer ${
                   optKey === value
-                    ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
+                    ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                 }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${opt.color}`}></span>
                 <span className="flex-1 text-left">{opt.label}</span>
                 {optKey === value && (
-                  <Check size={10} className="text-[#0CB2EB]" />
+                  <Check size={10} className="text-[var(--primary)]" />
                 )}
               </button>
             );
@@ -559,16 +559,16 @@ export default function DashboardClient({
                 ...workspaces.map(w => ({
                   value: w.id,
                   label: `${w.name} ${w.isOwner ? '(Owner)' : ''}`,
-                  icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]" />
+                  icon: <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
                 })),
                 {
                   value: 'CREATE_NEW',
                   label: 'Create Workspace',
-                  icon: <Plus size={14} className="text-[#0CB2EB]" />
+                  icon: <Plus size={14} className="text-[var(--primary)]" />
                 }
               ]}
               className="w-full"
-              buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[#0CB2EB] transition-all cursor-pointer"
+              buttonClassName="w-full flex items-center justify-between gap-2 bg-[#1E293B]/40 hover:bg-[#1E293B]/80 border border-slate-800 text-white px-3 py-2.5 rounded-xl text-sm font-semibold outline-none focus:border-[var(--primary)] transition-all cursor-pointer"
             />
           </div>
 
@@ -583,7 +583,7 @@ export default function DashboardClient({
               }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 filterType === 'ALL'
-                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB] border-l-2 border-[#0CB2EB]'
+                  ? 'bg-[var(--primary)]/15 text-[var(--primary)] border-l-2 border-[var(--primary)]'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/40'
               }`}
             >
@@ -628,7 +628,7 @@ export default function DashboardClient({
         {/* Top Header */}
         <header className="flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 bg-slate-800/80 rounded-md text-[10px] font-black uppercase text-[#0CB2EB] tracking-wider border border-slate-700/60">
+            <span className="px-2.5 py-1 bg-slate-800/80 rounded-md text-[10px] font-black uppercase text-[var(--primary)] tracking-wider border border-slate-700/60">
               Dashboard
             </span>
             <span className="text-slate-600">/</span>
@@ -665,7 +665,7 @@ export default function DashboardClient({
               {activeWorkspace?.name || 'Workspace Dashboard'}
             </h2>
             <p className="text-slate-400 text-sm font-medium">
-              You have <span className="text-[#0CB2EB]">{totalMedia}</span> captures in this workspace.
+              You have <span className="text-[var(--primary)]">{totalMedia}</span> captures in this workspace.
             </p>
           </div>
         </div>
@@ -681,7 +681,7 @@ export default function DashboardClient({
                 placeholder="Search captures..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-white pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none focus:bg-slate-900/80 focus:border-[#0CB2EB] focus:ring-1 focus:ring-[#0CB2EB] transition-all"
+                className="w-full bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-white pl-10 pr-4 py-2.5 rounded-xl text-sm outline-none focus:bg-slate-900/80 focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all"
               />
             </div>
 
@@ -693,8 +693,8 @@ export default function DashboardClient({
               }}
               options={[
                 { value: 'ALL', label: 'All Types', icon: <Folder size={14} className="text-slate-400" /> },
-                { value: 'SCREENSHOT', label: 'Screenshots', icon: <ImageIcon size={14} className="text-[#0CB2EB]" /> },
-                { value: 'RECORDING', label: 'Recordings', icon: <Video size={14} className="text-[#8A5CF6]" /> }
+                { value: 'SCREENSHOT', label: 'Screenshots', icon: <ImageIcon size={14} className="text-[var(--primary)]" /> },
+                { value: 'RECORDING', label: 'Recordings', icon: <Video size={14} className="text-[var(--secondary)]" /> }
               ]}
               className="w-full sm:w-auto"
             />
@@ -708,7 +708,7 @@ export default function DashboardClient({
               options={[
                 { value: 'ALL', label: 'Any Status', icon: <Folder size={14} className="text-slate-400" /> },
                 { value: 'READY', label: 'Ready', icon: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> },
-                { value: 'PROCESSING', label: 'Processing', icon: <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB] animate-pulse" /> },
+                { value: 'PROCESSING', label: 'Processing', icon: <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" /> },
                 { value: 'FAILED', label: 'Failed', icon: <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> }
               ]}
               className="w-full sm:w-auto"
@@ -733,14 +733,14 @@ export default function DashboardClient({
             <div className="flex bg-slate-900/40 border border-slate-800 rounded-xl p-1 shrink-0">
               <button
                 onClick={() => setIsGridView(true)}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${isGridView ? 'bg-[var(--primary)] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="Grid View"
               >
                 <LayoutGrid size={18} />
               </button>
               <button
                 onClick={() => setIsGridView(false)}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${!isGridView ? 'bg-[#0CB2EB] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`p-1.5 rounded-lg transition-all cursor-pointer ${!isGridView ? 'bg-[var(--primary)] text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                 title="List View"
               >
                 <List size={18} />
@@ -795,7 +795,7 @@ export default function DashboardClient({
                         {/* Play icon for recordings */}
                         {media.type === 'RECORDING' && (
                           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                            <div className="w-12 h-12 rounded-full bg-[#0CB2EB]/90 flex items-center justify-center text-white shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform">
+                            <div className="w-12 h-12 rounded-full bg-[var(--primary)]/90 flex items-center justify-center text-white shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform">
                               <Play size={20} fill="currentColor" />
                             </div>
                           </div>
@@ -817,8 +817,8 @@ export default function DashboardClient({
                         )}
                         {isPending && (
                           <>
-                            <div className="w-8 h-8 rounded-full border-2 border-[#0CB2EB]/30 border-t-[#0CB2EB] animate-spin"></div>
-                            <span className="text-[10px] font-bold text-[#0CB2EB] tracking-wider uppercase">
+                            <div className="w-8 h-8 rounded-full border-2 border-[var(--primary)]/30 border-t-[var(--primary)] animate-spin"></div>
+                            <span className="text-[10px] font-bold text-[var(--primary)] tracking-wider uppercase">
                               {media.uploadStatus === 'PROCESSING' ? 'Processing' : 'Uploading'}
                             </span>
                           </>
@@ -836,7 +836,7 @@ export default function DashboardClient({
                   {/* Card Info */}
                   <div className="p-4 flex flex-col flex-1">
                     <div className="mb-2">
-                      <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${media.type === 'SCREENSHOT' ? 'bg-[#0CB2EB]/10 text-[#0CB2EB]' : 'bg-[#8A5CF6]/10 text-[#8A5CF6]'}`}>
+                      <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${media.type === 'SCREENSHOT' ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-[var(--secondary)]/10 text-[var(--secondary)]'}`}>
                         {media.type}
                       </span>
                     </div>
@@ -849,11 +849,11 @@ export default function DashboardClient({
                           onBlur={() => handleRename(media.id)}
                           onKeyDown={(e) => e.key === 'Enter' && handleRename(media.id)}
                           autoFocus
-                          className="bg-slate-950 border border-[#0CB2EB] text-white text-sm font-bold px-2 py-1 rounded w-full outline-none"
+                          className="bg-slate-950 border border-[var(--primary)] text-white text-sm font-bold px-2 py-1 rounded w-full outline-none"
                         />
                       ) : (
                         <h4 
-                          className="text-sm font-bold text-slate-100 truncate flex-1 hover:text-[#0CB2EB] transition-colors cursor-pointer"
+                          className="text-sm font-bold text-slate-100 truncate flex-1 hover:text-[var(--primary)] transition-colors cursor-pointer"
                           onClick={() => isReady && setActiveMediaViewer(media)}
                         >
                           {media.title}
@@ -863,7 +863,7 @@ export default function DashboardClient({
                       {isReady && renamingId !== media.id && (
                         <button
                           onClick={() => { setRenamingId(media.id); setRenamingTitle(media.title); }}
-                          className="text-slate-500 hover:text-[#0CB2EB] transition-colors p-1 cursor-pointer"
+                          className="text-slate-500 hover:text-[var(--primary)] transition-colors p-1 cursor-pointer"
                           title="Rename"
                         >
                           <Edit2 size={14} />
@@ -898,7 +898,7 @@ export default function DashboardClient({
                         {isReady && (
                           <button
                             onClick={() => handleShareLink(media)}
-                            className="p-2 rounded-lg bg-slate-900/50 text-slate-400 hover:text-[#0CB2EB] hover:bg-[#0CB2EB]/10 border border-slate-800 transition-all cursor-pointer"
+                            className="p-2 rounded-lg bg-slate-900/50 text-slate-400 hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 border border-slate-800 transition-all cursor-pointer"
                             title="Share"
                           >
                             <Share2 size={14} />
@@ -943,26 +943,26 @@ export default function DashboardClient({
                       className={`hover:bg-slate-800/30 transition-colors ${isDeleting ? 'opacity-40 grayscale' : ''}`}
                     >
                       <td className="px-6 py-3">
-                        <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-950 border border-slate-800 group-hover:border-[#0CB2EB]/50 transition-colors">
+                        <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-950 border border-slate-800 group-hover:border-[var(--primary)]/50 transition-colors">
                           {isReady ? (
                             <img src={`/api/media/${media.id}/thumbnail`} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <div className="w-4 h-4 border border-[#0CB2EB]/30 border-t-[#0CB2EB] rounded-full animate-spin"></div>
+                              <div className="w-4 h-4 border border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin"></div>
                             </div>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-3">
                         <span 
-                          className="font-bold text-white hover:text-[#0CB2EB] cursor-pointer transition-colors"
+                          className="font-bold text-white hover:text-[var(--primary)] cursor-pointer transition-colors"
                           onClick={() => isReady && setActiveMediaViewer(media)}
                         >
                           {media.title}
                         </span>
                       </td>
                       <td className="px-6 py-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${media.type === 'SCREENSHOT' ? 'bg-[#0CB2EB]/10 text-[#0CB2EB]' : 'bg-[#8A5CF6]/10 text-[#8A5CF6]'}`}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase ${media.type === 'SCREENSHOT' ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-[var(--secondary)]/10 text-[var(--secondary)]'}`}>
                           {media.type}
                         </span>
                       </td>
@@ -986,7 +986,7 @@ export default function DashboardClient({
                       <td className="px-6 py-3 text-right">
                         <div className="inline-flex gap-2">
                           {isReady && (
-                            <button onClick={() => handleShareLink(media)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[#0CB2EB] transition-colors cursor-pointer">
+                            <button onClick={() => handleShareLink(media)} className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-[var(--primary)] transition-colors cursor-pointer">
                               <Share2 size={14} />
                             </button>
                           )}
@@ -1014,7 +1014,7 @@ export default function DashboardClient({
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-4 py-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                className="btn-secondary py-2 px-4 text-xs"
               >
                 Previous
               </button>
@@ -1040,7 +1040,7 @@ export default function DashboardClient({
                       onClick={() => setPage(pNum)}
                       className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black transition-all cursor-pointer ${
                         page === pNum
-                          ? 'bg-[#0CB2EB] text-white shadow-lg'
+                          ? 'bg-[var(--primary)] text-white shadow-lg'
                           : 'bg-slate-900/20 hover:bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-white'
                       }`}
                     >
@@ -1053,7 +1053,7 @@ export default function DashboardClient({
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-4 py-2 bg-slate-900/40 hover:bg-slate-900/60 border border-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                className="btn-secondary py-2 px-4 text-xs"
               >
                 Next
               </button>
@@ -1120,7 +1120,7 @@ export default function DashboardClient({
               Anyone with this link can view this capture. Loomo acts as a secure proxy to your Google Drive.
             </p>
 
-            <div className="flex bg-slate-950 border border-slate-800 rounded-xl p-2 mb-8 items-center gap-2 group focus-within:border-[#0CB2EB] transition-colors">
+            <div className="flex bg-slate-950 border border-slate-800 rounded-xl p-2 mb-8 items-center gap-2 group focus-within:border-[var(--primary)] transition-colors">
               <span className="text-xs font-bold text-slate-300 flex-1 px-3 truncate">
                 {typeof window !== 'undefined' ? `${window.location.origin}/s/${showShareModal.shareToken}` : ''}
               </span>
@@ -1130,7 +1130,7 @@ export default function DashboardClient({
                   `${window.location.origin}/s/${showShareModal.shareToken}`,
                   showShareModal.id
                 )}
-                className="btn-primary py-2 px-4 text-xs rounded-lg shadow-[#0CB2EB]/20 cursor-pointer"
+                className="btn-primary py-2 px-4 text-xs rounded-lg cursor-pointer"
               >
                 {copiedId === showShareModal.id ? 'Copied!' : 'Copy Link'}
               </button>
@@ -1138,7 +1138,7 @@ export default function DashboardClient({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#0CB2EB] animate-pulse"></div>
+                <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse"></div>
                 <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Link Active</span>
               </div>
 
@@ -1175,7 +1175,7 @@ export default function DashboardClient({
                   placeholder="e.g. Marketing Team, Personal Projects..."
                   value={newWorkspaceName}
                   onChange={(e) => setNewWorkspaceName(e.target.value)}
-                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
                   required
                   autoFocus
                 />
@@ -1188,7 +1188,7 @@ export default function DashboardClient({
                   placeholder="e.g. Collaborative space for marketing team (optional)..."
                   value={newWorkspaceDesc}
                   onChange={(e) => setNewWorkspaceDesc(e.target.value)}
-                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
+                  className="w-full bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all"
                 />
               </div>
 
@@ -1197,7 +1197,7 @@ export default function DashboardClient({
                 <select
                   value={newWorkspaceDept}
                   onChange={(e) => setNewWorkspaceDept(e.target.value)}
-                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[#0CB2EB] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all cursor-pointer font-medium"
+                  className="w-full bg-slate-950/80 border border-slate-800 focus:border-[var(--primary)] text-sm py-2.5 px-4 rounded-xl outline-none text-white transition-all cursor-pointer font-medium"
                 >
                   <option value="Engineering & Product" className="bg-[#0B0F19] text-white">Engineering & Product</option>
                   <option value="Design & Creative" className="bg-[#0B0F19] text-white">Design & Creative</option>
@@ -1212,14 +1212,14 @@ export default function DashboardClient({
                 <button
                   type="button"
                   onClick={() => { setShowCreateModal(false); setNewWorkspaceName(''); setNewWorkspaceDesc(''); setNewWorkspaceDept('Engineering & Product'); }}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white border border-slate-800 hover:bg-slate-800/40 transition-all cursor-pointer"
+                  className="btn-secondary py-2.5 px-6 text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creatingWorkspace || !newWorkspaceName.trim()}
-                  className="btn-primary py-2.5 px-6 rounded-xl text-xs shadow-[#0CB2EB]/20 justify-center disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                  className="btn-primary py-2.5 px-6 rounded-xl text-xs justify-center disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                 >
                   {creatingWorkspace ? 'Creating...' : 'Create Workspace'}
                 </button>

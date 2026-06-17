@@ -43,7 +43,7 @@ function CustomSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-1.5 bg-slate-900 border border-slate-700 text-xs font-bold text-[#0CB2EB] px-2 py-1 rounded outline-none cursor-pointer"
+        className="flex items-center justify-between gap-1.5 bg-slate-900 border border-slate-700 text-xs font-bold text-[var(--primary)] px-2 py-1 rounded outline-none cursor-pointer"
       >
         <span>{selected ? selected.label : 'Select...'}</span>
         <ChevronDown size={12} className="text-slate-500" />
@@ -61,13 +61,13 @@ function CustomSelect({
               }}
               className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-md text-xs font-bold transition-colors ${
                 option.value === value
-                  ? 'bg-[#0CB2EB]/15 text-[#0CB2EB]'
+                  ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
               <span className="flex-1 truncate text-left">{option.label}</span>
               {option.value === value && (
-                <Check size={12} className="text-[#0CB2EB]" />
+                <Check size={12} className="text-[var(--primary)]" />
               )}
             </button>
           ))}
@@ -610,7 +610,7 @@ export default function EditorClient() {
           <button
             onClick={handleSave}
             disabled={savingState === 'saving'}
-            className="btn-primary py-2 px-6 text-xs rounded-lg gap-2 shadow-[#0CB2EB]/20"
+            className="btn-primary py-2 px-6 text-xs rounded-lg gap-2"
           >
             {savingState === 'saving' ? (
               <>
@@ -640,7 +640,7 @@ export default function EditorClient() {
               <button 
                 key={tool.id}
                 onClick={() => setActiveTool(tool.id as any)}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[#0CB2EB] text-white shadow-[0_0_15px_rgba(12,178,235,0.4)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[var(--primary)] text-white shadow-[0_0_15px_var(--primary-glow)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
                 title={tool.label}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -651,7 +651,7 @@ export default function EditorClient() {
 
             <button 
               onClick={() => setActiveTool('text')}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[#0CB2EB] text-white shadow-[0_0_15px_rgba(12,178,235,0.4)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[var(--primary)] text-white shadow-[0_0_15px_var(--primary-glow)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
               title="Text"
             >
               T
@@ -661,7 +661,7 @@ export default function EditorClient() {
 
             {/* Color Palettes */}
             <div className="flex flex-col gap-3">
-              {['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8A5CF6', '#FFFFFF', '#000000'].map((color) => (
+              {['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#6366F1', '#FFFFFF', '#000000'].map((color) => (
                 <button
                   key={color}
                   onClick={() => setActiveColor(color)}
@@ -730,7 +730,7 @@ export default function EditorClient() {
       {savingState === 'saving' && (
         <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
           <div className="glass-panel p-10 rounded-3xl max-w-xs w-full text-center border-slate-700 animate-in fade-in zoom-in duration-300">
-            <div className="w-16 h-16 rounded-full border-4 border-[#0CB2EB]/20 border-t-[#0CB2EB] animate-spin mx-auto mb-6"></div>
+            <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mx-auto mb-6"></div>
             <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Saving Media</h3>
             <p className="text-slate-400 text-sm font-medium leading-relaxed">
               Applying annotations and uploading to your Google Drive...

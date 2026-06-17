@@ -30,13 +30,13 @@ export default function LandingClient() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleLogin}
-              className="text-sm font-bold text-slate-400 hover:text-white px-3 py-2 transition-colors cursor-pointer"
+              className="text-sm font-bold text-slate-400 hover:text-white px-4 py-2 transition-colors cursor-pointer"
             >
               Login
             </button>
             <Link 
               href="/register"
-              className="bg-[#1E293B] hover:bg-[#334155] border border-slate-800 hover:border-[#0CB2EB]/50 text-white font-bold py-2 px-5 text-sm rounded-lg cursor-pointer transition-all duration-300 shadow-md"
+              className="btn-primary py-2 px-6 text-sm"
             >
               Sign Up
             </Link>
@@ -46,19 +46,19 @@ export default function LandingClient() {
 
       {/* Hero Section */}
       <main className="pt-36 pb-20 px-6 max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative">
-        <div className="absolute top-[10%] left-[20%] w-[400px] h-[400px] bg-[#0CB2EB]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
-        <div className="absolute bottom-[15%] right-[15%] w-[500px] h-[500px] bg-[#8A5CF6]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+        <div className="absolute top-[10%] left-[20%] w-[400px] h-[400px] bg-[var(--primary)]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+        <div className="absolute bottom-[15%] right-[15%] w-[500px] h-[500px] bg-[var(--secondary)]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
 
         {/* Left Column (Content & CTAs) */}
         <div className="w-full lg:w-1/2 text-left z-10 relative flex flex-col justify-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-slate-800 bg-slate-900/50 text-xs text-slate-400 mb-6 w-fit">
-            <span className="w-2 h-2 rounded-full bg-[#0CB2EB] animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse"></span>
             <span>Privacy-First & Unlimited Storage</span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6 tracking-tight text-white">
             Show, don&apos;t <br />
-            <span className="bg-gradient-to-r from-[#0CB2EB] to-[#8A5CF6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
               just tell.
             </span>
           </h1>
@@ -71,17 +71,17 @@ export default function LandingClient() {
           <div className="flex flex-col sm:flex-row gap-4 justify-start items-center w-full">
             <Link
               href="/register"
-              className="bg-[#1E293B] hover:bg-[#334155] border border-slate-800 hover:border-[#0CB2EB]/50 text-white flex items-center justify-center gap-2 rounded-lg w-full sm:w-auto py-3.5 px-8 text-base transition-all duration-300 font-bold cursor-pointer shadow-lg"
+              className="btn-gradient py-4 px-10 text-lg w-full sm:w-auto"
             >
-              Get Started
+              Get Started for Free
             </Link>
             <a
               href="/loomo-extension.zip"
               download
-              className="btn-secondary py-3.5 px-8 text-base text-white hover:text-white flex items-center justify-center border border-slate-700 hover:border-[#0CB2EB]/50 bg-slate-900/40 rounded-lg w-full sm:w-auto transition-all duration-300 font-semibold cursor-pointer gap-2"
+              className="btn-secondary py-4 px-8 text-lg w-full sm:w-auto"
             >
               <svg
-                className="w-5 h-5 text-white animate-bounce"
+                className="w-5 h-5 text-[var(--primary)] animate-bounce"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -101,9 +101,8 @@ export default function LandingClient() {
 
         {/* Right Column (Interactive CSS Mockup) */}
         <div className="w-full lg:w-1/2 flex items-center justify-center relative mt-10 lg:mt-0 z-10">
-          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#0CB2EB] to-[#8A5CF6] opacity-30 blur-lg group-hover:opacity-50 transition duration-1000"></div>
-
-          <div className="relative w-full max-w-lg glass-panel rounded-2xl border border-slate-700/60 shadow-2xl bg-[#1E293B]/60 p-1 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:border-[#0CB2EB]/40">
+          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] opacity-30 blur-lg group-hover:opacity-50 transition duration-1000"></div>
+          <div className="relative w-full max-w-lg glass-panel rounded-2xl border border-slate-700/60 shadow-2xl bg-[#1E293B]/60 p-1 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:border-[var(--primary)]/40">
             {/* Window bar */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-[#0F172A]/80">
               <div className="flex items-center gap-1.5">
@@ -154,9 +153,13 @@ export default function LandingClient() {
                 <path d="M60,32 L70,30 L65,22" />
               </svg>
 
-              <div className="absolute bottom-6 right-6 border border-[#0CB2EB] bg-[#0CB2EB]/20 px-3 py-1.5 rounded-lg text-[10px] text-white shadow-[0_0_15px_rgba(12,178,235,0.4)] flex items-center gap-2 animate-pulse">
+              <div className="absolute bottom-6 right-6 border border-[var(--primary)] bg-[var(--primary)]/20 px-3 py-1.5 rounded-lg text-[10px] text-white shadow-[0_0_15px_rgba(12,178,235,0.4)] flex items-center gap-2 animate-pulse">
+                <Zap
+                  size={14}
+                  className="w-3.5 h-3.5 text-[var(--primary)]"
+                />
                 <svg
-                  className="w-3.5 h-3.5 text-[#0CB2EB]"
+                  className="w-3.5 h-3.5 text-[var(--primary)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -181,8 +184,8 @@ export default function LandingClient() {
         {/* Bento Grid Features */}
         <section id="features" className="scroll-mt-24">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#8A5CF6]/10 text-xs text-[#8A5CF6] mb-3 font-semibold">
-              <Zap size={14} className="text-[#8A5CF6] fill-[#8A5CF6]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--secondary)]/10 text-xs text-[var(--secondary)] mb-3 font-semibold">
+              <Zap size={14} className="text-[var(--secondary)] fill-[var(--secondary)]" />
               <span>Loomo Power</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
@@ -197,10 +200,10 @@ export default function LandingClient() {
           {/* Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Box 1 (Wide: 2 Cols) - Capture & Anotasi */}
-            <div className="md:col-span-2 glass-panel p-8 rounded-2xl border border-slate-800/80 bg-slate-900/40 relative overflow-hidden flex flex-col justify-between group hover:border-[#0CB2EB]/50 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-[#0CB2EB]/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="md:col-span-2 glass-panel p-8 rounded-2xl border border-slate-800/80 bg-slate-900/40 relative overflow-hidden flex flex-col justify-between group hover:border-[var(--primary)]/50 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl pointer-events-none"></div>
               <div>
-                <div className="w-10 h-10 rounded-lg bg-[#0CB2EB]/10 flex items-center justify-center text-[#0CB2EB] mb-4">
+                <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] mb-4">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -227,13 +230,13 @@ export default function LandingClient() {
                 </p>
               </div>
               <div className="mt-8 flex gap-2 overflow-hidden items-center border border-slate-850 p-2.5 bg-slate-950/40 rounded-lg max-w-sm">
-                <span className="text-[10px] font-mono text-[#0CB2EB] bg-[#0CB2EB]/10 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-mono text-[var(--primary)] bg-[var(--primary)]/10 px-2 py-0.5 rounded">
                   Editor
                 </span>
                 <div className="flex gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#0CB2EB]"></span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#8A5CF6]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--secondary)]"></span>
                 </div>
                 <span className="text-[10px] text-slate-500 font-mono overflow-hidden text-ellipsis whitespace-nowrap">
                   Press &apos;Save&apos; to sync instantly
@@ -242,10 +245,10 @@ export default function LandingClient() {
             </div>
 
             {/* Box 2 (Standard) - Drive Sync */}
-            <div className="md:col-span-1 glass-panel p-8 rounded-2xl border border-slate-800/80 bg-slate-900/40 relative overflow-hidden flex flex-col justify-between group hover:border-[#8A5CF6]/50 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#8A5CF6]/5 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="md:col-span-1 glass-panel p-8 rounded-2xl border border-slate-800/80 bg-slate-900/40 relative overflow-hidden flex flex-col justify-between group hover:border-[var(--secondary)]/50 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--secondary)]/5 rounded-full blur-2xl pointer-events-none"></div>
               <div>
-                <div className="w-10 h-10 rounded-lg bg-[#8A5CF6]/10 flex items-center justify-center text-[#8A5CF6] mb-4">
+                <div className="w-10 h-10 rounded-lg bg-[var(--secondary)]/10 flex items-center justify-center text-[var(--secondary)] mb-4">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -314,10 +317,10 @@ export default function LandingClient() {
             </div>
 
             {/* Box 4 (Wide: 2 Cols) - Loomo Link Sharing */}
-            <div className="md:col-span-2 glass-panel p-8 rounded-2xl border border-slate-800/80 bg-slate-900/40 relative overflow-hidden flex flex-col justify-between group hover:border-[#0CB2EB]/50 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-[#0CB2EB]/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="md:col-span-2 glass-panel p-8 rounded-2xl border border-slate-800/80 bg-slate-900/40 relative overflow-hidden flex flex-col justify-between group hover:border-[var(--primary)]/50 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--primary)]/5 rounded-full blur-3xl pointer-events-none"></div>
               <div>
-                <div className="w-10 h-10 rounded-lg bg-[#0CB2EB]/10 flex items-center justify-center text-[#0CB2EB] mb-4">
+                <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)] mb-4">
                   <svg
                     className="w-5 h-5"
                     fill="none"
@@ -346,7 +349,7 @@ export default function LandingClient() {
               <div className="mt-8 flex flex-wrap gap-2 items-center">
                 <div className="border border-slate-800 bg-slate-950/50 px-3 py-1.5 rounded-lg text-[10px] font-mono text-slate-400 flex items-center gap-2">
                   <span>loomo.app/s/design-feedback-xyz</span>
-                  <button className="text-[#0CB2EB] hover:text-white font-bold">
+                  <button className="text-[var(--primary)] hover:text-white font-bold">
                     Copy
                   </button>
                 </div>

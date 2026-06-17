@@ -32,7 +32,7 @@ function LoginCard() {
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 font-bold flex flex-col gap-2 leading-normal">
           <span className="flex items-center gap-1.5 uppercase tracking-widest text-[10px]">⚠️ AKUN BELUM TERDAFTAR</span>
           <span>{errorMsg}</span>
-          <Link href="/register" className="text-[#0CB2EB] hover:underline mt-1 block font-black text-right uppercase tracking-wider text-[10px]">
+          <Link href="/register" className="text-[var(--primary)] hover:underline mt-1 block font-black text-right uppercase tracking-wider text-[10px]">
             Daftar Akun Baru &rarr;
           </Link>
         </div>
@@ -41,7 +41,7 @@ function LoginCard() {
       {/* Google Login Button */}
       <button 
         onClick={handleGoogleLogin}
-        className="w-full bg-[#1E293B] hover:bg-[#334155] border border-slate-800 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-lg cursor-pointer"
+        className="btn-secondary w-full py-3 px-6 text-base font-bold bg-[#1E293B]/60 hover:border-[var(--primary)]"
       >
         {/* Google G Logo SVG */}
         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@ function LoginCard() {
 
         <div className="space-y-3 pt-2">
           <div className="flex gap-3 items-start">
-            <User className="text-[#0CB2EB] shrink-0 mt-0.5" size={18} />
+            <User className="text-[var(--primary)] shrink-0 mt-0.5" size={18} />
             <div>
               <strong className="text-slate-200 block">Profil & Alamat Email</strong>
               <span>Digunakan untuk membuat akun Loomo Anda dan menampilkan nama serta avatar Anda di dashboard.</span>
@@ -88,7 +88,7 @@ function LoginCard() {
           </div>
 
           <div className="flex gap-3 items-start">
-            <Folder className="text-[#0CB2EB] shrink-0 mt-0.5" size={18} />
+            <Folder className="text-[var(--primary)] shrink-0 mt-0.5" size={18} />
             <div>
               <strong className="text-slate-200 block">Google Drive (Akses Terbatas: drive.file)</strong>
               <span>Izin membuat, membaca, dan mengubah folder khusus bernama <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-300 font-mono">Loomo</code> di root Drive Anda. Loomo hanya dapat mengakses file yang dibuat/diunggah melalui Loomo.</span>
@@ -96,7 +96,7 @@ function LoginCard() {
           </div>
 
           <div className="flex gap-3 items-start">
-            <Lock className="text-[#0CB2EB] shrink-0 mt-0.5" size={18} />
+            <Lock className="text-[var(--primary)] shrink-0 mt-0.5" size={18} />
             <div>
               <strong className="text-slate-200 block">Privasi Data Mutlak</strong>
               <span>Loomo <strong className="text-red-400">TIDAK BISA</strong> melihat, mengedit, atau mengakses berkas-berkas pribadi Anda yang lain di Google Drive. File Anda tetap aman 100%.</span>
@@ -106,10 +106,10 @@ function LoginCard() {
 
         <div className="pt-4 border-t border-slate-800 text-[10px] text-center text-slate-500">
           Belum memiliki akun?{' '}
-          <Link href="/register" className="text-[#0CB2EB] hover:underline font-semibold">
+          <Link href="/register" className="text-[var(--primary)] hover:underline font-semibold">
             Daftar sekarang
           </Link>.<br/>
-          Kembali ke <Link href="/" className="text-[#0CB2EB] hover:underline font-semibold">Halaman Utama</Link>.
+          Kembali ke <Link href="/" className="text-[var(--primary)] hover:underline font-semibold">Halaman Utama</Link>.
         </div>
       </div>
     </div>
@@ -120,8 +120,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#0F172A] text-slate-300 font-sans flex items-center justify-center p-6 relative selection:bg-cyan-500/30">
       {/* Background blur effects */}
-      <div className="absolute top-[15%] left-[15%] w-[350px] h-[350px] bg-[#0CB2EB]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
-      <div className="absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-[#8A5CF6]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
+      <div className="absolute top-[15%] left-[15%] w-[350px] h-[350px] bg-[var(--primary)]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+      <div className="absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-[var(--secondary)]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
 
       <div className="w-full max-w-md z-10">
         {/* Logo and title */}

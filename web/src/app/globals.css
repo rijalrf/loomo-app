@@ -1,16 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  /* Colors from ColorUI.md */
+  /* Colors from ColorUI.md - Updated */
   --primary: #0CB2EB;
-  --primary-glow: rgba(12, 178, 235, 0.2);
-  --secondary: #8A5CF6;
-  --primary-gradient: linear-gradient(135deg, #0CB2EB 0%, #8A5CF6 100%);
+  --primary-hover: #0aa1d6;
+  --primary-glow: rgba(12, 178, 235, 0.25);
+  --secondary: #6366F1;
+  --secondary-hover: #4f46e5;
+  --secondary-glow: rgba(99, 102, 241, 0.2);
+  --primary-gradient: linear-gradient(135deg, #0CB2EB 0%, #6366F1 100%);
   
   --bg-main: #0F172A;
   --bg-card: #1E293B;
   --bg-hover: #334155;
   --border-color: #334155;
+  --border-light: rgba(255, 255, 255, 0.1);
   
   --text-main: #F8FAFC;
   --text-muted: #CBD5E1;
@@ -82,30 +86,52 @@ body {
 
 /* Utility buttons */
 .btn-primary {
+  background-color: var(--primary);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(12, 178, 235, 0.4);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-gradient {
   background: var(--primary-gradient);
   color: white;
   padding: 10px 24px;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   box-shadow: 0 4px 15px var(--primary-glow);
 }
-.btn-primary:hover {
+.btn-gradient:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(12, 178, 235, 0.4);
   filter: brightness(1.1);
 }
-.btn-primary:active {
-  transform: translateY(0);
-}
 
 .btn-secondary {
-  background-color: transparent;
+  background-color: rgba(255, 255, 255, 0.05);
   color: var(--text-main);
   padding: 10px 20px;
   border-radius: 8px;
@@ -115,11 +141,13 @@ body {
   border: 1px solid var(--border-color);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 .btn-secondary:hover {
   background-color: var(--bg-card);
   border-color: var(--primary);
+  color: white;
 }
 
 .btn-danger {

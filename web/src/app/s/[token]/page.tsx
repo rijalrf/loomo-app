@@ -127,7 +127,7 @@ export default async function SharePage({ params }: SharePageProps) {
           <a 
             href={fileUrl} 
             download={media.title}
-            className="btn-primary py-2 px-4 text-xs rounded-lg gap-2 shadow-[#0CB2EB]/20"
+            className="btn-primary py-2 px-4 text-xs rounded-lg gap-2"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -179,7 +179,7 @@ function renderErrorPage(title: string, message: string, status: number) {
         <h3 className="text-2xl font-black text-white mb-3 tracking-tight">{title}</h3>
         <p className="text-slate-400 text-sm mb-8 leading-relaxed font-medium">{message}</p>
 
-        <Link href="/" className="btn-secondary w-full py-3 rounded-xl justify-center font-bold hover:border-[#0CB2EB] transition-all">
+        <Link href="/" className="btn-secondary w-full py-3 rounded-xl justify-center font-bold">
           Back to Loomo Home
         </Link>
       </div>
