@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { encrypt } from '@/lib/crypto';
@@ -11,7 +10,7 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get('state') || 'login'; // 'login' or 'register'
 
   if (error) {
-    logger.error('google-oauth-callback', `Error from Google: ${error}`);
+    console.error(`[google-oauth-callback] Error from Google: ${error}`);
     return NextResponse.redirect(new URL('/?error=oauth_denied', request.url));
   }
 
@@ -37,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     if (!tokenResponse.ok) {
       const errText = await tokenResponse.text();
-      logger.error('google-oauth-callback', `Token exchange failed: ${errText}`);
+      console.error(`[google-oauth-callback] Token exchange failed: ${errText}`);
       return NextResponse.redirect(new URL('/?error=token_exchange_failed', request.url));
     }
 
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!userinfoResponse.ok) {
-      logger.error('google-oauth-callback', 'Userinfo request failed');
+      console.error('[google-oauth-callback] Userinfo request failed');
       return NextResponse.redirect(new URL('/?error=userinfo_failed', request.url));
     }
 
@@ -69,7 +68,7 @@ export async function GET(request: NextRequest) {
 
     // Enforce isolation: if flow is login but user is not registered, redirect with error
     if (state === 'login' && !user) {
-      logger.info('google-oauth-callback', `Access denied: email ${email} is not registered.`);
+      console.log(`[google-oauth-callback] Access denied: email ${email} is not registered.`);
       return NextResponse.redirect(new URL(`/login?error=not_registered&email=${encodeURIComponent(email)}`, request.url));
     }
 
@@ -115,7 +114,7 @@ export async function GET(request: NextRequest) {
     // 5. Redirect back to dashboard (root)
     return NextResponse.redirect(new URL('/', request.url));
   } catch (err: any) {
-    logger.error('google-oauth-callback', `Unhandled error: ${err.message || String(err)}`);
+    console.error(`[google-oauth-callback] Unhandled error: ${err.message || String(err)}`);
     return NextResponse.redirect(new URL('/?error=callback_error', request.url));
   }
 }

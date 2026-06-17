@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -59,7 +58,7 @@ export async function GET(
           }).catch(() => {});
         }
       } catch (err: any) {
-        logger.error('thumbnail-proxy-api', `Failed to fetch fresh thumbnailLink from Drive: ${err.message || String(err)}`);
+        console.error(`[thumbnail-proxy-api] Failed to fetch fresh thumbnailLink from Drive: ${err.message || String(err)}`);
       }
     }
 
@@ -80,7 +79,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    logger.error('thumbnail-proxy-api', `Error: ${error.message || String(error)}`);
+    console.error(`[thumbnail-proxy-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

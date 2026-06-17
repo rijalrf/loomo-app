@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/db';
@@ -50,7 +49,7 @@ export async function GET() {
       workspaces
     });
   } catch (error: any) {
-    logger.error('auth-me-api', `Error: ${error.message || String(error)}`);
+    console.error(`[auth-me-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

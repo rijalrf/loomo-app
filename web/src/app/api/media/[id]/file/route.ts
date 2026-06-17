@@ -1,4 +1,3 @@
-import { logger } from '@/lib/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -53,7 +52,6 @@ export async function GET(
     // Stream the file from Google Drive
     const driveRes = await fetchFileStream(accessToken, media.driveFileId);
 
-    // Create a streaming response
     return new NextResponse(driveRes.body, {
       headers: {
         'Content-Type': media.mimeType || (media.type === 'SCREENSHOT' ? 'image/png' : 'video/webm'),
@@ -63,7 +61,7 @@ export async function GET(
       }
     });
   } catch (error: any) {
-    logger.error('file-proxy-api', `Error: ${error.message || String(error)}`);
+    console.error(`[file-proxy-api] Error: ${error.message || String(error)}`);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -30,11 +30,7 @@ try {
   };
   (document.head || document.documentElement).appendChild(script);
 } catch (e) {
-  if (globalThis.ExtensionLogger) {
-    globalThis.ExtensionLogger.error('content-script', `[Jam Extension] Gagal menginjeksi skrip pencatat: ${e.message || String(e)}`);
-  } else {
-    console.error('[Jam Extension] Gagal menginjeksi skrip pencatat:', e);
-  }
+  console.error(`[Jam Extension] [content-script] Gagal menginjeksi skrip pencatat: ${e.message || String(e)}`);
 }
 
 // State Control Floating Bar & Screenshot
@@ -150,11 +146,7 @@ async function importPendingJamFromExtension() {
       const isPopup = new URLSearchParams(window.location.search).get('isPopup') === 'true';
       window.location.href = `${globalThis.LoomoConfig.API_BASE_URL}/?driveFileId=${metadata.id}${isPopup ? '&isPopup=true' : ''}`;
     } catch (err) {
-      if (globalThis.ExtensionLogger) {
-        globalThis.ExtensionLogger.error('content-script', `[Jam Extension Content] Gagal menyimpan data impor: ${err.message || String(err)}`);
-      } else {
-        console.error('[Jam Extension Content] Gagal menyimpan data impor:', err);
-      }
+      console.error(`[Jam Extension Content] [content-script] Gagal menyimpan data impor: ${err.message || String(err)}`);
     }
   });
 }
