@@ -1,3 +1,4 @@
+import './config.js';
 import './logger.js';
 const ExtensionLogger = globalThis.ExtensionLogger;
 
@@ -27,7 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Jembatan Penulisan Log Fisik (dari content script / popup)
   if (message.action === 'WRITE_LOG_TO_SERVER') {
     const { level, context, message: msgText } = message.payload;
-    fetch('http://localhost:8999/api/log', {
+    fetch(`${globalThis.LoomoConfig.API_BASE_URL}/api/log`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ level, context, message: msgText })
@@ -156,7 +157,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         pending_jam_metadata: metadata,
         pending_jam_video: imageBase64
       }, () => {
-        const backofficeUrl = `http://localhost:8999/?importPending=true&isPopup=true`;
+        const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/?importPending=true&isPopup=true`;
         chrome.windows.create({
           url: backofficeUrl,
           type: 'popup',
@@ -341,13 +342,13 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     userActions: userActions
   };
  
-  // C. Simpan sementara di chrome.storage.local agar bisa dibaca halaman localhost:8999
+  // C. Simpan sementara di chrome.storage.local agar bisa dibaca halaman Loomo
   chrome.storage.local.set({
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
     // D. Buka window popup mengarah ke Backoffice dengan instruksi importPending dan isPopup=true
-    const backofficeUrl = `http://localhost:8999/?importPending=true&isPopup=true`;
+    const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/?importPending=true&isPopup=true`;
     chrome.windows.create({
       url: backofficeUrl,
       type: 'popup',

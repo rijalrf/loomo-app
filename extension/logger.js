@@ -41,7 +41,7 @@ class ExtensionLogger {
         });
       } else {
         // Jika di background script, kirim fetch langsung
-        fetch('http://localhost:8999/api/log', {
+        fetch(`${globalThis.LoomoConfig.API_BASE_URL}/api/log`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ level, context, message })

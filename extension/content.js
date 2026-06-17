@@ -83,7 +83,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-const isLoomoHost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && window.location.port === '8999';
+const configUrl = new URL(globalThis.LoomoConfig.API_BASE_URL);
+const isLoomoHost = window.location.origin === configUrl.origin;
 if (isLoomoHost) {
   const params = new URLSearchParams(window.location.search);
   if (params.get('importPending') === 'true') {
@@ -147,7 +148,7 @@ async function importPendingJamFromExtension() {
       await saveVideoToIndexedDB(metadata.id, videoBlob);
       
       const isPopup = new URLSearchParams(window.location.search).get('isPopup') === 'true';
-      window.location.href = `http://localhost:8999/?driveFileId=${metadata.id}${isPopup ? '&isPopup=true' : ''}`;
+      window.location.href = `${globalThis.LoomoConfig.API_BASE_URL}/?driveFileId=${metadata.id}${isPopup ? '&isPopup=true' : ''}`;
     } catch (err) {
       if (globalThis.ExtensionLogger) {
         globalThis.ExtensionLogger.error('content-script', `[Jam Extension Content] Gagal menyimpan data impor: ${err.message || String(err)}`);
