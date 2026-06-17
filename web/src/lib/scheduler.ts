@@ -14,6 +14,12 @@ let schedulerIntervalId: NodeJS.Timeout | null = null;
 
 export function startScheduler() {
   if (schedulerIntervalId) return;
+
+  // Skip starting the interval scheduler in serverless environments or during build
+  if (process.env.VERCEL || process.env.NEXT_PHASE === 'phase-production-build') {
+    return;
+  }
+
   // logger.info('scheduler', 'Starting background job scheduler...');
   console.log("scheduler", "Starting background job scheduler...");
 
