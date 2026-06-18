@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { withAccelerate } from '@prisma/extension-accelerate';
 
 const connectionString =
+  process.env.POSTGRES_PRISMA_URL ||
   process.env.DATABASE_URL ||
   "postgresql://postgres:admin123@127.0.0.1:5432/loomo_db?schema=public";
 
