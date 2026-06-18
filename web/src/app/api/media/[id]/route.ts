@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { runSchedulerOnce } from '@/lib/scheduler';
@@ -187,9 +187,11 @@ export async function DELETE(
       });
     });
 
-    // 3. Trigger scheduler
-    runSchedulerOnce().catch(err => {
-      console.error(`[delete-api] Error running scheduler in background: ${err.message || String(err)}`);
+    // 3. Trigger scheduler (non-blocking, post-response)
+    after(() => {
+      runSchedulerOnce().catch(err => {
+        console.error(`[delete-api] Error running scheduler in background: ${err.message || String(err)}`);
+      });
     });
 
     return NextResponse.json({ success: true, status: 'DELETING' });
