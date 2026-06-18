@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import fs from 'fs/promises';
 import path from 'path';
+import os from 'os';
 import { runSchedulerOnce } from '@/lib/scheduler';
 
 export async function POST(request: NextRequest) {
@@ -78,12 +79,8 @@ export async function POST(request: NextRequest) {
         }
       });
 
-      // Ensure upload directory exists
-      const uploadsDir = path.join(process.cwd(), 'uploads');
-      await fs.mkdir(uploadsDir, { recursive: true });
-      
       const fileExt = type === 'SCREENSHOT' ? 'png' : 'webm';
-      const tempFilePath = path.join(uploadsDir, `${media.id}.${fileExt}`);
+      const tempFilePath = path.join(os.tmpdir(), `${media.id}.${fileExt}`);
 
       // Save file to temp path
       await fs.writeFile(tempFilePath, fileBuffer);

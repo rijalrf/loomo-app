@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { runSchedulerOnce } from '@/lib/scheduler';
 import path from 'path';
+import os from 'os';
 
 export async function GET(
   request: NextRequest,
@@ -165,7 +166,7 @@ export async function DELETE(
 
     // Mark status as DELETING
     const fileExt = media.type === 'SCREENSHOT' ? 'png' : 'webm';
-    const tempFilePath = path.join(process.cwd(), 'uploads', `${media.id}.${fileExt}`);
+    const tempFilePath = path.join(os.tmpdir(), `${media.id}.${fileExt}`);
 
     await prisma.$transaction(async (tx) => {
       // 1. Update status to DELETING
