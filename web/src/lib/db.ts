@@ -7,7 +7,10 @@ const globalForPrisma = global as unknown as {
   pool: Pool | undefined;
 };
 
-const connectionString = process.env.DATABASE_URL || "postgresql://postgres:admin123@127.0.0.1:5432/loomo_db?schema=public";
+const connectionString =
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.DATABASE_URL ||
+  "postgresql://postgres:admin123@127.0.0.1:5432/loomo_db?schema=public";
 
 if (!globalForPrisma.pool) {
   globalForPrisma.pool = new Pool({
