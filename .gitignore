@@ -11,3 +11,4 @@ client_secret_devnote.json
 prod-db-supabase.txt
 .vercel
 .env*
+gemini-resume.txt

@@ -2,5 +2,5 @@
 globalThis.LoomoConfig = {
   // Base URL of the Loomo backoffice/web application.
   // Change this to your production domain when deploying.
-  API_BASE_URL: 'http://localhost:8999'
+  API_BASE_URL: 'https://www.loomo.my.id'
 };
