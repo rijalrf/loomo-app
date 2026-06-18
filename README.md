@@ -1,5 +1,7 @@
 # Loomo
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 Loomo is a privacy-first visual feedback and collaboration platform. It allows users to capture screenshots, record browser tabs with audio, annotate images, and share them instantly. Unlike other services, Loomo respects your privacy and storage limits by storing all captured media directly in your own personal Google Drive.
 
 ---
