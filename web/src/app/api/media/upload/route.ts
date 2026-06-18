@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import fs from 'fs/promises';
@@ -102,9 +102,11 @@ export async function POST(request: NextRequest) {
       return { media, job };
     });
 
-    // 4. Trigger the scheduler in the background (non-blocking)
-    runSchedulerOnce().catch(err => {
-      console.error(`[upload-api] Error running scheduler in background: ${err.message || String(err)}`);
+    // 4. Trigger the scheduler in the background (non-blocking, post-response)
+    after(() => {
+      runSchedulerOnce().catch(err => {
+        console.error(`[upload-api] Error running scheduler in background: ${err.message || String(err)}`);
+      });
     });
 
     return NextResponse.json({
