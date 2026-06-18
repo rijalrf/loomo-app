@@ -8,11 +8,9 @@ import {
 } from "./gdrive";
 import { getDriveOwnerId } from "./workspace";
 
-let isSchedulerRunning = false;
-let schedulerIntervalId: NodeJS.Timeout | null = null;
-
 export function startScheduler() {
-  if (schedulerIntervalId) return;
+  const g = global as any;
+  if (g.schedulerIntervalId) return;
 
   // Skip starting the interval scheduler in serverless environments or during build
   if (process.env.VERCEL || process.env.NEXT_PHASE === 'phase-production-build') {
@@ -22,20 +20,23 @@ export function startScheduler() {
   // logger.info('scheduler', 'Starting background job scheduler...');
   console.log("scheduler", "Starting background job scheduler...");
 
-  // Run immediately on start
-  runSchedulerOnce().catch((err) =>
-    console.error("scheduler", `Error in initial run: ${err.message || err}`),
-  );
+  // Run immediately on start (deferred to next tick to ensure imports are bound)
+  setTimeout(() => {
+    runSchedulerOnce().catch((err) =>
+      console.error("scheduler", `Error in initial run: ${err.message || err}`),
+    );
+  }, 0);
 
   // Run every 10 seconds
-  schedulerIntervalId = setInterval(async () => {
+  g.schedulerIntervalId = setInterval(async () => {
     await runSchedulerOnce();
   }, 10000);
 }
 
 export async function runSchedulerOnce() {
-  if (isSchedulerRunning) return;
-  isSchedulerRunning = true;
+  const g = global as any;
+  if (g.isSchedulerRunning) return;
+  g.isSchedulerRunning = true;
 
   try {
     // 1. Fetch pending background jobs (QUEUED or FAILED but with attempts < max_attempts)
@@ -57,7 +58,7 @@ export async function runSchedulerOnce() {
       `Scheduler run failed: ${error.message || error}`,
     );
   } finally {
-    isSchedulerRunning = false;
+    g.isSchedulerRunning = false;
   }
 }
 
