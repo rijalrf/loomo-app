@@ -6,6 +6,80 @@ window.addEventListener('unhandledrejection', (event) => {
   console.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
 });
 
+function showAlert(message) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    `;
+
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    `;
+
+    const messageEl = document.createElement('div');
+    messageEl.textContent = message;
+    messageEl.style.cssText = `
+      color: #e2e8f0;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    `;
+
+    const button = document.createElement('button');
+    button.textContent = 'OK';
+    button.style.cssText = `
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    `;
+
+    button.onmouseover = () => {
+      button.style.background = '#2563eb';
+    };
+    button.onmouseout = () => {
+      button.style.background = '#3b82f6';
+    };
+
+    button.onclick = () => {
+      document.body.removeChild(overlay);
+      resolve();
+    };
+
+    dialog.appendChild(messageEl);
+    dialog.appendChild(button);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    button.focus();
+  });
+}
+
 const btnAction = document.getElementById('btn-action');
 const btnScreenshot = document.getElementById('btn-screenshot');
 const btnDashboard = document.getElementById('btn-view-dashboard');
@@ -68,7 +142,7 @@ btnAction.addEventListener('click', async () => {
           updateUI(true, 0);
           window.close();
         } else {
-          alert('Gagal merekam: ' + (response?.error || 'Kesalahan tidak diketahui'));
+          showAlert('Gagal merekam: ' + (response?.error || 'Kesalahan tidak diketahui'));
         }
       }
     );
@@ -89,7 +163,7 @@ btnAction.addEventListener('click', async () => {
           updateUI(false, 0);
           window.close();
         } else {
-          alert('Gagal menghentikan: ' + (response?.error || 'Kesalahan tidak diketahui'));
+          showAlert('Gagal menghentikan: ' + (response?.error || 'Kesalahan tidak diketahui'));
         }
       }
     );
@@ -102,13 +176,13 @@ btnScreenshot.addEventListener('click', () => {
     { source: 'jam-extension-popup', action: 'START_SCREENSHOT' },
     (response) => {
       if (chrome.runtime.lastError) {
-        alert('Gagal menginisialisasi screenshot: ' + chrome.runtime.lastError.message);
+        showAlert('Gagal menginisialisasi screenshot: ' + chrome.runtime.lastError.message);
         return;
       }
       if (response && response.success) {
         window.close();
       } else {
-        alert('Gagal menginisialisasi screenshot: ' + (response?.error || 'Kesalahan tidak diketahui'));
+        showAlert('Gagal menginisialisasi screenshot: ' + (response?.error || 'Kesalahan tidak diketahui'));
       }
     }
   );

@@ -6,6 +6,7 @@ import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexedd
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
 import { ChevronDown, Check } from 'lucide-react';
+import { showConfirm, showPrompt } from '@/lib/customDialog';
 
 interface SelectOption {
   value: string;
@@ -214,8 +215,9 @@ export default function EditorClient() {
     }
   };
 
-  const handleClear = () => {
-    if (confirm('Clear all annotations?')) {
+  const handleClear = async () => {
+    const confirmed = await showConfirm('Hapus semua anotasi?');
+    if (confirmed) {
       setAnnotations([]);
       pushToHistory([]);
     }
@@ -350,14 +352,14 @@ export default function EditorClient() {
     };
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseDown = async (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (savingState === 'saving') return;
     const pos = getMousePos(e);
     isDrawingRef.current = true;
     startPosRef.current = pos;
 
     if (activeTool === 'text') {
-      const text = prompt('Enter annotation text:');
+      const text = await showPrompt('Masukkan teks anotasi:');
       if (text) {
         const newAnn: Annotation = {
           id: Math.random().toString(),

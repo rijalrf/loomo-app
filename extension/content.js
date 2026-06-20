@@ -7,6 +7,22 @@ function isExtensionValid() {
   }
 }
 
+function loadCustomDialog() {
+  return new Promise((resolve) => {
+    if (window.showAlert) {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = chrome.runtime.getURL('customDialog.js');
+    script.onload = () => {
+      script.remove();
+      resolve();
+    };
+    (document.head || document.documentElement).appendChild(script);
+  });
+}
+
 // Global error handling to log content script errors to server
 window.addEventListener('error', (event) => {
   // Only handle content script errors, avoid capturing target page errors here
@@ -294,7 +310,9 @@ function initScreenshotSelection() {
     }
 
     if (!isExtensionValid()) {
-      alert('Extension context is no longer active. Please reload the page to take a screenshot.');
+      loadCustomDialog().then(() => {
+        window.showAlert('Konteks ekstensi tidak lagi aktif. Silakan muat ulang halaman untuk mengambil screenshot.');
+      });
       return;
     }
 
@@ -305,19 +323,27 @@ function initScreenshotSelection() {
         action: 'CAPTURE_VISIBLE_TAB'
       }, (response) => {
         if (chrome.runtime.lastError) {
-          alert('Gagal mengambil screenshot: ' + chrome.runtime.lastError.message);
+          loadCustomDialog().then(() => {
+            window.showAlert('Gagal mengambil screenshot: ' + chrome.runtime.lastError.message);
+          });
           return;
         }
         if (!response) {
-          alert('Gagal mengambil screenshot: Tidak ada respon dari background service worker.');
+          loadCustomDialog().then(() => {
+            window.showAlert('Gagal mengambil screenshot: Tidak ada respon dari background service worker.');
+          });
           return;
         }
         if (response.error) {
-          alert('Gagal mengambil screenshot: ' + response.error);
+          loadCustomDialog().then(() => {
+            window.showAlert('Gagal mengambil screenshot: ' + response.error);
+          });
           return;
         }
         if (!response.dataUrl) {
-          alert('Gagal mengambil screenshot: URL data gambar kosong.');
+          loadCustomDialog().then(() => {
+            window.showAlert('Gagal mengambil screenshot: URL data gambar kosong.');
+          });
           return;
         }
 
@@ -494,7 +520,9 @@ function showFloatingControls() {
   
   pauseBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
-      alert('Extension context is no longer active. Please reload the page to control recording.');
+      loadCustomDialog().then(() => {
+        window.showAlert('Konteks ekstensi tidak lagi aktif. Silakan muat ulang halaman untuk mengontrol perekaman.');
+      });
       return;
     }
     if (!isPaused) {
@@ -564,7 +592,9 @@ function showFloatingControls() {
   
   stopBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
-      alert('Extension context is no longer active. Please reload the page to control recording.');
+      loadCustomDialog().then(() => {
+        window.showAlert('Konteks ekstensi tidak lagi aktif. Silakan muat ulang halaman untuk mengontrol perekaman.');
+      });
       return;
     }
     chrome.runtime.sendMessage({

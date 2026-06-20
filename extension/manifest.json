@@ -45,7 +45,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["injected.js"],
+      "resources": ["injected.js", "customDialog.js"],
       "matches": ["<all_urls>"]
     }
   ]

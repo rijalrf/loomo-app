@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
 import { Folder, BookOpen, LogOut, ChevronDown, Check, Settings, Users, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { showConfirm } from '@/lib/customDialog';
 
 interface User {
   id: string;
@@ -256,7 +257,8 @@ export default function SettingsClient({
   };
 
   const handleRemoveMember = async (membershipId: string) => {
-    if (!confirm('Remove this member from the workspace?')) return;
+    const confirmed = await showConfirm('Hapus member ini dari workspace?');
+    if (!confirmed) return;
     try {
       const res = await fetch(`/api/workspace/members/${membershipId}`, {
         method: 'DELETE'
