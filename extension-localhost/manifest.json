@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Loomo Capture Engine",
+  "version": "1.0.0",
+  "description": "Ambil tangkapan layar area (screenshot) dengan anotasi dan rekam tab aktif Anda. Media di-upload otomatis ke Google Drive pribadi Anda.",
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "offscreen",
+    "tabCapture"
+  ],
+  "host_permissions": [
+    "https://www.googleapis.com/*",
+    "http://localhost:8999/*",
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Loomo Capture",
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "background": {
+    "service_worker": "service_worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>", "http://localhost/*", "http://127.0.0.1/*"],
+      "js": ["config.js", "content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js", "customDialog.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
