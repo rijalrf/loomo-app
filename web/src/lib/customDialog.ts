@@ -54,7 +54,7 @@ export function showAlert(message: string): Promise<void> {
     const button = document.createElement('button');
     button.textContent = 'OK';
     button.style.cssText = `
-      background: #06b6d4;
+      background: #1d4ed8;
       color: white;
       border: none;
       border-radius: 8px;
@@ -68,10 +68,10 @@ export function showAlert(message: string): Promise<void> {
     `;
 
     button.onmouseover = () => {
-      button.style.background = '#0891b2';
+      button.style.background = '#1e40af';
     };
     button.onmouseout = () => {
-      button.style.background = '#06b6d4';
+      button.style.background = '#1d4ed8';
     };
 
     button.onclick = () => {
@@ -292,7 +292,7 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     `;
 
     input.onfocus = () => {
-      input.style.borderColor = '#06b6d4';
+      input.style.borderColor = '#1d4ed8';
       input.style.background = '#111113';
     };
     input.onblur = () => {
@@ -332,7 +332,7 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     const okButton = document.createElement('button');
     okButton.textContent = 'OK';
     okButton.style.cssText = `
-      background: #06b6d4;
+      background: #1d4ed8;
       color: white;
       border: none;
       border-radius: 8px;
@@ -346,10 +346,10 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     `;
 
     okButton.onmouseover = () => {
-      okButton.style.background = '#0891b2';
+      okButton.style.background = '#1e40af';
     };
     okButton.onmouseout = () => {
-      okButton.style.background = '#06b6d4';
+      okButton.style.background = '#1d4ed8';
     };
 
     const cleanup = () => {

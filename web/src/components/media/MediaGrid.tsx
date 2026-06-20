@@ -116,37 +116,30 @@ export default function MediaGrid({
 
               {isReady && (
                 <>
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between gap-2 mt-auto">
                     <MediaVisibilitySelect
                       value={item.visibility}
                       onChange={(val) => onVisibilityChange(item.id, val)}
                       direction="up"
                     />
-                    {item.shareToken && (
-                      <span className="text-xs text-emerald-400 font-bold flex items-center gap-1">
-                        <Link2 size={12} />
-                        Shared
-                      </span>
-                    )}
-                  </div>
 
-                  <div className="flex gap-2 mt-auto">
-                    <button
-                      onClick={() => onShareLink(item)}
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-[var(--primary)]/10 border border-[var(--border-color)] hover:border-[var(--primary)] text-[var(--text-muted)] hover:text-[var(--primary)] py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                      title="Share Link"
-                    >
-                      <Link2 size={14} />
-                      <span>Share</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onShareLink(item)}
+                        className="flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-[var(--primary)]/10 border border-[var(--border-color)] hover:border-[var(--primary)] text-[var(--text-muted)] hover:text-[var(--primary)] py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                        title="Share Link"
+                      >
+                        <Link2 size={14} />
+                      </button>
 
-                    <button
-                      onClick={() => onDelete(item.id)}
-                      className="flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-red-500/10 border border-[var(--border-color)] hover:border-red-500/30 text-[var(--text-muted)] hover:text-red-400 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                      title="Delete"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                      <button
+                        onClick={() => onDelete(item.id)}
+                        className="flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-red-500/10 border border-[var(--border-color)] hover:border-red-500/30 text-[var(--text-muted)] hover:text-red-400 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
