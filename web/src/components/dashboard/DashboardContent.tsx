@@ -151,7 +151,7 @@ export default function DashboardContent({
   };
 
   return (
-    <>
+    <div className="max-w-7xl mx-auto w-full">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-5">
         <div>
           <h2 className="text-3xl font-black text-white tracking-tight mb-1">
@@ -277,6 +277,6 @@ export default function DashboardContent({
           </button>
         </div>
       </PopupModal>
-    </>
+    </div>
   );
 }
