@@ -126,7 +126,7 @@ const CaptureActivityChart = () => {
   ];
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6 flex flex-col h-full select-none">
+    <div className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl p-6 flex flex-col h-full select-none">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <span className="text-xs font-black uppercase text-[var(--text-muted)] tracking-wider">Sales Trend</span>
@@ -214,7 +214,7 @@ const TypeBreakdownChart = () => {
   ];
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-6 flex flex-col h-full justify-between select-none">
+    <div className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl p-6 flex flex-col h-full justify-between select-none">
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -596,7 +596,7 @@ export default function DashboardClient({
   const activeSharesCount = mediaList.filter(m => m.shareToken !== null).length;
 
   return (
-    <div className="min-h-screen flex bg-[var(--bg-main)] text-slate-200">
+    <div className="min-h-screen flex bg-[var(--bg-card)] text-slate-200">
       {/* Sidebar */}
       <Sidebar
         initialUser={initialUser}
@@ -732,7 +732,7 @@ export default function DashboardClient({
 
             {/* Media List / Grid */}
             {sortedMedia.length === 0 ? (
-              <div className="glass-panel py-16 px-6 rounded-lg text-center border-[var(--border-color)] bg-[var(--bg-card)] flex flex-col items-center">
+              <div className="glass-panel py-16 px-6 rounded-lg text-center border-[var(--border-color)] bg-[var(--bg-main)] flex flex-col items-center">
                 <div className="w-20 h-20 rounded-full bg-[var(--bg-main)] flex items-center justify-center mb-6 border border-[var(--border-color)]">
                   <ImageIcon className="text-[var(--text-muted)]" size={40} strokeWidth={1.5} />
                 </div>
@@ -759,7 +759,7 @@ export default function DashboardClient({
                   return (
                     <div 
                       key={media.id} 
-                      className={`media-card flex flex-col h-full bg-[var(--bg-card)] border-[var(--border-color)] group ${isDeleting ? 'opacity-40 grayscale pointer-events-none' : ''}`}
+                      className={`media-card flex flex-col h-full bg-[var(--bg-main)] border-[var(--border-color)] group ${isDeleting ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                     >
                       {/* Card Thumbnail */}
                       <div 
@@ -901,7 +901,7 @@ export default function DashboardClient({
                 </div>
               ) : (
                 /* List View */
-                <div className="glass-panel rounded-lg overflow-hidden border-[var(--border-color)] bg-[var(--bg-card)]/80">
+                <div className="glass-panel rounded-lg overflow-hidden border-[var(--border-color)] bg-[var(--bg-main)]/80">
                   <table className="w-full text-left text-sm border-collapse">
                     <thead>
                       <tr className="border-b border-[var(--border-color)] text-[var(--text-muted)] font-bold uppercase text-xs tracking-widest bg-[var(--bg-main)]/50">

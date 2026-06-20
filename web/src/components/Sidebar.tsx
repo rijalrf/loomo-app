@@ -67,12 +67,12 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="w-64 border-r border-[var(--border-color)] bg-[var(--bg-card)] flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 font-sans">
+    <aside className="w-64 border-r border-[var(--border-color)] bg-[var(--bg-main)] flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 font-sans">
       <div className="flex flex-col gap-3.5 p-3.5">
         <div className="relative" ref={workspaceDropdownRef}>
           <button
             onClick={() => setWorkspaceDropdownOpen(!workspaceDropdownOpen)}
-            className="w-full flex items-center justify-between gap-3 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] text-white py-2.5 px-3 rounded-lg outline-none transition-all cursor-pointer text-left group"
+            className="w-full flex items-center justify-between gap-3 bg-[var(--bg-main)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] text-white py-2.5 px-3 rounded-lg outline-none transition-all cursor-pointer text-left group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] flex items-center justify-center font-black text-base shrink-0">
