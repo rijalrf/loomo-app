@@ -142,8 +142,8 @@ export default function PendingImportHandler() {
   if (!uploadState.isUploading) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#0F172A]/80 backdrop-blur-md z-[99999] flex items-center justify-center p-6 text-slate-200 font-sans">
-      <div className="glass-panel p-10 rounded-3xl max-w-md w-full text-center border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-300">
+    <div className="fixed inset-0 bg-[#131314]/90 backdrop-blur-md z-[99999] flex items-center justify-center p-6 text-slate-200 font-sans">
+      <div className="glass-panel p-10 rounded-xl max-w-md w-full text-center border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-300">
         <h3 className="text-xl font-black text-white mb-2 tracking-tight uppercase">Uploading Recording</h3>
         <p className="text-slate-400 text-sm mb-8 font-medium truncate">
           {uploadState.title}
@@ -151,12 +151,12 @@ export default function PendingImportHandler() {
 
         {uploadState.error ? (
           <div className="space-y-6">
-            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400 text-sm font-medium text-left flex items-start gap-3">
+            <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg text-red-400 text-sm font-medium text-left flex items-start gap-3">
               <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               {uploadState.error}
             </div>
             <button 
-              className="btn-primary w-full py-3 rounded-xl justify-center font-bold"
+              className="btn-primary w-full py-3 rounded-lg justify-center font-bold"
               onClick={() => {
                 localStorage.removeItem(`jam_meta_${driveFileId}`);
                 router.push('/');
