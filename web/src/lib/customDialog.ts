@@ -7,7 +7,7 @@ export function showAlert(message: string): Promise<void> {
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -17,14 +17,13 @@ export function showAlert(message: string): Promise<void> {
 
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-      background: #0f0d0c;
-      border: 1px solid #2b2725;
-      border-radius: 6px;
-      padding: 20px;
+      background: #111113;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 24px;
       max-width: 400px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
     const style = document.createElement('style');
@@ -32,11 +31,11 @@ export function showAlert(message: string): Promise<void> {
       @keyframes slideIn {
         from {
           opacity: 0;
-          transform: translateY(-20px) scale(0.95);
+          transform: scale(0.95);
         }
         to {
           opacity: 1;
-          transform: translateY(0) scale(1);
+          transform: scale(1);
         }
       }
     `;
@@ -45,8 +44,8 @@ export function showAlert(message: string): Promise<void> {
     const messageEl = document.createElement('div');
     messageEl.textContent = message;
     messageEl.style.cssText = `
-      color: #F8FAFC;
-      font-size: 15px;
+      color: #a1a1aa;
+      font-size: 14px;
       line-height: 1.6;
       margin-bottom: 20px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -55,29 +54,24 @@ export function showAlert(message: string): Promise<void> {
     const button = document.createElement('button');
     button.textContent = 'OK';
     button.style.cssText = `
-      background: #cc5200;
+      background: #06b6d4;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       width: 100%;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      box-shadow: 0 4px 12px rgba(204, 82, 0, 0.15);
     `;
 
     button.onmouseover = () => {
-      button.style.background = '#b34700';
-      button.style.transform = 'translateY(-2px)';
-      button.style.boxShadow = '0 8px 20px rgba(204, 82, 0, 0.25)';
+      button.style.background = '#0891b2';
     };
     button.onmouseout = () => {
-      button.style.background = '#cc5200';
-      button.style.transform = 'translateY(0)';
-      button.style.boxShadow = '0 4px 12px rgba(204, 82, 0, 0.15)';
+      button.style.background = '#06b6d4';
     };
 
     button.onclick = () => {
@@ -104,7 +98,7 @@ export function showConfirm(message: string): Promise<boolean> {
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -114,14 +108,13 @@ export function showConfirm(message: string): Promise<boolean> {
 
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-      background: #0f0d0c;
-      border: 1px solid #2b2725;
-      border-radius: 6px;
-      padding: 20px;
+      background: #111113;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 24px;
       max-width: 400px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
     const style = document.createElement('style');
@@ -129,11 +122,11 @@ export function showConfirm(message: string): Promise<boolean> {
       @keyframes slideIn {
         from {
           opacity: 0;
-          transform: translateY(-20px) scale(0.95);
+          transform: scale(0.95);
         }
         to {
           opacity: 1;
-          transform: translateY(0) scale(1);
+          transform: scale(1);
         }
       }
     `;
@@ -142,8 +135,8 @@ export function showConfirm(message: string): Promise<boolean> {
     const messageEl = document.createElement('div');
     messageEl.textContent = message;
     messageEl.style.cssText = `
-      color: #F8FAFC;
-      font-size: 15px;
+      color: #a1a1aa;
+      font-size: 14px;
       line-height: 1.6;
       margin-bottom: 20px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -158,10 +151,10 @@ export function showConfirm(message: string): Promise<boolean> {
     const cancelButton = document.createElement('button');
     cancelButton.textContent = 'Cancel';
     cancelButton.style.cssText = `
-      background: rgba(255, 255, 255, 0.05);
-      color: #F8FAFC;
-      border: 1px solid #2b2725;
-      border-radius: 4px;
+      background: #1a1a1d;
+      color: white;
+      border: 1px solid #27272a;
+      border-radius: 8px;
       padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
@@ -172,14 +165,10 @@ export function showConfirm(message: string): Promise<boolean> {
     `;
 
     cancelButton.onmouseover = () => {
-      cancelButton.style.background = '#0f0d0c';
-      cancelButton.style.borderColor = '#cc5200';
-      cancelButton.style.color = 'white';
+      cancelButton.style.background = '#0a0a0b';
     };
     cancelButton.onmouseout = () => {
-      cancelButton.style.background = 'rgba(255, 255, 255, 0.05)';
-      cancelButton.style.borderColor = '#272526';
-      cancelButton.style.color = '#F8FAFC';
+      cancelButton.style.background = '#1a1a1d';
     };
 
     const confirmButton = document.createElement('button');
@@ -188,23 +177,21 @@ export function showConfirm(message: string): Promise<boolean> {
       background: #EF4444;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       flex: 1;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     `;
 
     confirmButton.onmouseover = () => {
       confirmButton.style.background = '#DC2626';
-      confirmButton.style.transform = 'translateY(-1px)';
     };
     confirmButton.onmouseout = () => {
       confirmButton.style.background = '#EF4444';
-      confirmButton.style.transform = 'translateY(0)';
     };
 
     const cleanup = () => {
@@ -242,7 +229,7 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -252,14 +239,13 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
 
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-      background: #0f0d0c;
-      border: 1px solid #2b2725;
-      border-radius: 6px;
-      padding: 20px;
+      background: #111113;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 24px;
       max-width: 400px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
     const style = document.createElement('style');
@@ -267,11 +253,11 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
       @keyframes slideIn {
         from {
           opacity: 0;
-          transform: translateY(-20px) scale(0.95);
+          transform: scale(0.95);
         }
         to {
           opacity: 1;
-          transform: translateY(0) scale(1);
+          transform: scale(1);
         }
       }
     `;
@@ -280,8 +266,8 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     const messageEl = document.createElement('div');
     messageEl.textContent = message;
     messageEl.style.cssText = `
-      color: #F8FAFC;
-      font-size: 15px;
+      color: #a1a1aa;
+      font-size: 14px;
       line-height: 1.6;
       margin-bottom: 16px;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -292,12 +278,12 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     input.value = defaultValue;
     input.style.cssText = `
       width: 100%;
-      background: rgba(30, 41, 59, 0.6);
-      border: 1px solid #2b2725;
-      border-radius: 4px;
+      background: #0a0a0b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
       padding: 8px 12px;
       font-size: 14px;
-      color: #F8FAFC;
+      color: #fafafa;
       margin-bottom: 20px;
       outline: none;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -306,14 +292,12 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     `;
 
     input.onfocus = () => {
-      input.style.borderColor = '#cc5200';
-      input.style.boxShadow = '0 0 0 1px #cc5200';
-      input.style.background = 'rgba(30, 41, 59, 0.8)';
+      input.style.borderColor = '#06b6d4';
+      input.style.background = '#111113';
     };
     input.onblur = () => {
-      input.style.borderColor = '#272526';
-      input.style.boxShadow = 'none';
-      input.style.background = 'rgba(30, 41, 59, 0.6)';
+      input.style.borderColor = '#27272a';
+      input.style.background = '#0a0a0b';
     };
 
     const buttonContainer = document.createElement('div');
@@ -325,10 +309,10 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     const cancelButton = document.createElement('button');
     cancelButton.textContent = 'Cancel';
     cancelButton.style.cssText = `
-      background: rgba(255, 255, 255, 0.05);
-      color: #F8FAFC;
-      border: 1px solid #2b2725;
-      border-radius: 4px;
+      background: #1a1a1d;
+      color: white;
+      border: 1px solid #27272a;
+      border-radius: 8px;
       padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
@@ -339,42 +323,33 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     `;
 
     cancelButton.onmouseover = () => {
-      cancelButton.style.background = '#0f0d0c';
-      cancelButton.style.borderColor = '#cc5200';
-      cancelButton.style.color = 'white';
+      cancelButton.style.background = '#0a0a0b';
     };
     cancelButton.onmouseout = () => {
-      cancelButton.style.background = 'rgba(255, 255, 255, 0.05)';
-      cancelButton.style.borderColor = '#272526';
-      cancelButton.style.color = '#F8FAFC';
+      cancelButton.style.background = '#1a1a1d';
     };
 
     const okButton = document.createElement('button');
     okButton.textContent = 'OK';
     okButton.style.cssText = `
-      background: #cc5200;
+      background: #06b6d4;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       flex: 1;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      box-shadow: 0 4px 12px rgba(204, 82, 0, 0.15);
     `;
 
     okButton.onmouseover = () => {
-      okButton.style.background = '#b34700';
-      okButton.style.transform = 'translateY(-2px)';
-      okButton.style.boxShadow = '0 8px 20px rgba(204, 82, 0, 0.25)';
+      okButton.style.background = '#0891b2';
     };
     okButton.onmouseout = () => {
-      okButton.style.background = '#cc5200';
-      okButton.style.transform = 'translateY(0)';
-      okButton.style.boxShadow = '0 4px 12px rgba(204, 82, 0, 0.15)';
+      okButton.style.background = '#06b6d4';
     };
 
     const cleanup = () => {
