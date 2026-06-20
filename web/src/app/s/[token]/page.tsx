@@ -139,22 +139,20 @@ export default async function SharePage({ params }: SharePageProps) {
 
       {/* Media Body */}
       <div className="flex-1 flex items-center justify-center p-6 md:p-12 overflow-hidden relative">
-        <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-lg overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-[var(--border-color)]">
-          {media.type === 'SCREENSHOT' ? (
-            <img 
-              src={fileUrl} 
-              alt={media.title}
-              className="max-w-full max-h-full object-contain"
-            />
-          ) : (
-            <video 
-              src={fileUrl}
-              controls
-              autoPlay
-              className="max-w-full max-h-full"
-            />
-          )}
-        </div>
+        {media.type === 'SCREENSHOT' ? (
+          <img 
+            src={fileUrl} 
+            alt={media.title}
+            className="max-w-full max-h-full object-contain"
+          />
+        ) : (
+          <video 
+            src={fileUrl}
+            controls
+            autoPlay
+            className="max-w-full max-h-full"
+          />
+        )}
       </div>
     </div>
   );

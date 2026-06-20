@@ -7,6 +7,7 @@ import { useMediaFilters } from '@/hooks/useMediaFilters';
 import MediaToolbar from '../media/MediaToolbar';
 import MediaGrid from '../media/MediaGrid';
 import MediaEmptyState from '../media/MediaEmptyState';
+import MediaViewer from '../media/MediaViewer';
 import PopupModal from '../PopupModal';
 import { Link2, X, Edit2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -318,43 +319,10 @@ export default function DashboardContent({
         </div>
       )}
 
-      {activeMediaViewer && (
-        <div className="fixed inset-0 bg-[#0c0c0e]/95 z-[100] flex flex-col backdrop-blur-sm">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/50">
-            <div>
-              <h3 className="text-lg font-black text-white leading-tight">{activeMediaViewer.title}</h3>
-              <p className="text-xs text-[var(--text-muted)] font-medium">
-                Captured by {activeMediaViewer.uploader.displayName} • {new Date(activeMediaViewer.createdAt).toLocaleString()}
-              </p>
-            </div>
-            <button
-              onClick={() => setActiveMediaViewer(null)}
-              className="btn-secondary py-2 px-6 rounded-full border-[var(--border-color)] hover:bg-white hover:text-black hover:border-white transition-all font-bold cursor-pointer"
-            >
-              Close
-            </button>
-          </div>
-
-          <div className="flex-1 flex items-center justify-center p-6 md:p-12">
-            <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-xl overflow-hidden border border-[var(--border-color)]">
-              {activeMediaViewer.type === 'SCREENSHOT' ? (
-                <img
-                  src={`/api/media/${activeMediaViewer.id}/file`}
-                  alt={activeMediaViewer.title}
-                  className="max-w-full max-h-full object-contain"
-                />
-              ) : (
-                <video
-                  src={`/api/media/${activeMediaViewer.id}/file`}
-                  controls
-                  autoPlay
-                  className="max-w-full max-h-full"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <MediaViewer 
+        media={activeMediaViewer} 
+        onClose={() => setActiveMediaViewer(null)} 
+      />
 
       <PopupModal
         isOpen={!!showShareModal}
