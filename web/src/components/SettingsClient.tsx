@@ -257,7 +257,7 @@ export default function SettingsClient({
   };
 
   const handleRemoveMember = async (membershipId: string) => {
-    const confirmed = await showConfirm('Hapus member ini dari workspace?');
+    const confirmed = await showConfirm('Remove this member from the workspace?');
     if (!confirmed) return;
     try {
       const res = await fetch(`/api/workspace/members/${membershipId}`, {

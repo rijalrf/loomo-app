@@ -311,7 +311,7 @@ function initScreenshotSelection() {
 
     if (!isExtensionValid()) {
       loadCustomDialog().then(() => {
-        window.showAlert('Konteks ekstensi tidak lagi aktif. Silakan muat ulang halaman untuk mengambil screenshot.');
+        window.showAlert('Extension context is no longer active. Please reload the page to take a screenshot.');
       });
       return;
     }
@@ -324,25 +324,25 @@ function initScreenshotSelection() {
       }, (response) => {
         if (chrome.runtime.lastError) {
           loadCustomDialog().then(() => {
-            window.showAlert('Gagal mengambil screenshot: ' + chrome.runtime.lastError.message);
+            window.showAlert('Failed to capture screenshot: ' + chrome.runtime.lastError.message);
           });
           return;
         }
         if (!response) {
           loadCustomDialog().then(() => {
-            window.showAlert('Gagal mengambil screenshot: Tidak ada respon dari background service worker.');
+            window.showAlert('Failed to capture screenshot: No response from background service worker.');
           });
           return;
         }
         if (response.error) {
           loadCustomDialog().then(() => {
-            window.showAlert('Gagal mengambil screenshot: ' + response.error);
+            window.showAlert('Failed to capture screenshot: ' + response.error);
           });
           return;
         }
         if (!response.dataUrl) {
           loadCustomDialog().then(() => {
-            window.showAlert('Gagal mengambil screenshot: URL data gambar kosong.');
+            window.showAlert('Failed to capture screenshot: Empty image data URL.');
           });
           return;
         }
@@ -521,7 +521,7 @@ function showFloatingControls() {
   pauseBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
       loadCustomDialog().then(() => {
-        window.showAlert('Konteks ekstensi tidak lagi aktif. Silakan muat ulang halaman untuk mengontrol perekaman.');
+        window.showAlert('Extension context is no longer active. Please reload the page to control recording.');
       });
       return;
     }
@@ -593,7 +593,7 @@ function showFloatingControls() {
   stopBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
       loadCustomDialog().then(() => {
-        window.showAlert('Konteks ekstensi tidak lagi aktif. Silakan muat ulang halaman untuk mengontrol perekaman.');
+        window.showAlert('Extension context is no longer active. Please reload the page to control recording.');
       });
       return;
     }

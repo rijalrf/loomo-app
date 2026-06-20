@@ -216,7 +216,7 @@ export default function EditorClient() {
   };
 
   const handleClear = async () => {
-    const confirmed = await showConfirm('Hapus semua anotasi?');
+    const confirmed = await showConfirm('Clear all annotations?');
     if (confirmed) {
       setAnnotations([]);
       pushToHistory([]);
@@ -359,7 +359,7 @@ export default function EditorClient() {
     startPosRef.current = pos;
 
     if (activeTool === 'text') {
-      const text = await showPrompt('Masukkan teks anotasi:');
+      const text = await showPrompt('Enter annotation text:');
       if (text) {
         const newAnn: Annotation = {
           id: Math.random().toString(),

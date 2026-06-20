@@ -435,7 +435,7 @@ export default function DashboardClient({
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('Apakah Anda yakin ingin menghapus media ini? Media akan dihapus permanen dari Loomo dan Google Drive Anda.');
+    const confirmed = await showConfirm('Are you sure you want to delete this media? This will permanently delete it from Loomo and your Google Drive.');
     if (!confirmed) return;
     
     // Optimistic UI update: set to DELETING
@@ -486,7 +486,7 @@ export default function DashboardClient({
   };
 
   const handleRevokeShare = async (media: Media) => {
-    const confirmed = await showConfirm('Mencabut link ini akan menonaktifkan URL share saat ini. Siapa pun yang mengaksesnya akan kehilangan akses. Lanjutkan?');
+    const confirmed = await showConfirm('Revoking this link will deactivate the current share URL. Anyone visiting it will lose access. Proceed?');
     if (!confirmed) return;
     try {
       const res = await fetch(`/api/media/${media.id}/share`, {

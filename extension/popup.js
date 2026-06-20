@@ -142,7 +142,7 @@ btnAction.addEventListener('click', async () => {
           updateUI(true, 0);
           window.close();
         } else {
-          showAlert('Gagal merekam: ' + (response?.error || 'Kesalahan tidak diketahui'));
+          showAlert('Failed to start recording: ' + (response?.error || 'Unknown error'));
         }
       }
     );
@@ -163,7 +163,7 @@ btnAction.addEventListener('click', async () => {
           updateUI(false, 0);
           window.close();
         } else {
-          showAlert('Gagal menghentikan: ' + (response?.error || 'Kesalahan tidak diketahui'));
+          showAlert('Failed to stop recording: ' + (response?.error || 'Unknown error'));
         }
       }
     );
@@ -176,13 +176,13 @@ btnScreenshot.addEventListener('click', () => {
     { source: 'jam-extension-popup', action: 'START_SCREENSHOT' },
     (response) => {
       if (chrome.runtime.lastError) {
-        showAlert('Gagal menginisialisasi screenshot: ' + chrome.runtime.lastError.message);
+        showAlert('Failed to initialize screenshot: ' + chrome.runtime.lastError.message);
         return;
       }
       if (response && response.success) {
         window.close();
       } else {
-        showAlert('Gagal menginisialisasi screenshot: ' + (response?.error || 'Kesalahan tidak diketahui'));
+        showAlert('Failed to initialize screenshot: ' + (response?.error || 'Unknown error'));
       }
     }
   );
