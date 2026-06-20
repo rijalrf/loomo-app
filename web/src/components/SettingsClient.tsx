@@ -305,7 +305,7 @@ export default function SettingsClient({
                       onClick={() => handleUpdateStorageSetting(true)}
                       className={`flex items-start gap-4 p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
                         activeWorkspace.saveToOwnerDrive !== false
-                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white shadow-[0_0_15px_rgba(255,115,0,0.05)]'
+                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
                           : 'bg-[var(--bg-main)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-slate-400'
                       }`}
                     >
@@ -332,7 +332,7 @@ export default function SettingsClient({
                       onClick={() => handleUpdateStorageSetting(false)}
                       className={`flex items-start gap-4 p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
                         activeWorkspace.saveToOwnerDrive === false
-                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white shadow-[0_0_15px_rgba(255,115,0,0.05)]'
+                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
                           : 'bg-[var(--bg-main)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-slate-400'
                       }`}
                     >

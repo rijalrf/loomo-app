@@ -92,7 +92,7 @@ export default function Sidebar({
           </button>
 
           {workspaceDropdownOpen && (
-            <div className="absolute left-0 right-0 mt-1.5 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.7)] p-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+            <div className="absolute left-0 right-0 mt-1.5 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-0.5">
                 <label className="block text-xs font-black text-[var(--text-muted)] uppercase tracking-wider px-2.5 py-1.5">Select Workspace</label>
                 {workspaces.map((w) => (
@@ -212,7 +212,7 @@ export default function Sidebar({
         </button>
 
         {userDropdownOpen && (
-          <div className="absolute bottom-full left-0 right-0 mb-1.5 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-[0_-10px_30px_rgba(0,0,0,0.7)] p-1.5 animate-in fade-in slide-in-from-bottom-1 duration-150">
+          <div className="absolute bottom-full left-0 right-0 mb-1.5 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1.5 animate-in fade-in slide-in-from-bottom-1 duration-150">
             <div className="px-2.5 py-1.5 border-b border-[var(--border-color)] mb-1">
               <div className="text-xs font-bold text-[var(--text-muted)] truncate">{initialUser.email}</div>
             </div>

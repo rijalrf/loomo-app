@@ -70,7 +70,7 @@ export default function CreateWorkspaceModal({
 
   return (
     <div className="fixed inset-0 bg-[var(--bg-main)]/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md font-sans">
-      <div className="glass-panel w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-hidden shadow-2xl p-6 animate-in fade-in zoom-in duration-300">
+      <div className="glass-panel w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-hidden p-6 animate-in fade-in zoom-in duration-300">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-black text-white tracking-tight">Create Workspace</h3>
           <button 

@@ -55,7 +55,7 @@ function MediaVisibilitySelect({
       </button>
 
       {isOpen && (
-        <div className={`absolute ${direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 z-50 w-32 bg-[var(--bg-card)]/95 backdrop-blur-xl border border-[var(--border-color)] rounded-lg shadow-2xl p-1.5 animate-in fade-in duration-150`}>
+        <div className={`absolute ${direction === 'up' ? 'bottom-full mb-1' : 'top-full mt-1'} left-0 z-50 w-32 bg-[var(--bg-card)]/95 backdrop-blur-xl border border-[var(--border-color)] rounded-lg p-1.5 animate-in fade-in duration-150`}>
           {(Object.keys(options) as Array<keyof typeof options>).map((optKey) => {
             const opt = options[optKey];
             return (
@@ -174,7 +174,7 @@ const CaptureActivityChart = () => {
             return (
               <div key={i} className="flex flex-col items-center flex-1 group relative">
                 {/* Tooltip */}
-                <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-2.5 z-10 w-28 text-left shadow-2xl">
+                <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl p-2.5 z-10 w-28 text-left">
                   <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase">{d.label} 2026</span>
                   <span className="text-xs font-black text-[var(--text-main)] mt-1">New User: {d.screenshot * 1.5}k</span>
                   <span className="text-xs font-black text-[var(--primary)] mt-0.5">Existing: {d.recording * 1.5}k</span>
@@ -714,14 +714,14 @@ export default function DashboardClient({
                 <div className="flex bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1 shrink-0">
                   <button
                     onClick={() => setIsGridView(true)}
-                    className={`p-1.5 rounded-lg transition-all cursor-pointer ${isGridView ? 'bg-[var(--primary)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-white'}`}
+                    className={`p-1.5 rounded-lg transition-all cursor-pointer ${isGridView ? 'bg-[var(--primary)] text-white' : 'text-[var(--text-muted)] hover:text-white'}`}
                     title="Grid View"
                   >
                     <LayoutGrid size={16} />
                   </button>
                   <button
                     onClick={() => setIsGridView(false)}
-                    className={`p-1.5 rounded-lg transition-all cursor-pointer ${!isGridView ? 'bg-[var(--primary)] text-white shadow-lg' : 'text-[var(--text-muted)] hover:text-white'}`}
+                    className={`p-1.5 rounded-lg transition-all cursor-pointer ${!isGridView ? 'bg-[var(--primary)] text-white' : 'text-[var(--text-muted)] hover:text-white'}`}
                     title="List View"
                   >
                     <List size={16} />
@@ -776,7 +776,7 @@ export default function DashboardClient({
                             {/* Play icon for recordings */}
                             {media.type === 'RECORDING' && (
                               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                                <div className="w-12 h-12 rounded-full bg-[var(--primary)]/90 flex items-center justify-center text-white shadow-xl translate-y-2 group-hover:translate-y-0 transition-transform">
+                                <div className="w-12 h-12 rounded-full bg-[var(--primary)]/90 flex items-center justify-center text-white translate-y-2 group-hover:translate-y-0 transition-transform">
                                   <Play size={20} fill="currentColor" />
                                 </div>
                               </div>
@@ -1020,7 +1020,7 @@ export default function DashboardClient({
                           onClick={() => setPage(pNum)}
                           className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-black transition-all cursor-pointer ${
                             page === pNum
-                              ? 'bg-[var(--primary)] text-white shadow-lg'
+                              ? 'bg-[var(--primary)] text-white'
                               : 'bg-[var(--bg-card)]/50 hover:bg-[var(--bg-hover)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-white'
                           }`}
                         >
@@ -1065,7 +1065,7 @@ export default function DashboardClient({
 
           {/* Media Body */}
           <div className="flex-1 flex items-center justify-center p-6 md:p-12">
-            <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-[var(--border-color)]">
+            <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-xl overflow-hidden border border-[var(--border-color)]">
               {activeMediaViewer.type === 'SCREENSHOT' ? (
                 <img
                   src={`/api/media/${activeMediaViewer.id}/file`}
@@ -1090,7 +1090,7 @@ export default function DashboardClient({
       {/* Share Link Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-md bg-[var(--bg-card)]/95 rounded-xl overflow-hidden shadow-2xl border-[var(--border-color)] p-8 animate-in fade-in zoom-in duration-300">
+          <div className="glass-panel w-full max-w-md bg-[var(--bg-card)]/95 rounded-xl overflow-hidden border-[var(--border-color)] p-8 animate-in fade-in zoom-in duration-300">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-white tracking-tight">Share Capture</h3>
               <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors cursor-pointer">✕</button>

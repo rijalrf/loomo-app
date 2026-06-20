@@ -70,7 +70,7 @@ export default function CustomSelect<T extends string | number>({
       </button>
 
       {isOpen && (
-        <div className={`absolute z-50 mt-2 min-w-full w-max max-w-[280px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.5)] p-1.5 backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150 ${align === 'right' ? 'right-0' : 'left-0'}`}>
+        <div className={`absolute z-50 mt-2 min-w-full w-max max-w-[280px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1.5 backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150 ${align === 'right' ? 'right-0' : 'left-0'}`}>
           <div className="max-h-60 overflow-y-auto custom-scrollbar">
             {options.map((option) => (
               <button

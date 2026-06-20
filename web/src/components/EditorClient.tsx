@@ -51,7 +51,7 @@ function CustomSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 z-50 min-w-[140px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg shadow-2xl p-1 animate-in fade-in duration-150">
+        <div className="absolute right-0 mt-1 z-50 min-w-[140px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1 animate-in fade-in duration-150">
           {options.map((option) => (
             <button
               key={option.value}
@@ -642,7 +642,7 @@ export default function EditorClient() {
               <button 
                 key={tool.id}
                 onClick={() => setActiveTool(tool.id as any)}
-                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[var(--primary)] text-white shadow-[0_0_15px_var(--primary-glow)]' : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'}`}
+                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[var(--primary)] text-white' : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'}`}
                 title={tool.label}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -653,7 +653,7 @@ export default function EditorClient() {
 
             <button 
               onClick={() => setActiveTool('text')}
-              className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[var(--primary)] text-white shadow-[0_0_15px_var(--primary-glow)]' : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'}`}
+              className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[var(--primary)] text-white' : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'}`}
               title="Text"
             >
               T
@@ -679,7 +679,7 @@ export default function EditorClient() {
         <div className="flex-1 flex flex-col items-center justify-center overflow-auto bg-[var(--bg-main)]/40 p-6 md:p-12 relative">
           {/* Top Canvas Controls Bar (Undo/Redo/Clear) */}
           {metadata?.type !== 'recording' && (
-            <div className="glass-panel absolute top-8 flex items-center gap-2 px-3 py-1.5 rounded-full border-[var(--border-color)] shadow-2xl z-10">
+            <div className="glass-panel absolute top-8 flex items-center gap-2 px-3 py-1.5 rounded-full border-[var(--border-color)] z-10">
               <button 
                 onClick={handleUndo} 
                 disabled={historyIndex < 0}
@@ -707,7 +707,7 @@ export default function EditorClient() {
           )}
  
           {/* Canvas Wrapper */}
-          <div className="relative shadow-[0_30px_100px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border-color)] max-w-full max-h-full flex items-center justify-center">
+          <div className="relative rounded-xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border-color)] max-w-full max-h-full flex items-center justify-center">
             {metadata?.type === 'recording' ? (
               <video
                 src={imageSrc || undefined}

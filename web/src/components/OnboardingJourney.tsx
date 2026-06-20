@@ -115,7 +115,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
 
       {/* Main Form Body */}
       <main className="max-w-2xl w-full mx-auto z-10 flex-1 flex flex-col justify-center my-12">
-        <div className="glass-panel bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-xl p-8 md:p-12 shadow-2xl relative">
+        <div className="glass-panel bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-xl p-8 md:p-12 relative">
           
           {/* Step Indicator */}
           <div className="flex items-center gap-2 mb-8">
@@ -173,7 +173,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                         onClick={() => setSelectedDept(dept.id)}
                         className={`flex items-center gap-3 p-4 rounded-lg border text-left transition-all cursor-pointer ${
                           selectedDept === dept.id
-                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white shadow-[0_0_15px_rgba(12,178,235,0.15)]'
+                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
                             : 'bg-slate-950/25 border-slate-800 hover:border-slate-700/80 text-slate-400 hover:text-white'
                         }`}
                       >
