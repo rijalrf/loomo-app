@@ -17,13 +17,13 @@ export function showAlert(message: string): Promise<void> {
 
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-      background: #1E293B;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 24px;
+      background: #0f0d0c;
+      border: 1px solid #2b2725;
+      border-radius: 6px;
+      padding: 20px;
       max-width: 400px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(12, 178, 235, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
@@ -55,29 +55,29 @@ export function showAlert(message: string): Promise<void> {
     const button = document.createElement('button');
     button.textContent = 'OK';
     button.style.cssText = `
-      background: #0CB2EB;
+      background: #cc5200;
       color: white;
       border: none;
-      border-radius: 8px;
-      padding: 10px 24px;
+      border-radius: 4px;
+      padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       width: 100%;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      box-shadow: 0 4px 12px rgba(12, 178, 235, 0.25);
+      box-shadow: 0 4px 12px rgba(204, 82, 0, 0.15);
     `;
 
     button.onmouseover = () => {
-      button.style.background = '#0aa1d6';
+      button.style.background = '#b34700';
       button.style.transform = 'translateY(-2px)';
-      button.style.boxShadow = '0 8px 20px rgba(12, 178, 235, 0.4)';
+      button.style.boxShadow = '0 8px 20px rgba(204, 82, 0, 0.25)';
     };
     button.onmouseout = () => {
-      button.style.background = '#0CB2EB';
+      button.style.background = '#cc5200';
       button.style.transform = 'translateY(0)';
-      button.style.boxShadow = '0 4px 12px rgba(12, 178, 235, 0.25)';
+      button.style.boxShadow = '0 4px 12px rgba(204, 82, 0, 0.15)';
     };
 
     button.onclick = () => {
@@ -114,13 +114,13 @@ export function showConfirm(message: string): Promise<boolean> {
 
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-      background: #1E293B;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 24px;
+      background: #0f0d0c;
+      border: 1px solid #2b2725;
+      border-radius: 6px;
+      padding: 20px;
       max-width: 400px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(12, 178, 235, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
@@ -160,9 +160,9 @@ export function showConfirm(message: string): Promise<boolean> {
     cancelButton.style.cssText = `
       background: rgba(255, 255, 255, 0.05);
       color: #F8FAFC;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 24px;
+      border: 1px solid #2b2725;
+      border-radius: 4px;
+      padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -172,13 +172,13 @@ export function showConfirm(message: string): Promise<boolean> {
     `;
 
     cancelButton.onmouseover = () => {
-      cancelButton.style.background = '#1E293B';
-      cancelButton.style.borderColor = '#0CB2EB';
+      cancelButton.style.background = '#0f0d0c';
+      cancelButton.style.borderColor = '#cc5200';
       cancelButton.style.color = 'white';
     };
     cancelButton.onmouseout = () => {
       cancelButton.style.background = 'rgba(255, 255, 255, 0.05)';
-      cancelButton.style.borderColor = '#334155';
+      cancelButton.style.borderColor = '#272526';
       cancelButton.style.color = '#F8FAFC';
     };
 
@@ -188,8 +188,8 @@ export function showConfirm(message: string): Promise<boolean> {
       background: #EF4444;
       color: white;
       border: none;
-      border-radius: 8px;
-      padding: 10px 24px;
+      border-radius: 4px;
+      padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -252,13 +252,13 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
 
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-      background: #1E293B;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 24px;
+      background: #0f0d0c;
+      border: 1px solid #2b2725;
+      border-radius: 6px;
+      padding: 20px;
       max-width: 400px;
       width: 90%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 1px rgba(12, 178, 235, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
       animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     `;
 
@@ -293,9 +293,9 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     input.style.cssText = `
       width: 100%;
       background: rgba(30, 41, 59, 0.6);
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 12px;
+      border: 1px solid #2b2725;
+      border-radius: 4px;
+      padding: 8px 12px;
       font-size: 14px;
       color: #F8FAFC;
       margin-bottom: 20px;
@@ -306,12 +306,12 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     `;
 
     input.onfocus = () => {
-      input.style.borderColor = '#0CB2EB';
-      input.style.boxShadow = '0 0 0 1px #0CB2EB';
+      input.style.borderColor = '#cc5200';
+      input.style.boxShadow = '0 0 0 1px #cc5200';
       input.style.background = 'rgba(30, 41, 59, 0.8)';
     };
     input.onblur = () => {
-      input.style.borderColor = '#334155';
+      input.style.borderColor = '#272526';
       input.style.boxShadow = 'none';
       input.style.background = 'rgba(30, 41, 59, 0.6)';
     };
@@ -327,9 +327,9 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     cancelButton.style.cssText = `
       background: rgba(255, 255, 255, 0.05);
       color: #F8FAFC;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 10px 24px;
+      border: 1px solid #2b2725;
+      border-radius: 4px;
+      padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
@@ -339,42 +339,42 @@ export function showPrompt(message: string, defaultValue = ''): Promise<string |
     `;
 
     cancelButton.onmouseover = () => {
-      cancelButton.style.background = '#1E293B';
-      cancelButton.style.borderColor = '#0CB2EB';
+      cancelButton.style.background = '#0f0d0c';
+      cancelButton.style.borderColor = '#cc5200';
       cancelButton.style.color = 'white';
     };
     cancelButton.onmouseout = () => {
       cancelButton.style.background = 'rgba(255, 255, 255, 0.05)';
-      cancelButton.style.borderColor = '#334155';
+      cancelButton.style.borderColor = '#272526';
       cancelButton.style.color = '#F8FAFC';
     };
 
     const okButton = document.createElement('button');
     okButton.textContent = 'OK';
     okButton.style.cssText = `
-      background: #0CB2EB;
+      background: #cc5200;
       color: white;
       border: none;
-      border-radius: 8px;
-      padding: 10px 24px;
+      border-radius: 4px;
+      padding: 8px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       flex: 1;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      box-shadow: 0 4px 12px rgba(12, 178, 235, 0.25);
+      box-shadow: 0 4px 12px rgba(204, 82, 0, 0.15);
     `;
 
     okButton.onmouseover = () => {
-      okButton.style.background = '#0aa1d6';
+      okButton.style.background = '#b34700';
       okButton.style.transform = 'translateY(-2px)';
-      okButton.style.boxShadow = '0 8px 20px rgba(12, 178, 235, 0.4)';
+      okButton.style.boxShadow = '0 8px 20px rgba(204, 82, 0, 0.25)';
     };
     okButton.onmouseout = () => {
-      okButton.style.background = '#0CB2EB';
+      okButton.style.background = '#cc5200';
       okButton.style.transform = 'translateY(0)';
-      okButton.style.boxShadow = '0 4px 12px rgba(12, 178, 235, 0.25)';
+      okButton.style.boxShadow = '0 4px 12px rgba(204, 82, 0, 0.15)';
     };
 
     const cleanup = () => {

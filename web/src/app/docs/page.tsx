@@ -41,7 +41,7 @@ export default function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-300 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#131314] text-slate-300 font-sans selection:bg-cyan-500/30">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-slate-800/50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -382,7 +382,7 @@ export default function DocsPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/50 bg-[#0F172A] py-8 text-center text-sm text-slate-500 relative z-10">
+      <footer className="border-t border-slate-800/50 bg-[#131314] py-8 text-center text-sm text-slate-500 relative z-10">
         <p>© {new Date().getFullYear()} Loomo. All rights reserved.</p>
         <p className="mt-2">Privacy-first Visual Feedback</p>
       </footer>
