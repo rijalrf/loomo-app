@@ -11,6 +11,7 @@ import Sidebar from './Sidebar';
 
 import CustomSelect from './CustomSelect';
 import CreateWorkspaceModal from './CreateWorkspaceModal';
+import PopupModal from './PopupModal';
 
 function MediaVisibilitySelect({
   value,
@@ -1088,50 +1089,47 @@ export default function DashboardClient({
 
 
       {/* Share Link Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-md bg-[var(--bg-card)]/95 rounded-xl overflow-hidden border-[var(--border-color)] p-8 animate-in fade-in zoom-in duration-300">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-black text-white tracking-tight">Share Capture</h3>
-              <button onClick={() => setShowShareModal(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-colors cursor-pointer">✕</button>
-            </div>
+      <PopupModal
+        isOpen={!!showShareModal}
+        onClose={() => setShowShareModal(null)}
+        title="Share Capture"
+        variant="custom"
+        maxWidth="md"
+      >
+        <p className="text-sm text-[var(--text-muted)] mb-6 leading-relaxed">
+          Anyone with this link can view this capture. Loomo acts as a secure proxy to your Google Drive.
+        </p>
 
-            <p className="text-sm text-[var(--text-muted)] mb-6 leading-relaxed">
-              Anyone with this link can view this capture. Loomo acts as a secure proxy to your Google Drive.
-            </p>
+        <div className="flex bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl p-2 mb-6 items-center gap-2 group focus-within:border-[var(--primary)] transition-colors">
+          <span className="text-xs font-bold text-[var(--text-main)] flex-1 px-3 truncate">
+            {showShareModal && typeof window !== 'undefined' ? `${window.location.origin}/s/${showShareModal.shareToken}` : ''}
+          </span>
 
-            <div className="flex bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl p-2 mb-8 items-center gap-2 group focus-within:border-[var(--primary)] transition-colors">
-              <span className="text-xs font-bold text-[var(--text-main)] flex-1 px-3 truncate">
-                {typeof window !== 'undefined' ? `${window.location.origin}/s/${showShareModal.shareToken}` : ''}
-              </span>
-
-              <button
-                onClick={() => copyToClipboard(
-                  `${window.location.origin}/s/${showShareModal.shareToken}`,
-                  showShareModal.id
-                )}
-                className="btn-primary py-2 px-4 text-xs rounded-lg cursor-pointer"
-              >
-                {copiedId === showShareModal.id ? 'Copied!' : 'Copy Link'}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse"></div>
-                <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest">Link Active</span>
-              </div>
-
-              <button
-                onClick={() => handleRevokeShare(showShareModal)}
-                className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors cursor-pointer"
-              >
-                Revoke Access
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={() => showShareModal && copyToClipboard(
+              `${window.location.origin}/s/${showShareModal.shareToken}`,
+              showShareModal.id
+            )}
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-2 px-4 text-xs rounded-lg cursor-pointer transition-all font-bold"
+          >
+            {showShareModal && copiedId === showShareModal.id ? 'Copied!' : 'Copy Link'}
+          </button>
         </div>
-      )}
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[var(--primary)] animate-pulse"></div>
+            <span className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest">Link Active</span>
+          </div>
+
+          <button
+            onClick={() => showShareModal && handleRevokeShare(showShareModal)}
+            className="text-xs font-black text-red-400/70 hover:text-red-400 uppercase tracking-widest transition-colors cursor-pointer"
+          >
+            Revoke Access
+          </button>
+        </div>
+      </PopupModal>
 
       {/* Create Workspace Modal */}
       <CreateWorkspaceModal
