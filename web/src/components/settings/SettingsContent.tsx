@@ -76,8 +76,8 @@ export default function SettingsContent({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-6">
           <InviteForm
             activeWorkspaceId={activeWorkspaceId}
             isOwner={activeWorkspace?.isOwner || false}
@@ -137,21 +137,6 @@ export default function SettingsContent({
                   Only workspace owners can change storage settings.
                 </div>
               )}
-            </div>
-          </div>
-
-          <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-lg">
-            <h3 className="text-base font-black text-white tracking-tight mb-3">Workspace Info</h3>
-            
-            <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Workspace Name:</span>
-                <span className="text-white font-bold">{activeWorkspace?.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Your Role:</span>
-                <span className="text-[var(--secondary)] font-bold uppercase">{activeWorkspace?.role}</span>
-              </div>
             </div>
           </div>
         </div>
