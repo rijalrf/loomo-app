@@ -66,7 +66,7 @@ export default function SettingsContent({
   };
 
   return (
-    <>
+    <div className="max-w-7xl mx-auto w-full">
       <div className="mb-5">
         <h2 className="text-3xl font-black text-white tracking-tight mb-1">
           Workspace Settings
@@ -156,6 +156,6 @@ export default function SettingsContent({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

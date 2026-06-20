@@ -59,7 +59,7 @@ export default function SettingsClient({
         setActiveWorkspaceId={setActiveWorkspaceId}
         onCreateWorkspaceClick={() => setShowCreateModal(true)}
         breadcrumbs={breadcrumbs}
-        contentMaxWidth="6xl"
+        contentMaxWidth="full"
       >
         {activeWorkspace && (
           <SettingsContent
