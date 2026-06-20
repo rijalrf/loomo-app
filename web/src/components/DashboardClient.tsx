@@ -6,6 +6,7 @@ import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
 import { Folder, Image as ImageIcon, Video, Users, BookOpen, Search, LayoutGrid, List, Play, LogOut, Trash2, Link2, Download, Eye, Plus, Check, ChevronDown, Settings, Edit2, Calendar, HardDrive, Share2, AlertCircle } from 'lucide-react';
 import OnboardingJourney from './OnboardingJourney';
+import { showConfirm } from '@/lib/customDialog';
 
 interface SelectOption<T> {
   value: T;
@@ -434,7 +435,8 @@ export default function DashboardClient({
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this media? This will permanently delete it from Loomo and your Google Drive.')) return;
+    const confirmed = await showConfirm('Are you sure you want to delete this media? This will permanently delete it from Loomo and your Google Drive.');
+    if (!confirmed) return;
     
     // Optimistic UI update: set to DELETING
     setMediaList(prev => prev.map(m => m.id === id ? { ...m, uploadStatus: 'DELETING' } : m));
@@ -484,7 +486,8 @@ export default function DashboardClient({
   };
 
   const handleRevokeShare = async (media: Media) => {
-    if (!confirm('Revoking this link will deactivate the current share URL. Anyone visiting it will lose access. Proceed?')) return;
+    const confirmed = await showConfirm('Revoking this link will deactivate the current share URL. Anyone visiting it will lose access. Proceed?');
+    if (!confirmed) return;
     try {
       const res = await fetch(`/api/media/${media.id}/share`, {
         method: 'DELETE'
