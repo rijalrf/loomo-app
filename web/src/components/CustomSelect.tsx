@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react';
+import Dropdown from './ui/Dropdown';
 
 export interface SelectOption<T> {
   value: T;
@@ -31,17 +32,6 @@ export default function CustomSelect<T extends string | number>({
   align = 'left'
 }: CustomSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const selectedOption = options.find(o => o.value === value);
 
@@ -53,49 +43,50 @@ export default function CustomSelect<T extends string | number>({
   const defaultBtnClass = `w-full flex items-center justify-between gap-2 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] text-slate-300 hover:text-white ${px} ${py} ${rounded} ${text} font-semibold outline-none focus:border-[var(--primary)] focus:ring-1 focus:ring-[var(--primary)] transition-all cursor-pointer`;
 
   return (
-    <div className={`relative inline-block ${className}`} ref={containerRef}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={buttonClassName || defaultBtnClass}
-      >
-        <span className="flex items-center gap-2 truncate">
-          {selectedOption?.icon}
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <ChevronDown
-          size={size === 'sm' ? 14 : 16}
-          className={`text-slate-500 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {isOpen && (
-        <div className={`absolute z-50 mt-2 min-w-full w-max max-w-[280px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1.5 backdrop-blur-xl animate-in fade-in slide-in-from-top-1 duration-150 ${align === 'right' ? 'right-0' : 'left-0'}`}>
-          <div className="max-h-60 overflow-y-auto custom-scrollbar">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => {
-                  onChange(option.value);
-                  setIsOpen(false);
-                }}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
-                  option.value === value
-                    ? 'bg-[var(--primary)]/15 text-[var(--primary)] font-bold'
-                    : 'text-slate-400 hover:bg-[var(--bg-hover)] hover:text-white'
-                }`}
-              >
-                {option.icon}
-                <span className="flex-1 truncate">{option.label}</span>
-                {option.value === value && (
-                  <Check size={14} className="text-[var(--primary)] shrink-0" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <Dropdown
+      trigger={
+        <button
+          type="button"
+          className={buttonClassName || defaultBtnClass}
+        >
+          <span className="flex items-center gap-2 truncate">
+            {selectedOption?.icon}
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          <ChevronDown
+            size={size === 'sm' ? 14 : 16}
+            className={`text-slate-500 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+      }
+      isOpen={isOpen}
+      onOpenChange={setIsOpen}
+      align={align}
+      className={className}
+    >
+      <div className="max-h-60 overflow-y-auto custom-scrollbar min-w-full w-max max-w-[280px]">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => {
+              onChange(option.value);
+              setIsOpen(false);
+            }}
+            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-lg text-sm transition-colors cursor-pointer ${
+              option.value === value
+                ? 'bg-[var(--primary)]/15 text-[var(--primary)] font-bold'
+                : 'text-slate-400 hover:bg-[var(--bg-hover)] hover:text-white'
+            }`}
+          >
+            {option.icon}
+            <span className="flex-1 truncate">{option.label}</span>
+            {option.value === value && (
+              <Check size={14} className="text-[var(--primary)] shrink-0" />
+            )}
+          </button>
+        ))}
+      </div>
+    </Dropdown>
   );
 }
