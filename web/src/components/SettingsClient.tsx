@@ -349,7 +349,7 @@ export default function SettingsClient({
           </div>
 
           {/* Right Column - Storage Settings */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-6">
             {/* Workspace Storage Settings */}
             {activeWorkspace?.isOwner && (
               <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-lg animate-in fade-in slide-in-from-bottom-4 duration-300 sticky top-24">
@@ -358,67 +358,65 @@ export default function SettingsClient({
                   Configure where files (screenshots and recordings) uploaded by members are saved. By default, files are uploaded to the workspace owner&apos;s Google Drive.
                 </p>
 
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-3">
-                    <button
-                      type="button"
-                      disabled={updatingStorage}
-                      onClick={() => handleUpdateStorageSetting(true)}
-                      className={`flex items-start gap-4 p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                        activeWorkspace.saveToOwnerDrive !== false
-                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
-                          : 'bg-[var(--bg-main)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-slate-400'
-                      }`}
-                    >
-                      <div className="pt-0.5">
-                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          activeWorkspace.saveToOwnerDrive !== false ? 'border-[var(--primary)]' : 'border-[var(--border-color)]'
-                        }`}>
-                          {activeWorkspace.saveToOwnerDrive !== false && (
-                            <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
-                          )}
-                        </div>
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    disabled={updatingStorage}
+                    onClick={() => handleUpdateStorageSetting(true)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                      activeWorkspace.saveToOwnerDrive !== false
+                        ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
+                        : 'bg-[var(--bg-main)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-slate-400'
+                    }`}
+                  >
+                    <div className="pt-0.5 shrink-0">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        activeWorkspace.saveToOwnerDrive !== false ? 'border-[var(--primary)]' : 'border-[var(--border-color)]'
+                      }`}>
+                        {activeWorkspace.saveToOwnerDrive !== false && (
+                          <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+                        )}
                       </div>
-                      <div>
-                        <div className="text-sm font-bold text-white mb-1">Workspace Owner&apos;s Google Drive (Default)</div>
-                        <p className="text-xs text-slate-400">
-                          All files uploaded by members will be stored in the workspace owner&apos;s Google Drive. Recommended for team-wide storage consolidation.
-                        </p>
-                      </div>
-                    </button>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-white mb-1">Owner&apos;s Drive</div>
+                      <p className="text-xs text-slate-400">
+                        Files stored in workspace owner&apos;s Google Drive (Default).
+                      </p>
+                    </div>
+                  </button>
 
-                    <button
-                      type="button"
-                      disabled={updatingStorage}
-                      onClick={() => handleUpdateStorageSetting(false)}
-                      className={`flex items-start gap-4 p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                        activeWorkspace.saveToOwnerDrive === false
-                          ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
-                          : 'bg-[var(--bg-main)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-slate-400'
-                      }`}
-                    >
-                      <div className="pt-0.5">
-                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          activeWorkspace.saveToOwnerDrive === false ? 'border-[var(--primary)]' : 'border-[var(--border-color)]'
-                        }`}>
-                          {activeWorkspace.saveToOwnerDrive === false && (
-                            <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
-                          )}
-                        </div>
+                  <button
+                    type="button"
+                    disabled={updatingStorage}
+                    onClick={() => handleUpdateStorageSetting(false)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all cursor-pointer ${
+                      activeWorkspace.saveToOwnerDrive === false
+                        ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
+                        : 'bg-[var(--bg-main)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-slate-400'
+                    }`}
+                  >
+                    <div className="pt-0.5 shrink-0">
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                        activeWorkspace.saveToOwnerDrive === false ? 'border-[var(--primary)]' : 'border-[var(--border-color)]'
+                      }`}>
+                        {activeWorkspace.saveToOwnerDrive === false && (
+                          <div className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+                        )}
                       </div>
-                      <div>
-                        <div className="text-sm font-bold text-white mb-1">Individual Member&apos;s Google Drive</div>
-                        <p className="text-xs text-slate-400">
-                          Files will be stored in the personal Google Drive of the member who uploads them. Useful for individual quota conservation.
-                        </p>
-                      </div>
-                    </button>
-                  </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-white mb-1">Individual Drive</div>
+                      <p className="text-xs text-slate-400">
+                        Files stored in each member&apos;s personal Google Drive.
+                      </p>
+                    </div>
+                  </button>
 
                   {updatingStorage && (
                     <div className="flex items-center gap-2 text-[var(--primary)] text-xs font-bold mt-2 animate-pulse">
                       <div className="w-3.5 h-3.5 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin"></div>
-                      <span>Saving storage configuration...</span>
+                      <span>Saving...</span>
                     </div>
                   )}
                 </div>
