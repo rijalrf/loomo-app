@@ -2,12 +2,24 @@ import { useState, useMemo } from 'react';
 
 interface Media {
   id: string;
+  workspaceId: string;
+  uploadedBy: string;
   title: string;
   type: 'SCREENSHOT' | 'RECORDING';
-  uploadStatus: 'PROCESSING' | 'UPLOADING' | 'READY' | 'FAILED' | 'DELETING';
-  createdAt: string;
+  driveThumbnailUrl: string | null;
+  shareToken: string | null;
   fileSizeBytes: number | null;
-  [key: string]: any;
+  mimeType: string | null;
+  visibility: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
+  uploadStatus: 'PROCESSING' | 'UPLOADING' | 'READY' | 'FAILED' | 'DELETING';
+  durationSeconds: number;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+  uploader: {
+    displayName: string;
+    avatarUrl: string | null;
+  };
 }
 
 type FilterType = 'ALL' | 'SCREENSHOT' | 'RECORDING';

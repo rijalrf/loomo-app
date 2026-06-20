@@ -4,12 +4,19 @@ import { Play } from 'lucide-react';
 
 interface Media {
   id: string;
+  workspaceId: string;
+  uploadedBy: string;
   title: string;
   type: 'SCREENSHOT' | 'RECORDING';
-  uploadStatus: 'PROCESSING' | 'UPLOADING' | 'READY' | 'FAILED' | 'DELETING';
   driveThumbnailUrl: string | null;
-  durationSeconds: number;
+  shareToken: string | null;
   fileSizeBytes: number | null;
+  mimeType: string | null;
+  visibility: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
+  uploadStatus: 'PROCESSING' | 'UPLOADING' | 'READY' | 'FAILED' | 'DELETING';
+  durationSeconds: number;
+  width: number | null;
+  height: number | null;
   createdAt: string;
   uploader: {
     displayName: string;

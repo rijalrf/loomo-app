@@ -5,11 +5,24 @@ import { showConfirm } from '@/lib/customDialog';
 
 interface Media {
   id: string;
+  workspaceId: string;
+  uploadedBy: string;
   title: string;
+  type: 'SCREENSHOT' | 'RECORDING';
+  driveThumbnailUrl: string | null;
   shareToken: string | null;
+  fileSizeBytes: number | null;
+  mimeType: string | null;
   visibility: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
   uploadStatus: 'PROCESSING' | 'UPLOADING' | 'READY' | 'FAILED' | 'DELETING';
-  [key: string]: any;
+  durationSeconds: number;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+  uploader: {
+    displayName: string;
+    avatarUrl: string | null;
+  };
 }
 
 interface UseMediaActionsReturn {
