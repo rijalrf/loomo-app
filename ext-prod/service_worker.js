@@ -138,12 +138,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         pending_jam_video: imageBase64
       }, () => {
         const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
-        chrome.windows.create({
-          url: backofficeUrl,
-          type: 'popup',
-          width: 1024,
-          height: 768
-        });
+        createCenteredEditorWindow(backofficeUrl);
       });
     }
   }
@@ -292,6 +287,23 @@ async function createOffscreenDocument() {
 }
 
 // Menyimpan Hasil dan Mengarahkan ke Backoffice
+function createCenteredEditorWindow(url) {
+  chrome.windows.getLastFocused((win) => {
+    const winWidth = 1280;
+    const winHeight = 800;
+    const left = Math.round((win.width - winWidth) / 2 + (win.left || 0));
+    const top = Math.round((win.height - winHeight) / 2 + (win.top || 0));
+    chrome.windows.create({
+      url,
+      type: 'popup',
+      width: winWidth,
+      height: winHeight,
+      left: Math.max(0, left),
+      top: Math.max(0, top)
+    });
+  });
+}
+
 async function saveRecordingAndRedirect(videoDataBase64) {
   // A. Hapus offscreen document karena perekaman selesai
   chrome.offscreen.closeDocument().catch(() => {});
@@ -323,14 +335,8 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
-    // D. Buka window popup langsung ke Editor dengan ID
     const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
-    chrome.windows.create({
-      url: backofficeUrl,
-      type: 'popup',
-      width: 1024,
-      height: 768
-    });
+    createCenteredEditorWindow(backofficeUrl);
   });
 }
 
