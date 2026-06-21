@@ -47,7 +47,7 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-0.5 md:p-1 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-0.5 md:p-1 m-[10px] overflow-y-auto">
         {media.type === 'SCREENSHOT' ? (
           <img
             src={`/api/media/${media.id}/file`}
