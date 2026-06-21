@@ -62,6 +62,20 @@ export const THEME_OPTIONS = [
     primary: '#f43f5e',
     secondary: '#ec4899',
   },
+  {
+    id: 'github-dark',
+    name: 'GitHub Dark',
+    description: 'GitHub classic dark theme with blue accent',
+    primary: '#2f81f7',
+    secondary: '#ab7df8',
+  },
+  {
+    id: 'github-dark-dimmed',
+    name: 'GitHub Dark Dimmed',
+    description: 'Cozy dimmed GitHub dark theme, less contrast',
+    primary: '#539bf5',
+    secondary: '#ab7df8',
+  },
 ] as const;
 
 export type ThemeId = typeof THEME_OPTIONS[number]['id'];

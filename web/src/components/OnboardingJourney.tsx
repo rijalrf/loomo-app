@@ -68,7 +68,17 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
     
     setSubmitting(true);
     try {
-      const validEmails = emails.filter(e => e.trim() !== '' && e.includes('@'));
+      // Enforce Gmail validation for invited members during onboarding
+      const invalidEmails = emails.filter(e => e.trim() !== '' && !e.trim().toLowerCase().endsWith('@gmail.com'));
+      if (invalidEmails.length > 0) {
+        toast.error('Only Gmail addresses (@gmail.com) are allowed.');
+        setSubmitting(false);
+        return;
+      }
+
+      const validEmails = emails
+        .map(e => e.trim().toLowerCase())
+        .filter(e => e !== '');
       
       const res = await fetch('/api/workspace/onboarding', {
         method: 'POST',
@@ -218,14 +228,14 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
               </div>
 
               <div className="space-y-3">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Team Member Emails (Optional)</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Team Member Gmails (Optional)</label>
                 
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                   {emails.map((email, idx) => (
                     <div key={idx} className="flex gap-2 items-center animate-in fade-in slide-in-from-top-1 duration-150">
                       <input
                         type="email"
-                        placeholder="colleague@company.com"
+                        placeholder="colleague@gmail.com"
                         value={email}
                         onChange={(e) => updateEmail(idx, e.target.value)}
                         className="flex-1 bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-sm py-2.5 px-4 rounded-lg outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"

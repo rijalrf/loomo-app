@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Edit2, Trash2, Link2, Download, Eye, MoreHorizontal } from 'lucide-react';
+import { Edit2, Trash2, Link2, Download, Eye, MoreHorizontal, Folder } from 'lucide-react';
 import MediaCard from './MediaCard';
 import MediaVisibilitySelect from '../ui/MediaVisibilitySelect';
 
 interface Media {
   id: string;
   workspaceId: string;
+  folderId?: string | null;
   uploadedBy: string;
   title: string;
+  description?: string | null;
   type: 'SCREENSHOT' | 'RECORDING';
   driveThumbnailUrl: string | null;
   shareToken: string | null;
@@ -37,6 +39,7 @@ interface MediaGridProps {
   onVisibilityChange: (id: string, visibility: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY') => void;
   onShareLink: (media: Media) => void;
   onView: (media: Media) => void;
+  onMoveClick: (media: Media) => void;
 }
 
 export default function MediaGrid({
@@ -48,7 +51,8 @@ export default function MediaGrid({
   onDelete,
   onVisibilityChange,
   onShareLink,
-  onView
+  onView,
+  onMoveClick
 }: MediaGridProps) {
   return (
     <div className="media-grid">
@@ -124,6 +128,14 @@ export default function MediaGrid({
                     />
 
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onMoveClick(item)}
+                        className="flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-[var(--primary)]/10 border border-[var(--border-color)] hover:border-[var(--primary)] text-[var(--text-muted)] hover:text-[var(--primary)] py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                        title="Move to Project"
+                      >
+                        <Folder size={14} />
+                      </button>
+
                       <button
                         onClick={() => onShareLink(item)}
                         className="flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-[var(--primary)]/10 border border-[var(--border-color)] hover:border-[var(--primary)] text-[var(--text-muted)] hover:text-[var(--primary)] py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"

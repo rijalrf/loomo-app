@@ -5,7 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexeddb';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { showConfirm, showPrompt } from '@/lib/customDialog';
+import PopupModal from '@/components/PopupModal';
+import { Link2, X } from 'lucide-react';
+import CustomSelect from './CustomSelect';
 
 interface Annotation {
   id: string;
@@ -47,7 +49,31 @@ export default function EditorClient() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState('');
   const selectedWorkspace = workspaces.find(ws => ws.id === selectedWorkspaceId);
+  const [folders, setFolders] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedFolderId, setSelectedFolderId] = useState('');
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    if (!selectedWorkspaceId) {
+      setFolders([]);
+      setSelectedFolderId('');
+      return;
+    }
+    fetch(`/api/workspace/folders?workspaceId=${selectedWorkspaceId}`)
+      .then(res => res.json())
+      .then(data => {
+        setFolders(data.folders || []);
+        const savedFolderId = localStorage.getItem(`loomo_editor_folder_id_${selectedWorkspaceId}`) || '';
+        const folderExists = data.folders?.some((f: any) => f.id === savedFolderId);
+        setSelectedFolderId(folderExists ? savedFolderId : '');
+      })
+      .catch(err => console.error('Failed to load folders:', err));
+  }, [selectedWorkspaceId]);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
+  const [promptText, setPromptText] = useState('');
+  const [currentPromptResolve, setCurrentPromptResolve] = useState<((value: string | null) => void) | null>(null);
 
   const isPopup = searchParams.get('isPopup') === 'true';
   const [copiedLink, setCopiedLink] = useState<string>('');
@@ -181,13 +207,15 @@ export default function EditorClient() {
     }
   };
 
-  const handleClear = async () => {
-    const confirmed = await showConfirm('Clear all annotations?');
-    if (confirmed) {
+    const handleClear = async () => {
+      setShowClearConfirm(true);
+    };
+
+    const confirmClear = () => {
       setAnnotations([]);
       pushToHistory([]);
-    }
-  };
+      setShowClearConfirm(false);
+    };
 
   // Keyboard Shortcuts for Undo/Redo
   useEffect(() => {
@@ -325,7 +353,11 @@ export default function EditorClient() {
     startPosRef.current = pos;
 
     if (activeTool === 'text') {
-      const text = await showPrompt('Enter annotation text:');
+      const text = await new Promise<string | null>((resolve) => {
+        setCurrentPromptResolve(() => resolve);
+        setShowPromptModal(true);
+      });
+
       if (text) {
         const newAnn: Annotation = {
           id: Math.random().toString(),
@@ -455,6 +487,12 @@ export default function EditorClient() {
       formData.append('title', title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'));
       formData.append('type', isRecording ? 'recording' : 'screenshot');
       formData.append('workspaceId', selectedWorkspaceId);
+      if (description) {
+        formData.append('description', description);
+      }
+      if (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') {
+        formData.append('folderId', selectedFolderId);
+      }
       if (isRecording && metadata?.duration) {
         formData.append('durationSeconds', String(metadata.duration));
       }
@@ -578,28 +616,7 @@ export default function EditorClient() {
           />
         </div>
 
-        {/* Save */}
-        <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2 mr-4">
-            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Workspace</span>
-            <span className="text-xs font-bold text-white">{selectedWorkspace?.name || 'Loading...'}</span>
-          </div>
 
-          <button
-            onClick={handleSave}
-            disabled={savingState === 'saving'}
-            className="btn-primary py-2 px-6 text-xs rounded-lg gap-2"
-          >
-            {savingState === 'saving' ? (
-              <>
-                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span className="font-bold">Saving...</span>
-              </>
-            ) : (
-              <span className="font-bold uppercase tracking-widest text-[10px]">Save & Share</span>
-            )}
-          </button>
-        </div>
       </header>
 
       {/* Editor Body */}
@@ -711,37 +728,187 @@ export default function EditorClient() {
             )}
           </div>
         </div>
+
+        {/* Right Settings Sidebar */}
+        <div className="w-80 lg:w-[24%] min-w-[280px] shrink-0 border-l border-[var(--border-color)] bg-[var(--bg-card)]/50 backdrop-blur-md p-6 flex flex-col gap-6 overflow-hidden z-10 text-left">
+          <div>
+            <h4 className="text-sm font-black text-white uppercase tracking-wider mb-1">Capture Settings</h4>
+            <p className="text-[10px] text-[var(--text-muted)] font-medium leading-relaxed">
+              Configure options and document context before saving.
+            </p>
+          </div>
+
+          <div className="w-full h-px bg-[var(--border-color)]"></div>
+
+          {/* Workspace Select */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">Workspace</span>
+            <CustomSelect
+              value={selectedWorkspaceId}
+              onChange={(val) => {
+                setSelectedWorkspaceId(val);
+                localStorage.setItem('loomo_active_workspace_id', val);
+              }}
+              options={workspaces.map(ws => ({ value: ws.id, label: ws.name }))}
+              placeholder="Select Workspace"
+              buttonClassName="w-full flex items-center justify-between gap-1.5 bg-[#0a0a0b]/50 hover:bg-[#27272a]/50 border border-[#3f3f46] text-white py-2.5 px-3.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+            />
+          </div>
+
+          {/* Project Select */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">Project</span>
+            <CustomSelect
+              value={selectedFolderId || 'none'}
+              onChange={(val) => {
+                const folderVal = val === 'none' ? '' : val;
+                setSelectedFolderId(folderVal);
+                localStorage.setItem(`loomo_editor_folder_id_${selectedWorkspaceId}`, folderVal);
+              }}
+              options={[
+                { value: 'none', label: 'None (Unassigned)' },
+                ...folders.map(f => ({ value: f.id, label: f.name }))
+              ]}
+              placeholder="Select Project"
+              buttonClassName="w-full flex items-center justify-between gap-1.5 bg-[#0a0a0b]/50 hover:bg-[#27272a]/50 border border-[#3f3f46] text-white py-2.5 px-3.5 rounded-lg text-xs font-bold transition-all cursor-pointer"
+            />
+          </div>
+
+          {/* Description Textarea */}
+          <div className="flex flex-col gap-2 flex-1 min-h-0">
+            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">Description</span>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Provide a description of this screenshot or issue..."
+              className="w-full flex-1 min-h-0 bg-[#0a0a0b]/50 border border-[#3f3f46] text-white rounded-lg p-3 text-xs outline-none focus:border-[#3b82f6] hover:border-[#52525b] hover:cursor-text cursor-pointer transition-all resize-none placeholder:text-[var(--text-dark)] leading-relaxed font-medium"
+            />
+          </div>
+
+          {/* Save & Share Button */}
+          <div className="pt-2">
+            <button
+              onClick={handleSave}
+              disabled={savingState === 'saving'}
+              className="w-full btn-primary py-4 px-6 text-sm rounded-lg gap-2 cursor-pointer flex items-center justify-center font-extrabold hover:scale-[1.01] transition-transform"
+            >
+              {savingState === 'saving' ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <span className="uppercase tracking-widest text-[11px]">Save & Share</span>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Saving Overlay */}
       {savingState === 'saving' && (
-        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel p-10 rounded-xl max-w-xs w-full text-center border-[var(--border-color)] animate-in fade-in zoom-in duration-300">
+        <PopupModal isOpen={true} onClose={() => {}} maxWidth="sm">
+          <div className="text-center">
             <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mx-auto mb-6"></div>
             <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Saving Media</h3>
             <p className="text-[var(--text-muted)] text-sm font-medium leading-relaxed">
               Applying annotations and uploading to your Google Drive...
             </p>
           </div>
-        </div>
+        </PopupModal>
       )}
 
       {/* Error Modal */}
       {savingState === 'error' && (
-        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel p-10 rounded-xl max-w-sm w-full text-center border-red-500/50 animate-in fade-in zoom-in duration-300">
+        <PopupModal isOpen={true} onClose={() => setSavingState('idle')} maxWidth="sm">
+          <div className="text-center">
             <div className="w-16 h-16 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <X size={32} />
             </div>
             <h3 className="text-xl font-black text-white mb-3">Upload Failed</h3>
             <p className="text-[var(--text-muted)] text-sm mb-8 font-medium">{savingError}</p>
-            <button onClick={() => setSavingState('idle')} className="btn-primary w-full py-3 rounded-lg font-black uppercase tracking-widest text-[10px]">
+            <button onClick={() => setSavingState('idle')} className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] hover:from-[#2563eb] hover:to-[#1e40af] text-white py-3 rounded-lg font-black uppercase tracking-widest text-[10px] w-full transition-all cursor-pointer">
               Try Again
             </button>
           </div>
-        </div>
+        </PopupModal>
       )}
 
+      {/* Clear All Annotations Confirmation Modal */}
+      <PopupModal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Clear Annotations</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed">
+          Are you sure you want to clear all annotations? This action cannot be undone.
+        </p>
+
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => setShowClearConfirm(false)}
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmClear}
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] hover:from-[#dc2626] hover:to-[#b91c1c] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+          >
+            Clear All
+          </button>
+        </div>
+      </PopupModal>
+
+      {/* Prompt for Text Annotation */}
+      <PopupModal
+        isOpen={showPromptModal}
+        onClose={() => {
+          currentPromptResolve && currentPromptResolve(null);
+          setShowPromptModal(false);
+          setPromptText('');
+        }}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Enter Annotation Text</h3>
+        <input
+          type="text"
+          value={promptText}
+          onChange={(e) => setPromptText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              currentPromptResolve && currentPromptResolve(promptText);
+              setShowPromptModal(false);
+              setPromptText('');
+            }
+          }}
+          placeholder="Type your text here..."
+          className="bg-[#111113] border border-[#3f3f46] rounded-lg px-4 py-2 text-white text-sm w-full mb-6 outline-none focus:border-[#3b82f6] transition-colors"
+          autoFocus
+        />
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => {
+              currentPromptResolve && currentPromptResolve(null);
+              setShowPromptModal(false);
+              setPromptText('');
+            }}
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              currentPromptResolve && currentPromptResolve(promptText);
+              setShowPromptModal(false);
+              setPromptText('');
+            }}
+            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] hover:from-[#2563eb] hover:to-[#1e40af] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+          >
+            Save
+          </button>
+        </div>
+      </PopupModal>
     </div>
   );
 }

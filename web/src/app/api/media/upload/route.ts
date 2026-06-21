@@ -16,8 +16,10 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as Blob | null;
     const title = formData.get('title') as string | null;
+    const description = formData.get('description') as string | null;
     const typeStr = formData.get('type') as string | null; // "screenshot" or "recording"
     const workspaceId = formData.get('workspaceId') as string | null;
+    const folderId = formData.get('folderId') as string | null;
     const durationSeconds = parseInt(formData.get('durationSeconds') as string || '0', 10);
     const width = formData.get('width') as string ? parseInt(formData.get('width') as string, 10) : null;
     const height = formData.get('height') as string ? parseInt(formData.get('height') as string, 10) : null;
@@ -61,14 +63,30 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Create Media and BackgroundJob records inside transaction
+    // Validate folderId if provided
+    let verifiedFolderId: string | null = null;
+    if (folderId && folderId !== 'null' && folderId !== 'none') {
+      const folderExists = await prisma.folder.findFirst({
+        where: {
+          id: folderId,
+          workspaceId: targetWorkspaceId!
+        }
+      });
+      if (folderExists) {
+        verifiedFolderId = folderId;
+      }
+    }
+
     const mediaTitle = title || (type === 'SCREENSHOT' ? `Screenshot ${new Date().toLocaleDateString()}` : `Recording ${new Date().toLocaleDateString()}`);
 
     const result = await prisma.$transaction(async (tx) => {
       const media = await tx.media.create({
         data: {
           workspaceId: targetWorkspaceId!,
+          folderId: verifiedFolderId,
           uploadedBy: session.userId,
           title: mediaTitle,
+          description: description || null,
           type,
           mimeType,
           visibility: 'PRIVATE',

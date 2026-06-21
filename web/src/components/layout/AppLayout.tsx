@@ -33,6 +33,8 @@ interface AppLayoutProps {
   breadcrumbs: BreadcrumbItem[];
   children: React.ReactNode;
   contentMaxWidth?: 'full' | '6xl' | '7xl';
+  activeFolderId?: string | null;
+  setActiveFolderId?: (id: string | null) => void;
 }
 
 export default function AppLayout({
@@ -43,7 +45,9 @@ export default function AppLayout({
   onCreateWorkspaceClick,
   breadcrumbs,
   children,
-  contentMaxWidth = 'full'
+  contentMaxWidth = 'full',
+  activeFolderId = null,
+  setActiveFolderId
 }: AppLayoutProps) {
   return (
     <div className="min-h-screen flex bg-[var(--bg-main)] text-slate-200">
@@ -53,6 +57,17 @@ export default function AppLayout({
         activeWorkspaceId={activeWorkspaceId}
         setActiveWorkspaceId={setActiveWorkspaceId}
         onCreateWorkspaceClick={onCreateWorkspaceClick}
+        activeFolderId={activeFolderId}
+        setActiveFolderId={(id) => {
+          if (setActiveFolderId) {
+            setActiveFolderId(id);
+          }
+          if (id) {
+            localStorage.setItem('loomo_active_folder_id', id);
+          } else {
+            localStorage.removeItem('loomo_active_folder_id');
+          }
+        }}
       />
 
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">

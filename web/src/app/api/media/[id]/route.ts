@@ -93,7 +93,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { title, visibility } = body;
+    const { title, visibility, folderId, description } = body;
 
     const data: any = {};
     if (title !== undefined) data.title = title;
@@ -106,13 +106,37 @@ export async function PATCH(
       }
     }
 
+    if (folderId !== undefined) {
+      if (folderId === null || folderId === 'null' || folderId === 'none') {
+        data.folderId = null;
+      } else {
+        // Validate folder belongs to this workspace
+        const folderExists = await prisma.folder.findFirst({
+          where: {
+            id: folderId,
+            workspaceId: media.workspaceId
+          }
+        });
+        if (!folderExists) {
+          return NextResponse.json({ error: 'Folder not found in this workspace' }, { status: 400 });
+        }
+        data.folderId = folderId;
+      }
+    }
+
+    if (description !== undefined) {
+      data.description = description || null;
+    }
+
     const updatedMedia = await prisma.media.update({
       where: { id },
       data,
       select: {
         id: true,
         title: true,
+        description: true,
         visibility: true,
+        folderId: true,
         uploadStatus: true
       }
     });

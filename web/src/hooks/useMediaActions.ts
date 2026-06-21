@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { clientLogger } from '@/lib/clientLogger';
-import { showConfirm } from '@/lib/customDialog';
 
 interface Media {
   id: string;
   workspaceId: string;
+  folderId?: string | null;
   uploadedBy: string;
   title: string;
+  description?: string | null;
   type: 'SCREENSHOT' | 'RECORDING';
   driveThumbnailUrl: string | null;
   shareToken: string | null;
@@ -35,6 +36,12 @@ interface UseMediaActionsReturn {
   setRenamingId: (id: string | null) => void;
   showShareModal: Media | null;
   setShowShareModal: (media: Media | null) => void;
+  showDeleteModal: string | null;
+  setShowDeleteModal: (id: string | null) => void;
+  confirmDelete: (id: string) => Promise<void>;
+  showRevokeModal: Media | null;
+  setShowRevokeModal: (media: Media | null) => void;
+  confirmRevoke: (media: Media) => Promise<void>;
 }
 
 export function useMediaActions(
@@ -44,6 +51,8 @@ export function useMediaActions(
 ): UseMediaActionsReturn {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState<Media | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
+  const [showRevokeModal, setShowRevokeModal] = useState<Media | null>(null);
 
   const handleRename = async (id: string, newTitle: string) => {
     if (!newTitle.trim()) return;
@@ -69,9 +78,11 @@ export function useMediaActions(
   };
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('Are you sure you want to delete this media? This will permanently delete it from Loomo and your Google Drive.');
-    if (!confirmed) return;
+    setShowDeleteModal(id);
+  };
 
+  const confirmDelete = async (id: string) => {
+    setShowDeleteModal(null);
     setMediaList(prev => prev.map(m => m.id === id ? { ...m, uploadStatus: 'DELETING' as const } : m));
 
     try {
@@ -138,8 +149,11 @@ export function useMediaActions(
   };
 
   const handleRevokeShare = async (media: Media) => {
-    const confirmed = await showConfirm('Revoking this link will deactivate the current share URL. Anyone visiting it will lose access. Proceed?');
-    if (!confirmed) return;
+    setShowRevokeModal(media);
+  };
+
+  const confirmRevoke = async (media: Media) => {
+    setShowRevokeModal(null);
 
     try {
       const res = await fetch(`/api/media/${media.id}/share`, {
@@ -168,6 +182,12 @@ export function useMediaActions(
     renamingId,
     setRenamingId,
     showShareModal,
-    setShowShareModal
+    setShowShareModal,
+    showDeleteModal,
+    setShowDeleteModal,
+    confirmDelete,
+    showRevokeModal,
+    setShowRevokeModal,
+    confirmRevoke
   };
 }

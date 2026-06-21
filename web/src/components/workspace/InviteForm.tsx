@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Plus, AlertCircle, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import CustomSelect from '../CustomSelect';
 
 interface Member {
   membershipId: string;
@@ -24,7 +23,6 @@ interface InviteFormProps {
 
 export default function InviteForm({ activeWorkspaceId, isOwner, onInviteSuccess }: InviteFormProps) {
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'MEMBER' | 'OWNER'>('MEMBER');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
 
@@ -33,20 +31,28 @@ export default function InviteForm({ activeWorkspaceId, isOwner, onInviteSuccess
     setInviteError(null);
     setInviteSuccess(false);
 
+    const emailToValidate = inviteEmail.trim().toLowerCase();
+    if (!emailToValidate.endsWith('@gmail.com')) {
+      const errorMsg = 'Only Gmail addresses (@gmail.com) are allowed.';
+      setInviteError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
     try {
       const res = await fetch('/api/workspace/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: inviteEmail,
-          role: inviteRole,
+          email: emailToValidate,
+          role: 'MEMBER', // Default to MEMBER as dropdown is removed
           workspaceId: activeWorkspaceId
         })
       });
 
       const data = await res.json();
       if (res.ok) {
-        toast.success(`Invitation sent successfully to ${inviteEmail}`);
+        toast.success(`Invitation sent successfully to ${emailToValidate}`);
         setInviteSuccess(true);
         setInviteEmail('');
         onInviteSuccess();
@@ -78,22 +84,11 @@ export default function InviteForm({ activeWorkspaceId, isOwner, onInviteSuccess
       <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-3">
         <input
           type="email"
-          placeholder="Email address..."
+          placeholder="Gmail address (e.g. user@gmail.com)..."
           value={inviteEmail}
           onChange={(e) => setInviteEmail(e.target.value)}
           className="input-text flex-1 bg-[var(--bg-main)]/60 border border-[var(--border-color)] focus:border-[var(--primary)] text-sm py-2 rounded-lg outline-none transition-all"
           required
-        />
-        <CustomSelect
-          value={inviteRole}
-          onChange={(val) => setInviteRole(val as any)}
-          options={[
-            { value: 'MEMBER', label: 'Member' },
-            { value: 'OWNER', label: 'Owner' }
-          ]}
-          size="md"
-          className="w-full sm:w-32"
-          buttonClassName="w-full flex items-center justify-between gap-2 bg-[var(--bg-main)] hover:bg-[var(--bg-hover)] border border-[var(--border-color)] text-white px-3.5 py-1.5 rounded-lg text-sm font-semibold outline-none focus:border-[var(--primary)] transition-all cursor-pointer"
         />
         <button type="submit" className="btn-primary py-1.5 px-4 rounded-lg text-sm justify-center cursor-pointer">
           <Plus size={16} />

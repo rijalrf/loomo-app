@@ -13,8 +13,10 @@ export async function GET(request: NextRequest) {
   const typeParam = searchParams.get('type'); // "screenshot" | "recording"
   const statusParam = searchParams.get('status'); // "ready" | "processing" etc
   const search = searchParams.get('search');
+  const folderId = searchParams.get('folderId');
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '20', 10);
+  const sortBy = searchParams.get('sortBy') || 'DATE_DESC';
 
   try {
     // 1. Resolve workspaces that the user has access to
@@ -52,6 +54,14 @@ export async function GET(request: NextRequest) {
       where.type = typeParam.toUpperCase() === 'SCREENSHOT' ? 'SCREENSHOT' : 'RECORDING';
     }
 
+    if (folderId) {
+      if (folderId === 'null' || folderId === 'none') {
+        where.folderId = null;
+      } else {
+        where.folderId = folderId;
+      }
+    }
+
     if (statusParam) {
       where.uploadStatus = statusParam.toUpperCase();
     }
@@ -66,15 +76,26 @@ export async function GET(request: NextRequest) {
     // Get total count
     const total = await prisma.media.count({ where });
 
+    // Determine database order
+    let orderBy: any = { createdAt: 'desc' };
+    if (sortBy === 'DATE_ASC') {
+      orderBy = { createdAt: 'asc' };
+    } else if (sortBy === 'NAME_ASC') {
+      orderBy = { title: 'asc' };
+    } else if (sortBy === 'SIZE_DESC') {
+      orderBy = { fileSizeBytes: 'desc' };
+    }
+
     // Fetch media records
     const media = await prisma.media.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       skip: (page - 1) * limit,
       take: limit,
       select: {
         id: true,
         workspaceId: true,
+        folderId: true,
         uploadedBy: true,
         title: true,
         type: true,

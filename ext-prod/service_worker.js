@@ -289,8 +289,8 @@ async function createOffscreenDocument() {
 // Menyimpan Hasil dan Mengarahkan ke Backoffice
 function createCenteredEditorWindow(url) {
   chrome.windows.getLastFocused((win) => {
-    const winWidth = 1280;
-    const winHeight = 800;
+    const winWidth = 1600;
+    const winHeight = 960;
     const left = Math.round((win.width - winWidth) / 2 + (win.left || 0));
     const top = Math.round((win.height - winHeight) / 2 + (win.top || 0));
     chrome.windows.create({
