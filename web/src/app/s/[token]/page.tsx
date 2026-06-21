@@ -119,11 +119,6 @@ export default async function SharePage({ params }: SharePageProps) {
           {/* Title & Metadata */}
           <div>
             <h3 className="text-sm font-bold text-white mb-0.5">{media.title}</h3>
-            {media.description && (
-              <p className="text-xs text-[var(--text-muted)] mt-1.5 mb-2 leading-relaxed whitespace-pre-wrap max-w-xl bg-[#111113]/55 border border-[#3f3f46]/35 rounded-lg py-2 px-3">
-                {media.description}
-              </p>
-            )}
             <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
               By {media.uploader.displayName} • {new Date(media.createdAt).toLocaleDateString()}
             </p>
@@ -146,20 +141,31 @@ export default async function SharePage({ params }: SharePageProps) {
       </div>
 
       {/* Media Body */}
-      <div className="flex-1 flex items-center justify-center p-0.5 md:p-1 m-[10px] overflow-y-auto relative">
-        {media.type === 'SCREENSHOT' ? (
-          <img 
-            src={fileUrl} 
-            alt={media.title}
-            className="max-w-full max-h-full object-contain"
-          />
-        ) : (
-          <video 
-            src={fileUrl}
-            controls
-            autoPlay
-            className="max-w-full max-h-full object-contain"
-          />
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <div className="flex-1 flex items-center justify-center p-0.5 md:p-1 m-[10px] overflow-y-auto relative">
+          {media.type === 'SCREENSHOT' ? (
+            <img 
+              src={fileUrl} 
+              alt={media.title}
+              className="max-w-full max-h-full object-contain"
+            />
+          ) : (
+            <video 
+              src={fileUrl}
+              controls
+              autoPlay
+              className="max-w-full max-h-full object-contain"
+            />
+          )}
+        </div>
+
+        {media.description && (
+          <div className="w-full md:w-80 lg:w-96 border-t md:border-t-0 md:border-l border-[var(--border-color)] bg-[var(--bg-card)]/30 p-6 overflow-y-auto">
+            <h4 className="text-sm font-bold text-white mb-3 uppercase tracking-wide">Description</h4>
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap">
+              {media.description}
+            </p>
+          </div>
         )}
       </div>
     </div>
