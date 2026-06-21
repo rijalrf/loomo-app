@@ -48,7 +48,7 @@ export default function PopupModal({
       onClick={handleClose}
     >
       <div 
-        className={`w-full ${maxWidthClass} bg-gradient-to-br from-[#1a1a1d] to-[#111113] border border-[#3f3f46] rounded-2xl overflow-hidden p-8 relative transition-all duration-300 ${
+        className={`w-full ${maxWidthClass} bg-[#1a1a1d] border border-[#3f3f46] rounded-2xl overflow-hidden p-8 relative transition-all duration-300 ${
           isClosing ? 'scale-90 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'
         }`}
         onClick={(e) => e.stopPropagation()}
