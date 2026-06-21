@@ -31,7 +31,7 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
   if (!media) return null;
 
   return (
-    <div className="fixed inset-0 bg-[var(--bg-overlay-dark)]/95 z-[100] flex flex-col backdrop-blur-sm">
+    <div className="fixed inset-0 bg-[var(--bg-overlay-dark)]/95 z-[100] flex flex-col backdrop-blur-sm overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/50">
         <div>
           <h3 className="text-lg font-black text-white leading-tight">{media.title}</h3>
@@ -47,7 +47,7 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-0.5 md:p-1">
+      <div className="flex-1 flex items-center justify-center p-0.5 md:p-1 overflow-y-auto">
         {media.type === 'SCREENSHOT' ? (
           <img
             src={`/api/media/${media.id}/file`}
