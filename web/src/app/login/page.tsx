@@ -69,7 +69,7 @@ function LoginCard() {
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-[var(--border-color)]"></div>
         </div>
-        <span className="relative px-3 bg-[#131316] text-xs text-[var(--text-muted)] font-medium">INFORMASI PERIZINAN AKSES</span>
+        <span className="relative px-3 bg-[var(--bg-card-alt)] text-xs text-[var(--text-muted)] font-medium">INFORMASI PERIZINAN AKSES</span>
       </div>
 
       {/* Permissions Scope Info */}

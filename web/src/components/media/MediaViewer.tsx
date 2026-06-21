@@ -31,7 +31,7 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
   if (!media) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#0c0c0e]/95 z-[100] flex flex-col backdrop-blur-sm">
+    <div className="fixed inset-0 bg-[var(--bg-overlay-dark)]/95 z-[100] flex flex-col backdrop-blur-sm">
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/50">
         <div>
           <h3 className="text-lg font-black text-white leading-tight">{media.title}</h3>

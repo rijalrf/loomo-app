@@ -142,7 +142,7 @@ export default function PendingImportHandler() {
   if (!uploadState.isUploading) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#131314]/90 backdrop-blur-md z-[99999] flex items-center justify-center p-6 text-slate-200 font-sans">
+    <div className="fixed inset-0 bg-[var(--bg-overlay)]/90 backdrop-blur-md z-[99999] flex items-center justify-center p-6 text-slate-200 font-sans">
       <div className="glass-panel p-10 rounded-xl max-w-md w-full text-center border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-300">
         <h3 className="text-xl font-black text-white mb-2 tracking-tight uppercase">Uploading Recording</h3>
         <p className="text-slate-400 text-sm mb-8 font-medium truncate">

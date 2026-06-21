@@ -20,6 +20,9 @@
   
   --bg-main: #0a0a0b; /* pure dark base */
   --bg-card: #111113; /* subtle elevation */
+  --bg-card-alt: #131316; /* alternative card background */
+  --bg-overlay: #131314; /* overlay/modal background */
+  --bg-overlay-dark: #0c0c0e; /* darker overlay */
   --bg-hover: #1a1a1d;
   --border-color: #27272a;
   --border-light: rgba(255, 255, 255, 0.06);
@@ -32,6 +35,15 @@
   --error-hover: #dc2626;
   --success: #22c55e;
   --warning: #f59e0b;
+  
+  /* Editor colors */
+  --editor-red: #ef4444;
+  --editor-blue: #3b82f6;
+  --editor-green: #10b981;
+  --editor-yellow: #f59e0b;
+  --editor-purple: #6366f1;
+  --editor-white: #ffffff;
+  --editor-black: #000000;
 }
 
 html {

@@ -111,7 +111,7 @@ export default function EditorClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const [activeTool, setActiveTool] = useState<'rectangle' | 'circle' | 'arrow' | 'text' | 'highlight'>('rectangle');
-  const [activeColor, setActiveColor] = useState('#EF4444'); // Default red
+  const [activeColor, setActiveColor] = useState('var(--editor-red)');
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [history, setHistory] = useState<Annotation[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -663,7 +663,7 @@ export default function EditorClient() {
 
             {/* Color Palettes */}
             <div className="flex flex-col gap-3">
-              {['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#6366F1', '#FFFFFF', '#000000'].map((color) => (
+              {['var(--editor-red)', 'var(--editor-blue)', 'var(--editor-green)', 'var(--editor-yellow)', 'var(--editor-purple)', 'var(--editor-white)', 'var(--editor-black)'].map((color) => (
                 <button
                   key={color}
                   onClick={() => setActiveColor(color)}

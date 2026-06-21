@@ -57,7 +57,7 @@ export default function RegisterPage() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-[var(--border-color)]"></div>
             </div>
-            <span className="relative px-3 bg-[#131316] text-xs text-[var(--text-muted)] font-medium">INFORMASI PENDAFTARAN</span>
+            <span className="relative px-3 bg-[var(--bg-card-alt)] text-xs text-[var(--text-muted)] font-medium">INFORMASI PENDAFTARAN</span>
           </div>
 
           <div className="space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
