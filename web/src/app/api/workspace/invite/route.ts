@@ -16,6 +16,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and workspaceId are required' }, { status: 400 });
     }
 
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail.endsWith('@gmail.com')) {
+      return NextResponse.json({ error: 'Only Gmail addresses (@gmail.com) are allowed' }, { status: 400 });
+    }
+
     // 1. Verify workspace ownership
     const workspace = await prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -40,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // 3. Find if user exists
     let targetUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: trimmedEmail }
     });
 
     if (!targetUser) {
@@ -50,8 +55,8 @@ export async function POST(request: NextRequest) {
       targetUser = await prisma.user.create({
         data: {
           googleId: tempGoogleId,
-          email,
-          displayName: email.split('@')[0],
+          email: trimmedEmail,
+          displayName: trimmedEmail.split('@')[0],
           avatarUrl: '',
           accessToken: '', // will be set on login
           refreshToken: ''
