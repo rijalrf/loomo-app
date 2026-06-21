@@ -9,9 +9,10 @@ import MediaGrid from '../media/MediaGrid';
 import MediaEmptyState from '../media/MediaEmptyState';
 import MediaViewer from '../media/MediaViewer';
 import PopupModal from '../PopupModal';
-import { Link2, X, Edit2, Trash2, Folder } from 'lucide-react';
+import { Link2, X, Edit2, Trash2, Folder, MoreVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import MediaVisibilitySelect from '../ui/MediaVisibilitySelect';
+import Dropdown from '../ui/Dropdown';
 
 interface Media {
   id: string;
@@ -52,6 +53,8 @@ export default function DashboardContent({
 }: DashboardContentProps) {
   const [mediaList, setMediaList] = useState<Media[]>(initialMedia);
   const [totalMedia, setTotalMedia] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [isGridView, setIsGridView] = useState(true);
   const [activeMediaViewer, setActiveMediaViewer] = useState<Media | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -153,12 +156,19 @@ export default function DashboardContent({
       if (searchQuery) params.append('search', searchQuery);
       if (activeFolderId) params.append('folderId', activeFolderId);
       params.append('page', page.toString());
+      params.append('limit', '12');
+      params.append('sortBy', sortBy);
 
       const res = await fetch(`/api/media?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setMediaList(data.media || []);
         setTotalMedia(data.total || 0);
+        const calculatedTotalPages = data.totalPages || 1;
+        setTotalPages(calculatedTotalPages);
+        if (page > calculatedTotalPages && calculatedTotalPages > 0) {
+          setPage(calculatedTotalPages);
+        }
       }
     } catch (e) {
       clientLogger.error('dashboard-content', 'Failed to fetch media:', e);
@@ -172,7 +182,7 @@ export default function DashboardContent({
     if (activeWorkspaceId) {
       fetchMedia();
     }
-  }, [activeWorkspaceId, filterType, filterStatus, searchQuery, page, activeFolderId]);
+  }, [activeWorkspaceId, filterType, filterStatus, searchQuery, page, activeFolderId, sortBy]);
 
   useEffect(() => {
     const hasPendingMedia = mediaList.some(
@@ -230,13 +240,19 @@ export default function DashboardContent({
 
       <MediaToolbar
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={(q) => {
+          setSearchQuery(q);
+          setPage(1);
+        }}
         filterType={filterType}
         onFilterTypeChange={setFilterType}
         filterStatus={filterStatus}
         onFilterStatusChange={setFilterStatus}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={(sort) => {
+          setSortBy(sort);
+          setPage(1);
+        }}
         isGridView={isGridView}
         onViewToggle={setIsGridView}
         onPageChange={setPage}
@@ -258,24 +274,25 @@ export default function DashboardContent({
           onMoveClick={setShowMoveModal}
         />
       ) : (
-        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-hidden">
+        <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-visible relative">
           <table className="w-full">
             <thead className="bg-[var(--bg-main)] border-b border-[var(--border-color)]">
               <tr>
-                <th className="text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Title</th>
+                <th className="rounded-tl-lg text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Title</th>
                 <th className="text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Type</th>
                 <th className="text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Uploader</th>
                 <th className="text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Date</th>
                 <th className="text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Size</th>
                 <th className="text-left py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Visibility</th>
-                <th className="text-right py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Actions</th>
+                <th className="rounded-tr-lg text-right py-3 px-4 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {sortedMedia.map((item) => {
+              {sortedMedia.map((item, index) => {
                 const isReady = item.uploadStatus === 'READY';
                 const isDeleting = item.uploadStatus === 'DELETING';
                 const isPending = item.uploadStatus === 'PROCESSING' || item.uploadStatus === 'UPLOADING';
+                const dropdownDirection = index >= Math.floor(sortedMedia.length / 2) ? 'up' : 'down';
 
                 return (
                   <tr
@@ -336,7 +353,7 @@ export default function DashboardContent({
                         <MediaVisibilitySelect
                           value={item.visibility}
                           onChange={(val) => handleVisibilityChange(item.id, val)}
-                          direction="down"
+                          direction={dropdownDirection}
                         />
                       )}
                       {isPending && (
@@ -348,37 +365,86 @@ export default function DashboardContent({
                         <span className="text-xs text-red-500 font-bold uppercase">Deleting...</span>
                       )}
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 text-right">
                       {isReady && renamingId !== item.id && (
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleStartRename(item.id, item.title)}
-                            className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors p-1.5 cursor-pointer"
-                            title="Rename"
+                        <div className="flex justify-end">
+                          <Dropdown
+                            trigger={
+                              <button
+                                type="button"
+                                className="text-[var(--text-muted)] hover:text-white transition-colors p-1.5 cursor-pointer rounded-lg hover:bg-[var(--bg-hover)]"
+                                title="Actions"
+                                onClick={(e) => {
+                                  console.log('[ActionsTrigger] clicked for item:', item.id);
+                                }}
+                              >
+                                <MoreVertical size={16} />
+                              </button>
+                            }
+                            isOpen={activeDropdownId === item.id}
+                            onOpenChange={(open) => {
+                              console.log('[onOpenChange] open state:', open, 'for item:', item.id);
+                              setActiveDropdownId(open ? item.id : null);
+                            }}
+                            align="right"
+                            direction={dropdownDirection}
                           >
-                            <Edit2 size={14} />
-                          </button>
-                          <button
-                            onClick={() => setShowMoveModal(item)}
-                            className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors p-1.5 cursor-pointer"
-                            title="Move to Project"
-                          >
-                            <Folder size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleShareLink(item)}
-                            className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors p-1.5 cursor-pointer"
-                            title="Share Link"
-                          >
-                            <Link2 size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.id)}
-                            className="text-[var(--text-muted)] hover:text-red-400 transition-colors p-1.5 cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                            <div className="w-48 py-1">
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('[Dropdown] Rename clicked for item:', item.id);
+                                  handleStartRename(item.id, item.title);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm font-bold text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white transition-colors cursor-pointer rounded-lg"
+                              >
+                                <Edit2 size={14} />
+                                <span>Rename</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('[Dropdown] Move clicked for item:', item.id);
+                                  setShowMoveModal(item);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm font-bold text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white transition-colors cursor-pointer rounded-lg"
+                              >
+                                <Folder size={14} />
+                                <span>Move to Project</span>
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('[Dropdown] Share clicked for item:', item.id);
+                                  handleShareLink(item);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm font-bold text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white transition-colors cursor-pointer rounded-lg"
+                              >
+                                <Link2 size={14} />
+                                <span>Share Link</span>
+                              </button>
+                              <div className="border-t border-[var(--border-color)] my-1" />
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('[Dropdown] Delete clicked for item:', item.id);
+                                  handleDelete(item.id);
+                                  setActiveDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm font-bold text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer rounded-lg"
+                              >
+                                <Trash2 size={14} />
+                                <span>Delete</span>
+                              </button>
+                            </div>
+                          </Dropdown>
                         </div>
                       )}
                     </td>
@@ -387,6 +453,69 @@ export default function DashboardContent({
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 px-1 py-4 border-t border-[var(--border-color)] gap-4 font-sans">
+          <div className="text-sm text-[var(--text-muted)] font-medium">
+            Showing <span className="text-white font-bold">{Math.min(totalMedia, (page - 1) * 12 + 1)}</span> to{' '}
+            <span className="text-white font-bold">{Math.min(totalMedia, page * 12)}</span> of{' '}
+            <span className="text-white font-bold">{totalMedia}</span> results
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                page === 1
+                  ? 'opacity-40 cursor-not-allowed text-[var(--text-dark)] bg-transparent'
+                  : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white border border-[var(--border-color)] bg-[var(--bg-card)]'
+              }`}
+            >
+              Previous
+            </button>
+            <div className="flex items-center gap-1">
+              {(() => {
+                const pages = [];
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, page - 2);
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage < maxVisiblePages - 1) {
+                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => setPage(i)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                        page === i
+                          ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary-glow)] border border-[var(--primary)]'
+                          : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white border border-[var(--border-color)] bg-[var(--bg-card)]'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                return pages;
+              })()}
+            </div>
+            <button
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page === totalPages}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                page === totalPages
+                  ? 'opacity-40 cursor-not-allowed text-[var(--text-dark)] bg-transparent'
+                  : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white border border-[var(--border-color)] bg-[var(--bg-card)]'
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 

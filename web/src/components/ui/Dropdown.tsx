@@ -24,10 +24,14 @@ export default function Dropdown({
 }: DropdownProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(containerRef, () => onOpenChange(false));
+  useClickOutside(containerRef, () => {
+    if (isOpen) {
+      onOpenChange(false);
+    }
+  });
 
   return (
-    <div className={`relative inline-block ${className}`} ref={containerRef}>
+    <div className={`relative inline-block ${isOpen ? 'z-50' : ''} ${className}`} ref={containerRef}>
       <div onClick={() => onOpenChange(!isOpen)}>
         {trigger}
       </div>
