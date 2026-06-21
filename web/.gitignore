@@ -42,3 +42,5 @@ next-env.d.ts
 
 /src/generated/prisma
 gemini-resume.txt
+prod-db-supabase.txt
+client_secret_devnote.json
