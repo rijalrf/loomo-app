@@ -52,14 +52,14 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
           <img
             src={`/api/media/${media.id}/file`}
             alt={media.title}
-            className="max-w-full max-h-[90vh] object-contain"
+            className="max-w-full max-h-full object-contain"
           />
         ) : (
           <video
             src={`/api/media/${media.id}/file`}
             controls
             autoPlay
-            className="max-w-full max-h-[90vh]"
+            className="max-w-full max-h-full object-contain"
           />
         )}
       </div>

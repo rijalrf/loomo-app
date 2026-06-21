@@ -143,14 +143,14 @@ export default async function SharePage({ params }: SharePageProps) {
           <img 
             src={fileUrl} 
             alt={media.title}
-            className="max-w-full max-h-[90vh] object-contain"
+            className="max-w-full max-h-full object-contain"
           />
         ) : (
           <video 
             src={fileUrl}
             controls
             autoPlay
-            className="max-w-full max-h-[90vh]"
+            className="max-w-full max-h-full object-contain"
           />
         )}
       </div>
