@@ -474,14 +474,14 @@ export default function Sidebar({
                 setNewFolderName('');
               }}
               disabled={isCreatingFolder}
-              className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+              className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isCreatingFolder || !newFolderName.trim()}
-              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isCreatingFolder ? 'Creating...' : 'Create'}
             </button>
@@ -520,14 +520,14 @@ export default function Sidebar({
                 setRenamingFolderName('');
               }}
               disabled={isRenamingFolder}
-              className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+              className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isRenamingFolder || !renamingFolderName.trim()}
-              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isRenamingFolder ? 'Renaming...' : 'Rename'}
             </button>
@@ -556,14 +556,14 @@ export default function Sidebar({
               setDeletingFolderName('');
             }}
             disabled={isDeletingFolder}
-            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleDeleteFolder}
             disabled={isDeletingFolder}
-            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50"
           >
             {isDeletingFolder ? 'Deleting...' : 'Delete'}
           </button>

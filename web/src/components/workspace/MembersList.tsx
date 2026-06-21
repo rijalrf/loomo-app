@@ -99,13 +99,13 @@ export default function MembersList({ activeWorkspaceId, currentUserId, isOwner 
         <div className="flex gap-3 justify-end">
           <button
             onClick={() => setShowRemoveModal(null)}
-            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={() => showRemoveModal && confirmRemove(showRemoveModal)}
-            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
           >
             Remove
           </button>

@@ -544,7 +544,7 @@ export default function DashboardContent({
           />
           <button
             onClick={() => showShareModal && handleCopyShareLink(showShareModal.shareToken!)}
-            className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white py-1.5 px-4 text-xs rounded-lg cursor-pointer shrink-0 font-semibold hover:-translate-y-0.5 transition-transform"
+            className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white py-1.5 px-4 text-xs rounded-lg cursor-pointer shrink-0 font-semibold transition-transform"
           >
             Copy
           </button>
@@ -571,13 +571,13 @@ export default function DashboardContent({
         <div className="flex gap-3 justify-end">
         <button
           onClick={() => setShowDeleteModal(null)}
-          className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+          className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
         >
           Cancel
         </button>
         <button
           onClick={() => showDeleteModal && confirmDelete(showDeleteModal)}
-          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
         >
           Delete
         </button>
@@ -597,13 +597,13 @@ export default function DashboardContent({
         <div className="flex gap-3 justify-end">
         <button
           onClick={() => setShowRevokeModal(null)}
-          className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+          className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
         >
           Cancel
         </button>
         <button
           onClick={() => showRevokeModal && confirmRevoke(showRevokeModal)}
-          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
         >
           Revoke
         </button>
@@ -663,7 +663,7 @@ export default function DashboardContent({
           <button
             onClick={() => setShowMoveModal(null)}
             disabled={isMovingMedia}
-            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
           >
             Cancel
           </button>
