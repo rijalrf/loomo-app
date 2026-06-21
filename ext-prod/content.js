@@ -99,7 +99,10 @@ const configUrl = new URL(globalThis.LoomoConfig.API_BASE_URL);
 const isLoomoHost = window.location.origin === configUrl.origin;
 if (isLoomoHost) {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('importPending') === 'true') {
+  const isEditorPage = window.location.pathname === '/editor';
+  const editorId = params.get('id');
+  
+  if (isEditorPage && editorId) {
     importPendingJamFromExtension();
   }
   
@@ -152,15 +155,15 @@ async function importPendingJamFromExtension() {
     const { metadata, videoBase64 } = response;
     
     try {
-      // Tentukan mime type berdasarkan tipe metadata (screenshot atau rekaman video)
       const mime = (metadata.type === 'screenshot') ? 'image/png' : 'video/webm';
       const videoBlob = base64ToBlob(videoBase64, mime);
       
       localStorage.setItem(`jam_meta_${metadata.id}`, JSON.stringify(metadata));
       await saveVideoToIndexedDB(metadata.id, videoBlob);
       
-      const isPopup = new URLSearchParams(window.location.search).get('isPopup') === 'true';
-      window.location.href = `${globalThis.LoomoConfig.API_BASE_URL}/?driveFileId=${metadata.id}${isPopup ? '&isPopup=true' : ''}`;
+      console.log('[Jam Extension Content] Data berhasil disimpan ke IndexedDB dan localStorage');
+      
+      window.dispatchEvent(new CustomEvent('loomo_editor_data_ready', { detail: { id: metadata.id } }));
     } catch (err) {
       console.error(`[Jam Extension Content] [content-script] Gagal menyimpan data impor: ${err.message || String(err)}`);
     }
