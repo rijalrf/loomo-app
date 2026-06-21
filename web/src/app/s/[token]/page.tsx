@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
     where: { shareToken: token },
     select: {
       title: true,
+      description: true,
       type: true,
       driveThumbnailUrl: true
     }
@@ -31,12 +32,14 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:8999';
   const fileUrl = `${appUrl}/api/share/${token}/file`;
 
+  const seoDesc = media.description || 'Shared visual feedback capture - Show, don\'t just tell.';
+
   return {
     title: `${media.title} - Loomo`,
-    description: 'Shared visual feedback capture - Show, don\'t just tell.',
+    description: seoDesc,
     openGraph: {
       title: `${media.title} - Loomo`,
-      description: 'Shared visual feedback capture - Show, don\'t just tell.',
+      description: seoDesc,
       type: media.type === 'RECORDING' ? 'video.other' : 'website',
       images: [
         {
@@ -116,6 +119,11 @@ export default async function SharePage({ params }: SharePageProps) {
           {/* Title & Metadata */}
           <div>
             <h3 className="text-sm font-bold text-white mb-0.5">{media.title}</h3>
+            {media.description && (
+              <p className="text-xs text-[var(--text-muted)] mt-1.5 mb-2 leading-relaxed whitespace-pre-wrap max-w-xl bg-[#111113]/55 border border-[#3f3f46]/35 rounded-lg py-2 px-3">
+                {media.description}
+              </p>
+            )}
             <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
               By {media.uploader.displayName} • {new Date(media.createdAt).toLocaleDateString()}
             </p>

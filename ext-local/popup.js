@@ -151,7 +151,7 @@ btnAction.addEventListener('click', async () => {
     );
   } else {
     // Hentikan Perekaman
-    statusDisplay.innerHTML = 'Memproses...';
+    statusDisplay.innerHTML = 'Processing...';
     chrome.runtime.sendMessage(
       { source: 'jam-extension-popup', action: 'STOP_RECORDING' },
       (response) => {
@@ -211,13 +211,13 @@ function updateUI(recording, elapsed) {
   const statusDot = document.getElementById('status-dot');
   
   if (recording) {
-    statusDisplay.textContent = `MEREKAM (${elapsed}s)`;
+    statusDisplay.textContent = `RECORDING (${elapsed}s)`;
     statusDot.className = 'status-dot recording';
     
     // Feather Icon: square (Hentikan)
     btnAction.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="feather feather-square"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
-      <span>Hentikan & Simpan</span>
+      <span>Stop & Save</span>
     `;
     btnAction.className = 'btn btn-stop';
     btnScreenshot.style.display = 'none';
@@ -228,7 +228,7 @@ function updateUI(recording, elapsed) {
     // Feather Icon: video (Mulai)
     btnAction.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="feather feather-video"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-      <span>Rekam Layar Tab</span>
+      <span>Record Screen</span>
     `;
     btnAction.className = 'btn btn-record';
     btnScreenshot.style.display = 'flex';

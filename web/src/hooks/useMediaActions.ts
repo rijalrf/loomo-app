@@ -5,8 +5,10 @@ import { clientLogger } from '@/lib/clientLogger';
 interface Media {
   id: string;
   workspaceId: string;
+  folderId?: string | null;
   uploadedBy: string;
   title: string;
+  description?: string | null;
   type: 'SCREENSHOT' | 'RECORDING';
   driveThumbnailUrl: string | null;
   shareToken: string | null;

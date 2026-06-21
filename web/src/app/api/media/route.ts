@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
   const typeParam = searchParams.get('type'); // "screenshot" | "recording"
   const statusParam = searchParams.get('status'); // "ready" | "processing" etc
   const search = searchParams.get('search');
+  const folderId = searchParams.get('folderId');
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '20', 10);
 
@@ -52,6 +53,14 @@ export async function GET(request: NextRequest) {
       where.type = typeParam.toUpperCase() === 'SCREENSHOT' ? 'SCREENSHOT' : 'RECORDING';
     }
 
+    if (folderId) {
+      if (folderId === 'null' || folderId === 'none') {
+        where.folderId = null;
+      } else {
+        where.folderId = folderId;
+      }
+    }
+
     if (statusParam) {
       where.uploadStatus = statusParam.toUpperCase();
     }
@@ -75,6 +84,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         workspaceId: true,
+        folderId: true,
         uploadedBy: true,
         title: true,
         type: true,

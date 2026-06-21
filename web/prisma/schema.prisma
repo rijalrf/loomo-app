@@ -42,6 +42,7 @@ model Workspace {
   owner            User              @relation("WorkspaceOwner", fields: [createdBy], references: [id], onDelete: Cascade)
   members          WorkspaceMember[]
   media            Media[]
+  folders          Folder[]
 
   @@map("workspaces")
 }
@@ -90,6 +91,7 @@ model Media {
   workspaceId       String       @map("workspace_id")
   uploadedBy        String       @map("uploaded_by")
   title             String
+  description       String?
   type              MediaType
   driveFileId       String?      @map("drive_file_id")
   driveThumbnailUrl String?      @map("drive_thumbnail_url")
@@ -105,8 +107,11 @@ model Media {
   createdAt         DateTime     @default(now()) @map("created_at")
   deletedAt         DateTime?    @map("deleted_at")
 
+  folderId          String?      @map("folder_id")
+
   workspace         Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   uploader          User         @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+  folder            Folder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
   jobs              BackgroundJob[]
 
   @@map("media")
@@ -142,4 +147,18 @@ model BackgroundJob {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("background_jobs")
+}
+
+model Folder {
+  id          String    @id @default(uuid())
+  name        String
+  workspaceId String    @map("workspace_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  media       Media[]
+
+  @@unique([workspaceId, name])
+  @@map("folders")
 }

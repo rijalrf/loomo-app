@@ -3,8 +3,10 @@
 interface Media {
   id: string;
   workspaceId: string;
+  folderId?: string | null;
   uploadedBy: string;
   title: string;
+  description?: string | null;
   type: 'SCREENSHOT' | 'RECORDING';
   driveThumbnailUrl: string | null;
   shareToken: string | null;
@@ -35,7 +37,12 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/50">
         <div>
           <h3 className="text-lg font-black text-white leading-tight">{media.title}</h3>
-          <p className="text-xs text-[var(--text-muted)] font-medium">
+          {media.description && (
+            <p className="text-xs text-[var(--text-muted)] mt-1.5 max-w-2xl leading-relaxed whitespace-pre-wrap bg-[#111113]/55 border border-[#3f3f46]/35 rounded-lg py-2 px-3">
+              {media.description}
+            </p>
+          )}
+          <p className="text-[10px] text-[var(--text-muted)] mt-1.5 font-bold uppercase tracking-widest">
             Captured by {media.uploader.displayName} • {new Date(media.createdAt).toLocaleString()}
           </p>
         </div>

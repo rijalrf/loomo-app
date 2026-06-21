@@ -97,6 +97,13 @@ Komponen `PopupModal` adalah komponen reusable minimal yang hanya menyediakan:
 </PopupModal>
 ```
 
+## Aturan Sinkronisasi Chrome Extension
+
+### Sinkronisasi Folder ext-local dan ext-prod
+Semua modifikasi kode pada folder `ext-local` (Chrome Extension lokal) **WAJIB** disinkronkan ke folder `ext-prod` (Chrome Extension produksi) untuk file yang bersesuaian (seperti `content.js`, `service_worker.js`, `popup.js`, dll.).
+- Modifikasi tidak boleh hanya dilakukan di salah satu folder saja.
+- Pastikan kedua folder memiliki logika fungsional yang identik (kecuali perbedaan konfigurasi environment atau URL API backend).
+
 ## Checklist untuk AI Agent
 
 Saat membuat atau memodifikasi UI component, pastikan:
@@ -106,3 +113,4 @@ Saat membuat atau memodifikasi UI component, pastikan:
 - [ ] Hover state ditambahkan untuk feedback visual
 - [ ] Animasi smooth pada interaksi (transition, transform)
 - [ ] PopupModal digunakan untuk semua dialog/modal (jangan buat custom modal baru)
+- [ ] Modifikasi file Chrome Extension (`ext-local`) sudah disinkronkan sepenuhnya ke `ext-prod`

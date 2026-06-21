@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import AppLayout from './layout/AppLayout';
 import DashboardContent from './dashboard/DashboardContent';
@@ -24,8 +25,10 @@ interface Workspace {
 interface Media {
   id: string;
   workspaceId: string;
+  folderId?: string | null;
   uploadedBy: string;
   title: string;
+  description?: string | null;
   type: 'SCREENSHOT' | 'RECORDING';
   driveThumbnailUrl: string | null;
   shareToken: string | null;
@@ -64,6 +67,30 @@ export default function DashboardClient({
     setShowCreateModal
   } = useWorkspace(initialWorkspaces);
 
+  const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
+
+  // Load folder selection from localStorage on mount
+  useEffect(() => {
+    const savedFolder = localStorage.getItem('loomo_active_folder_id');
+    if (savedFolder) {
+      setActiveFolderId(savedFolder);
+    }
+  }, []);
+
+  useEffect(() => {
+    setActiveFolderId(null);
+    localStorage.removeItem('loomo_active_folder_id');
+  }, [activeWorkspaceId]);
+
+  const handleSetActiveFolderId = (id: string | null) => {
+    setActiveFolderId(id);
+    if (id) {
+      localStorage.setItem('loomo_active_folder_id', id);
+    } else {
+      localStorage.removeItem('loomo_active_folder_id');
+    }
+  };
+
   if (workspaces.length === 0) {
     return (
       <OnboardingJourney
@@ -91,11 +118,14 @@ export default function DashboardClient({
         onCreateWorkspaceClick={() => setShowCreateModal(true)}
         breadcrumbs={breadcrumbs}
         contentMaxWidth="full"
+        activeFolderId={activeFolderId}
+        setActiveFolderId={handleSetActiveFolderId}
       >
         <DashboardContent
           activeWorkspaceId={activeWorkspaceId}
           activeWorkspaceName={activeWorkspace?.name || ''}
           initialMedia={initialMedia}
+          activeFolderId={activeFolderId}
         />
       </AppLayout>
 

@@ -9,15 +9,17 @@ import MediaGrid from '../media/MediaGrid';
 import MediaEmptyState from '../media/MediaEmptyState';
 import MediaViewer from '../media/MediaViewer';
 import PopupModal from '../PopupModal';
-import { Link2, X, Edit2, Trash2 } from 'lucide-react';
+import { Link2, X, Edit2, Trash2, Folder } from 'lucide-react';
 import { toast } from 'sonner';
 import MediaVisibilitySelect from '../ui/MediaVisibilitySelect';
 
 interface Media {
   id: string;
   workspaceId: string;
+  folderId?: string | null;
   uploadedBy: string;
   title: string;
+  description?: string | null;
   type: 'SCREENSHOT' | 'RECORDING';
   driveThumbnailUrl: string | null;
   shareToken: string | null;
@@ -39,18 +41,72 @@ interface DashboardContentProps {
   activeWorkspaceId: string;
   activeWorkspaceName: string;
   initialMedia: Media[];
+  activeFolderId: string | null;
 }
 
 export default function DashboardContent({
   activeWorkspaceId,
   activeWorkspaceName,
-  initialMedia
+  initialMedia,
+  activeFolderId
 }: DashboardContentProps) {
   const [mediaList, setMediaList] = useState<Media[]>(initialMedia);
   const [totalMedia, setTotalMedia] = useState(0);
   const [isGridView, setIsGridView] = useState(true);
   const [activeMediaViewer, setActiveMediaViewer] = useState<Media | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Folder Move States
+  const [showMoveModal, setShowMoveModal] = useState<Media | null>(null);
+  const [folders, setFolders] = useState<Array<{ id: string; name: string }>>([]);
+  const [isFoldersLoading, setIsFoldersLoading] = useState(false);
+  const [isMovingMedia, setIsMovingMedia] = useState(false);
+
+  const fetchFoldersForMove = async () => {
+    if (!activeWorkspaceId) return;
+    setIsFoldersLoading(true);
+    try {
+      const res = await fetch(`/api/workspace/folders?workspaceId=${activeWorkspaceId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setFolders(data.folders || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch folders:', err);
+    } finally {
+      setIsFoldersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showMoveModal) {
+      fetchFoldersForMove();
+    }
+  }, [showMoveModal]);
+
+  const handleMoveMedia = async (folderId: string | null) => {
+    if (!showMoveModal) return;
+    setIsMovingMedia(true);
+    try {
+      const res = await fetch(`/api/media/${showMoveModal.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folderId: folderId || null })
+      });
+      if (res.ok) {
+        toast.success(folderId ? 'Media moved to project' : 'Media removed from project');
+        setShowMoveModal(null);
+        fetchMedia();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Failed to move media');
+      }
+    } catch (err) {
+      toast.error('Connection error');
+    } finally {
+      setIsMovingMedia(false);
+    }
+  };
 
   const {
     searchQuery,
@@ -95,6 +151,7 @@ export default function DashboardContent({
       if (filterType !== 'ALL') params.append('type', filterType);
       if (filterStatus !== 'ALL') params.append('status', filterStatus);
       if (searchQuery) params.append('search', searchQuery);
+      if (activeFolderId) params.append('folderId', activeFolderId);
       params.append('page', page.toString());
 
       const res = await fetch(`/api/media?${params.toString()}`);
@@ -115,7 +172,7 @@ export default function DashboardContent({
     if (activeWorkspaceId) {
       fetchMedia();
     }
-  }, [activeWorkspaceId, filterType, filterStatus, searchQuery, page]);
+  }, [activeWorkspaceId, filterType, filterStatus, searchQuery, page, activeFolderId]);
 
   useEffect(() => {
     const hasPendingMedia = mediaList.some(
@@ -198,6 +255,7 @@ export default function DashboardContent({
           onVisibilityChange={handleVisibilityChange}
           onShareLink={handleShareLink}
           onView={setActiveMediaViewer}
+          onMoveClick={setShowMoveModal}
         />
       ) : (
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-hidden">
@@ -299,6 +357,13 @@ export default function DashboardContent({
                             title="Rename"
                           >
                             <Edit2 size={14} />
+                          </button>
+                          <button
+                            onClick={() => setShowMoveModal(item)}
+                            className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors p-1.5 cursor-pointer"
+                            title="Move to Project"
+                          >
+                            <Folder size={14} />
                           </button>
                           <button
                             onClick={() => handleShareLink(item)}
@@ -413,6 +478,66 @@ export default function DashboardContent({
         >
           Revoke
         </button>
+        </div>
+      </PopupModal>
+
+      {/* Move to Project Modal */}
+      <PopupModal
+        isOpen={showMoveModal !== null}
+        onClose={() => setShowMoveModal(null)}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Move to Project</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed font-sans">
+          Choose a project in this workspace to organize <span className="text-white font-bold">"{showMoveModal?.title}"</span>.
+        </p>
+
+        <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar mb-6 font-sans">
+          <button
+            onClick={() => handleMoveMedia(null)}
+            disabled={isMovingMedia}
+            className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              showMoveModal?.folderId === null
+                ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
+            }`}
+          >
+            <Folder size={14} className="opacity-50 shrink-0" />
+            <span className="truncate flex-1">None (Unassigned)</span>
+          </button>
+
+          {folders.map((folder) => (
+            <button
+              key={folder.id}
+              onClick={() => handleMoveMedia(folder.id)}
+              disabled={isMovingMedia}
+              className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                showMoveModal?.folderId === folder.id
+                  ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                  : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
+              }`}
+            >
+              <Folder size={14} className="shrink-0" />
+              <span className="truncate flex-1">{folder.name}</span>
+            </button>
+          ))}
+
+          {folders.length === 0 && !isFoldersLoading && (
+            <p className="text-xs text-[var(--text-muted)] italic py-2">No folders in this workspace. Create one in the sidebar!</p>
+          )}
+          {isFoldersLoading && (
+            <p className="text-xs text-[var(--text-muted)] italic py-2">Loading folders...</p>
+          )}
+        </div>
+
+        <div className="flex justify-end font-sans">
+          <button
+            onClick={() => setShowMoveModal(null)}
+            disabled={isMovingMedia}
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
         </div>
       </PopupModal>
     </div>

@@ -397,7 +397,7 @@ function initScreenshotSelection() {
 function saveScreenshotJam(imageBase64, width, height) {
   const metadata = {
     id: generateUUID(),
-    title: `Jam Screenshot - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
+    title: `Loomo Screenshot - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
     createdAt: new Date().toISOString(),
     type: 'screenshot', // Tipe: Screenshot
     duration: 0,
@@ -432,7 +432,8 @@ function showFloatingControls() {
   floatingPanel.style.cssText = `
     position: fixed;
     bottom: 32px;
-    right: 32px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 2147483647;
     background: #0F172A;
     border: 1px solid #334155;

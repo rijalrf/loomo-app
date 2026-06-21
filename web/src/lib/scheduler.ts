@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import { prisma } from "./db";
 import {
   getFreshAccessToken,
-  getOrCreateLoomoFolders,
+  getOrCreateDynamicFolder,
   uploadToDrive,
   deleteFromDrive,
 } from "./gdrive";
@@ -82,7 +82,7 @@ async function processJob(job: any) {
     // Fetch media and workspace to find the storage target user
     const media = await prisma.media.findUnique({
       where: { id: job.mediaId },
-      include: { workspace: true },
+      include: { workspace: true, folder: true },
     });
 
     if (!media) {
@@ -140,11 +140,17 @@ async function handleUploadJob(job: any, accessToken: string, media: any) {
   // 1. Read temp file from disk
   const fileBuffer = await fs.readFile(job.tempFilePath);
 
-  // 2. Ensure Loomo folders exist in Google Drive
-  const { screenshotsFolderId, recordingsFolderId } =
-    await getOrCreateLoomoFolders(accessToken);
-  const targetFolderId =
-    media.type === "SCREENSHOT" ? screenshotsFolderId : recordingsFolderId;
+  // 2. Ensure Loomo folders exist in Google Drive dynamically
+  const pathParts = ["Loomo"];
+  if (media.workspace?.name) {
+    pathParts.push(media.workspace.name);
+  }
+  if (media.folder?.name) {
+    pathParts.push(media.folder.name);
+  }
+  pathParts.push(media.type === "SCREENSHOT" ? "Screenshots" : "Recordings");
+
+  const targetFolderId = await getOrCreateDynamicFolder(accessToken, pathParts);
 
   // 3. Format filename using format: [namaWorkspace]_[tgltime]_[shortId]_loomo.ext
   const cleanWorkspaceName = (media.workspace?.name || "Workspace").replace(/[^a-zA-Z0-9]+/g, "_");

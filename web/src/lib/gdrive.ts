@@ -84,6 +84,21 @@ export async function getOrCreateLoomoFolders(accessToken: string): Promise<{ sc
   return { screenshotsFolderId, recordingsFolderId };
 }
 
+export async function getOrCreateDynamicFolder(accessToken: string, pathParts: string[]): Promise<string> {
+  let currentParentId = 'root';
+  for (const part of pathParts) {
+    if (!part || !part.trim()) continue;
+    // Replace single quotes in folder name to avoid query breakage
+    const cleanPart = part.replace(/'/g, "\\'");
+    let folderId = await findFolder(accessToken, cleanPart, currentParentId);
+    if (!folderId) {
+      folderId = await createFolder(accessToken, cleanPart, currentParentId);
+    }
+    currentParentId = folderId;
+  }
+  return currentParentId;
+}
+
 async function findFolder(accessToken: string, name: string, parentId: string): Promise<string | null> {
   const query = `name = '${name}' and mimeType = 'application/vnd.google-apps.folder' and '${parentId}' in parents and trashed = false`;
   const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id)`, {
