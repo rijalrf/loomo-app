@@ -292,13 +292,15 @@ export default function Sidebar({
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between px-2.5 mb-1.5">
               <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider">Projects</label>
-              <button
-                onClick={() => setShowCreateFolderModal(true)}
-                className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer p-0.5"
-                title="Create Project"
-              >
-                <Plus size={14} />
-              </button>
+              {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
+                <button
+                  onClick={() => setShowCreateFolderModal(true)}
+                  className="text-[var(--text-muted)] hover:text-[var(--primary)] transition-colors cursor-pointer p-0.5"
+                  title="Create Project"
+                >
+                  <Plus size={14} />
+                </button>
+              )}
             </div>
 
             <div className="space-y-0.5 max-h-48 overflow-y-auto custom-scrollbar">
@@ -338,22 +340,24 @@ export default function Sidebar({
                     <span className="truncate flex-1">{folder.name}</span>
                   </button>
                   
-                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity shrink-0">
-                    <button
-                      onClick={() => handleStartRenameFolder(folder.id, folder.name)}
-                      className="text-[var(--text-muted)] hover:text-[var(--primary)] p-0.5 cursor-pointer"
-                      title="Rename"
-                    >
-                      <Edit2 size={12} />
-                    </button>
-                    <button
-                      onClick={() => handleStartDeleteFolder(folder.id, folder.name)}
-                      className="text-[var(--text-muted)] hover:text-red-400 p-0.5 cursor-pointer"
-                      title="Delete"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
+                  {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
+                    <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity shrink-0">
+                      <button
+                        onClick={() => handleStartRenameFolder(folder.id, folder.name)}
+                        className="text-[var(--text-muted)] hover:text-[var(--primary)] p-0.5 cursor-pointer"
+                        title="Rename"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                      <button
+                        onClick={() => handleStartDeleteFolder(folder.id, folder.name)}
+                        className="text-[var(--text-muted)] hover:text-red-400 p-0.5 cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
 

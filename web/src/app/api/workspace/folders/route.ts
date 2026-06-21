@@ -60,16 +60,17 @@ export async function POST(request: NextRequest) {
 
     const trimmedName = name.trim();
 
-    // Verify user is member of the workspace
-    const isMember = await prisma.workspaceMember.findFirst({
+    // Verify user is OWNER of the workspace (members cannot create folders)
+    const isOwner = await prisma.workspaceMember.findFirst({
       where: {
         workspaceId,
-        userId: session.userId
+        userId: session.userId,
+        role: 'OWNER'
       }
     });
 
-    if (!isMember) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isOwner) {
+      return NextResponse.json({ error: 'Forbidden. Only workspace owners can create projects.' }, { status: 403 });
     }
 
     // Check if folder name already exists in workspace

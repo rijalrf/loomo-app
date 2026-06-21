@@ -32,16 +32,17 @@ export async function PATCH(
       return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
 
-    // Verify user membership in workspace
-    const isMember = await prisma.workspaceMember.findFirst({
+    // Verify user is OWNER of the workspace (members cannot rename folders)
+    const isOwner = await prisma.workspaceMember.findFirst({
       where: {
         workspaceId: folder.workspaceId,
-        userId: session.userId
+        userId: session.userId,
+        role: 'OWNER'
       }
     });
 
-    if (!isMember) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isOwner) {
+      return NextResponse.json({ error: 'Forbidden. Only workspace owners can rename projects.' }, { status: 403 });
     }
 
     // Check if name is already taken in this workspace by another folder
@@ -91,16 +92,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Folder not found' }, { status: 404 });
     }
 
-    // Verify user membership
-    const isMember = await prisma.workspaceMember.findFirst({
+    // Verify user is OWNER of the workspace (members cannot delete folders)
+    const isOwner = await prisma.workspaceMember.findFirst({
       where: {
         workspaceId: folder.workspaceId,
-        userId: session.userId
+        userId: session.userId,
+        role: 'OWNER'
       }
     });
 
-    if (!isMember) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!isOwner) {
+      return NextResponse.json({ error: 'Forbidden. Only workspace owners can delete projects.' }, { status: 403 });
     }
 
     // Delete folder
