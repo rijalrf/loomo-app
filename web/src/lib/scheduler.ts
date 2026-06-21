@@ -95,7 +95,7 @@ async function processJob(job: any) {
     const accessToken = await getFreshAccessToken(targetUserId);
 
     if (job.jobType === "UPLOAD") {
-      await handleUploadJob(job, accessToken);
+      await handleUploadJob(job, accessToken, media);
     } else if (job.jobType === "DELETE") {
       await handleDeleteJob(job, accessToken);
     }
@@ -128,11 +128,7 @@ async function processJob(job: any) {
   }
 }
 
-async function handleUploadJob(job: any, accessToken: string) {
-  const media = await prisma.media.findUnique({
-    where: { id: job.mediaId },
-  });
-
+async function handleUploadJob(job: any, accessToken: string, media: any) {
   if (!media) {
     throw new Error("Media record not found for upload job");
   }
@@ -150,11 +146,14 @@ async function handleUploadJob(job: any, accessToken: string) {
   const targetFolderId =
     media.type === "SCREENSHOT" ? screenshotsFolderId : recordingsFolderId;
 
-  // 3. Format filename to distinguish workspaces but keep standard name
-  // Format: {workspaceId}_{mediaId}_{title}.ext
+  // 3. Format filename using format: [namaWorkspace]_[tgltime]_[shortId]_loomo.ext
+  const cleanWorkspaceName = (media.workspace?.name || "Workspace").replace(/[^a-zA-Z0-9]+/g, "_");
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dateVal = new Date(media.createdAt);
+  const tgltime = `${dateVal.getFullYear()}${pad(dateVal.getMonth() + 1)}${pad(dateVal.getDate())}_${pad(dateVal.getHours())}${pad(dateVal.getMinutes())}${pad(dateVal.getSeconds())}`;
+  const shortId = media.id.substring(0, 8);
   const fileExt = media.type === "SCREENSHOT" ? "png" : "webm";
-  const cleanTitle = media.title.replace(/[^a-zA-Z0-9]/g, "_");
-  const driveFilename = `${media.workspaceId}_${media.id}_${cleanTitle}.${fileExt}`;
+  const driveFilename = `${cleanWorkspaceName}_${tgltime}_${shortId}_loomo.${fileExt}`;
 
   console.log(
     "scheduler",
