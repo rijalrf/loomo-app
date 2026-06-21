@@ -7,6 +7,22 @@ function isExtensionValid() {
   }
 }
 
+function loadCustomDialog() {
+  return new Promise((resolve) => {
+    if (window.showAlert) {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = chrome.runtime.getURL('customDialog.js');
+    script.onload = () => {
+      script.remove();
+      resolve();
+    };
+    (document.head || document.documentElement).appendChild(script);
+  });
+}
+
 // Global error handling to log content script errors to server
 window.addEventListener('error', (event) => {
   // Only handle content script errors, avoid capturing target page errors here
@@ -83,7 +99,10 @@ const configUrl = new URL(globalThis.LoomoConfig.API_BASE_URL);
 const isLoomoHost = window.location.origin === configUrl.origin;
 if (isLoomoHost) {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('importPending') === 'true') {
+  const isEditorPage = window.location.pathname === '/editor';
+  const editorId = params.get('id');
+  
+  if (isEditorPage && editorId) {
     importPendingJamFromExtension();
   }
   
@@ -136,15 +155,15 @@ async function importPendingJamFromExtension() {
     const { metadata, videoBase64 } = response;
     
     try {
-      // Tentukan mime type berdasarkan tipe metadata (screenshot atau rekaman video)
       const mime = (metadata.type === 'screenshot') ? 'image/png' : 'video/webm';
       const videoBlob = base64ToBlob(videoBase64, mime);
       
       localStorage.setItem(`jam_meta_${metadata.id}`, JSON.stringify(metadata));
       await saveVideoToIndexedDB(metadata.id, videoBlob);
       
-      const isPopup = new URLSearchParams(window.location.search).get('isPopup') === 'true';
-      window.location.href = `${globalThis.LoomoConfig.API_BASE_URL}/?driveFileId=${metadata.id}${isPopup ? '&isPopup=true' : ''}`;
+      console.log('[Jam Extension Content] Data berhasil disimpan ke IndexedDB dan localStorage');
+      
+      window.dispatchEvent(new CustomEvent('loomo_editor_data_ready', { detail: { id: metadata.id } }));
     } catch (err) {
       console.error(`[Jam Extension Content] [content-script] Gagal menyimpan data impor: ${err.message || String(err)}`);
     }
@@ -294,7 +313,9 @@ function initScreenshotSelection() {
     }
 
     if (!isExtensionValid()) {
-      alert('Extension context is no longer active. Please reload the page to take a screenshot.');
+      loadCustomDialog().then(() => {
+        window.showAlert('Extension context is no longer active. Please reload the page to take a screenshot.');
+      });
       return;
     }
 
@@ -305,19 +326,27 @@ function initScreenshotSelection() {
         action: 'CAPTURE_VISIBLE_TAB'
       }, (response) => {
         if (chrome.runtime.lastError) {
-          alert('Gagal mengambil screenshot: ' + chrome.runtime.lastError.message);
+          loadCustomDialog().then(() => {
+            window.showAlert('Failed to capture screenshot: ' + chrome.runtime.lastError.message);
+          });
           return;
         }
         if (!response) {
-          alert('Gagal mengambil screenshot: Tidak ada respon dari background service worker.');
+          loadCustomDialog().then(() => {
+            window.showAlert('Failed to capture screenshot: No response from background service worker.');
+          });
           return;
         }
         if (response.error) {
-          alert('Gagal mengambil screenshot: ' + response.error);
+          loadCustomDialog().then(() => {
+            window.showAlert('Failed to capture screenshot: ' + response.error);
+          });
           return;
         }
         if (!response.dataUrl) {
-          alert('Gagal mengambil screenshot: URL data gambar kosong.');
+          loadCustomDialog().then(() => {
+            window.showAlert('Failed to capture screenshot: Empty image data URL.');
+          });
           return;
         }
 
@@ -494,7 +523,9 @@ function showFloatingControls() {
   
   pauseBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
-      alert('Extension context is no longer active. Please reload the page to control recording.');
+      loadCustomDialog().then(() => {
+        window.showAlert('Extension context is no longer active. Please reload the page to control recording.');
+      });
       return;
     }
     if (!isPaused) {
@@ -564,7 +595,9 @@ function showFloatingControls() {
   
   stopBtn.addEventListener('click', () => {
     if (!isExtensionValid()) {
-      alert('Extension context is no longer active. Please reload the page to control recording.');
+      loadCustomDialog().then(() => {
+        window.showAlert('Extension context is no longer active. Please reload the page to control recording.');
+      });
       return;
     }
     chrome.runtime.sendMessage({

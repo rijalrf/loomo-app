@@ -8,7 +8,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-300 font-sans flex items-center justify-center p-6 relative selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-muted)] font-sans flex items-center justify-center p-6 relative selection:bg-cyan-500/30">
       {/* Background blur effects */}
       <div className="absolute top-[15%] left-[15%] w-[350px] h-[350px] bg-[var(--primary)]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
       <div className="absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-[var(--secondary)]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
@@ -21,15 +21,15 @@ export default function RegisterPage() {
             <span className="text-2xl font-black tracking-tight text-white">Loomo</span>
           </Link>
           <h1 className="text-xl font-extrabold text-white tracking-tight">Daftar Akun Baru</h1>
-          <p className="text-sm text-slate-400 mt-2">Daftar menggunakan akun Google Anda untuk mulai menggunakan Loomo</p>
+          <p className="text-sm text-[var(--text-muted)] mt-2">Daftar menggunakan akun Google Anda untuk mulai menggunakan Loomo</p>
         </div>
 
         {/* Register Card */}
-        <div className="glass-panel p-8 rounded-2xl border border-slate-800 bg-slate-900/50 shadow-2xl relative">
+        <div className="glass-panel p-8 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)]/50 shadow-2xl relative">
           {/* Google Register Button */}
           <button 
             onClick={handleGoogleRegister}
-            className="btn-secondary w-full py-3 px-6 text-base font-bold bg-[#1E293B]/60 hover:border-[var(--primary)]"
+            className="btn-secondary w-full py-3 px-6 text-base font-bold bg-[var(--bg-card)] hover:border-[var(--primary)]"
           >
             {/* Google G Logo SVG */}
             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -55,13 +55,13 @@ export default function RegisterPage() {
 
           <div className="relative my-6 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-800"></div>
+              <div className="w-full border-t border-[var(--border-color)]"></div>
             </div>
-            <span className="relative px-3 bg-[#111827] text-xs text-slate-500 font-medium">INFORMASI PENDAFTARAN</span>
+            <span className="relative px-3 bg-[var(--bg-card-alt)] text-xs text-[var(--text-muted)] font-medium">INFORMASI PENDAFTARAN</span>
           </div>
 
-          <div className="space-y-4 text-xs text-slate-400 leading-relaxed">
-            <p className="text-slate-300">
+          <div className="space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
+            <p className="text-[var(--text-muted)]">
               Registrasi ini akan membuat akun baru dan membuka form onboarding untuk mengonfigurasi workspace pertama Anda di Loomo.
             </p>
 
@@ -72,7 +72,7 @@ export default function RegisterPage() {
               </Link>.
             </p>
 
-            <div className="pt-4 border-t border-slate-800 text-[10px] text-center text-slate-500">
+            <div className="pt-4 border-t border-[var(--border-color)] text-[10px] text-center text-[var(--text-muted)]">
               Dengan mendaftar, Anda menyetujui Ketentuan Layanan Loomo.<br/>
               Kembali ke <Link href="/" className="text-[var(--primary)] hover:underline font-semibold">Halaman Utama</Link>.
             </div>

@@ -1,0 +1,84 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { clientLogger } from '@/lib/clientLogger';
+import { showConfirm } from '@/lib/customDialog';
+import MemberCard from './MemberCard';
+
+interface Member {
+  membershipId: string;
+  userId: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string | null;
+  role: string;
+  invitedAt: string;
+  accepted: boolean;
+}
+
+interface MembersListProps {
+  activeWorkspaceId: string;
+  currentUserId: string;
+  isOwner: boolean;
+}
+
+export default function MembersList({ activeWorkspaceId, currentUserId, isOwner }: MembersListProps) {
+  const [members, setMembers] = useState<Member[]>([]);
+
+  const fetchMembers = async () => {
+    if (!activeWorkspaceId) return;
+    try {
+      const res = await fetch(`/api/workspace/members?workspaceId=${activeWorkspaceId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMembers(data.members);
+      }
+    } catch (e) {
+      clientLogger.error('members-list', 'Failed to fetch workspace members:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchMembers();
+  }, [activeWorkspaceId]);
+
+  const handleRemoveMember = async (membershipId: string) => {
+    const confirmed = await showConfirm('Remove this member from the workspace?');
+    if (!confirmed) return;
+    
+    try {
+      const res = await fetch(`/api/workspace/members/${membershipId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        toast.success('Member removed successfully');
+        fetchMembers();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Failed to remove member');
+      }
+    } catch (e) {
+      toast.error('Failed to remove member');
+      clientLogger.error('members-list', 'Failed to remove member:', e);
+    }
+  };
+
+  return (
+    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-lg">
+      <h3 className="text-base font-black text-white tracking-tight mb-4">Workspace Members</h3>
+
+      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+        {members.map((member) => (
+          <MemberCard
+            key={member.membershipId}
+            member={member}
+            currentUserId={currentUserId}
+            isOwner={isOwner}
+            onRemove={handleRemoveMember}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -27,7 +27,7 @@ function LoginCard() {
   const errorMsg = getErrorMessage();
 
   return (
-    <div className="glass-panel p-8 rounded-2xl border border-slate-800 bg-slate-900/50 shadow-2xl relative">
+    <div className="glass-panel p-8 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)]/50 shadow-2xl relative">
       {errorMsg && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 font-bold flex flex-col gap-2 leading-normal">
           <span className="flex items-center gap-1.5 uppercase tracking-widest text-[10px]">⚠️ AKUN BELUM TERDAFTAR</span>
@@ -41,7 +41,7 @@ function LoginCard() {
       {/* Google Login Button */}
       <button 
         onClick={handleGoogleLogin}
-        className="btn-secondary w-full py-3 px-6 text-base font-bold bg-[#1E293B]/60 hover:border-[var(--primary)]"
+        className="btn-secondary w-full py-3 px-6 text-base font-bold bg-[var(--bg-card)] hover:border-[var(--primary)]"
       >
         {/* Google G Logo SVG */}
         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -67,14 +67,14 @@ function LoginCard() {
 
       <div className="relative my-6 flex items-center justify-center">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-800"></div>
+          <div className="w-full border-t border-[var(--border-color)]"></div>
         </div>
-        <span className="relative px-3 bg-[#111827] text-xs text-slate-500 font-medium">INFORMASI PERIZINAN AKSES</span>
+        <span className="relative px-3 bg-[var(--bg-card-alt)] text-xs text-[var(--text-muted)] font-medium">INFORMASI PERIZINAN AKSES</span>
       </div>
 
       {/* Permissions Scope Info */}
-      <div className="space-y-4 text-xs text-slate-400 leading-relaxed">
-        <p className="text-slate-300">
+      <div className="space-y-4 text-xs text-[var(--text-muted)] leading-relaxed">
+        <p className="text-[var(--text-muted)]">
           Loomo berkomitmen penuh pada privasi dan keamanan data Anda. Saat masuk, kami meminta otorisasi akun Google Anda dengan cakupan akses berikut:
         </p>
 
@@ -82,7 +82,7 @@ function LoginCard() {
           <div className="flex gap-3 items-start">
             <User className="text-[var(--primary)] shrink-0 mt-0.5" size={18} />
             <div>
-              <strong className="text-slate-200 block">Profil & Alamat Email</strong>
+              <strong className="text-[var(--text-main)] block">Profil & Alamat Email</strong>
               <span>Digunakan untuk membuat akun Loomo Anda dan menampilkan nama serta avatar Anda di dashboard.</span>
             </div>
           </div>
@@ -90,21 +90,21 @@ function LoginCard() {
           <div className="flex gap-3 items-start">
             <Folder className="text-[var(--primary)] shrink-0 mt-0.5" size={18} />
             <div>
-              <strong className="text-slate-200 block">Google Drive (Akses Terbatas: drive.file)</strong>
-              <span>Izin membuat, membaca, dan mengubah folder khusus bernama <code className="bg-slate-950 px-1 py-0.5 rounded text-cyan-300 font-mono">Loomo</code> di root Drive Anda. Loomo hanya dapat mengakses file yang dibuat/diunggah melalui Loomo.</span>
+              <strong className="text-[var(--text-main)] block">Google Drive (Akses Terbatas: drive.file)</strong>
+              <span>Izin membuat, membaca, dan mengubah folder khusus bernama <code className="bg-[var(--bg-main)] px-1 py-0.5 rounded text-cyan-300 font-mono">Loomo</code> di root Drive Anda. Loomo hanya dapat mengakses file yang dibuat/diunggah melalui Loomo.</span>
             </div>
           </div>
 
           <div className="flex gap-3 items-start">
             <Lock className="text-[var(--primary)] shrink-0 mt-0.5" size={18} />
             <div>
-              <strong className="text-slate-200 block">Privasi Data Mutlak</strong>
+              <strong className="text-[var(--text-main)] block">Privasi Data Mutlak</strong>
               <span>Loomo <strong className="text-red-400">TIDAK BISA</strong> melihat, mengedit, atau mengakses berkas-berkas pribadi Anda yang lain di Google Drive. File Anda tetap aman 100%.</span>
             </div>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-800 text-[10px] text-center text-slate-500">
+        <div className="pt-4 border-t border-[var(--border-color)] text-[10px] text-center text-[var(--text-muted)]">
           Belum memiliki akun?{' '}
           <Link href="/register" className="text-[var(--primary)] hover:underline font-semibold">
             Daftar sekarang
@@ -118,7 +118,7 @@ function LoginCard() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-300 font-sans flex items-center justify-center p-6 relative selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-muted)] font-sans flex items-center justify-center p-6 relative selection:bg-cyan-500/30">
       {/* Background blur effects */}
       <div className="absolute top-[15%] left-[15%] w-[350px] h-[350px] bg-[var(--primary)]/10 rounded-full blur-[100px] z-0 pointer-events-none"></div>
       <div className="absolute bottom-[15%] right-[15%] w-[450px] h-[450px] bg-[var(--secondary)]/10 rounded-full blur-[120px] z-0 pointer-events-none"></div>
@@ -131,10 +131,10 @@ export default function LoginPage() {
             <span className="text-2xl font-black tracking-tight text-white">Loomo</span>
           </Link>
           <h1 className="text-xl font-extrabold text-white tracking-tight">Masuk ke Akun Anda</h1>
-          <p className="text-sm text-slate-400 mt-2">Hubungkan dengan Google untuk mulai berbagi umpan balik visual</p>
+          <p className="text-sm text-[var(--text-muted)] mt-2">Hubungkan dengan Google untuk mulai berbagi umpan balik visual</p>
         </div>
 
-        <Suspense fallback={<div className="glass-panel p-8 rounded-2xl border border-slate-800 bg-slate-900/50 shadow-2xl text-center text-sm text-slate-500">Memuat...</div>}>
+        <Suspense fallback={<div className="glass-panel p-8 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)]/50 shadow-2xl text-center text-sm text-[var(--text-muted)]">Memuat...</div>}>
           <LoginCard />
         </Suspense>
       </div>

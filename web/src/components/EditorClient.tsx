@@ -5,77 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexeddb';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { ChevronDown, Check } from 'lucide-react';
-
-interface SelectOption {
-  value: string;
-  label: string;
-}
-
-function CustomSelect({
-  value,
-  onChange,
-  options,
-  className = ""
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
-  className?: string;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const selected = options.find(o => o.value === value);
-
-  return (
-    <div className={`relative inline-block ${className}`} ref={ref}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-1.5 bg-slate-900 border border-slate-700 text-xs font-bold text-[var(--primary)] px-2 py-1 rounded outline-none cursor-pointer"
-      >
-        <span>{selected ? selected.label : 'Select...'}</span>
-        <ChevronDown size={12} className="text-slate-500" />
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 mt-1 z-50 min-w-[140px] bg-[#0B0F19]/95 backdrop-blur-md border border-slate-800 rounded-lg shadow-2xl p-1 animate-in fade-in duration-150">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-              }}
-              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-md text-xs font-bold transition-colors ${
-                option.value === value
-                  ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-              }`}
-            >
-              <span className="flex-1 truncate text-left">{option.label}</span>
-              {option.value === value && (
-                <Check size={12} className="text-[var(--primary)]" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+import { showConfirm, showPrompt } from '@/lib/customDialog';
 
 interface Annotation {
   id: string;
@@ -110,18 +40,20 @@ export default function EditorClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const [activeTool, setActiveTool] = useState<'rectangle' | 'circle' | 'arrow' | 'text' | 'highlight'>('rectangle');
-  const [activeColor, setActiveColor] = useState('#EF4444'); // Default red
+  const [activeColor, setActiveColor] = useState('#ef4444');
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [history, setHistory] = useState<Annotation[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState('');
+  const selectedWorkspace = workspaces.find(ws => ws.id === selectedWorkspaceId);
   const [title, setTitle] = useState('');
 
   const isPopup = searchParams.get('isPopup') === 'true';
   const [copiedLink, setCopiedLink] = useState<string>('');
   const [savingState, setSavingState] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [savingError, setSavingError] = useState<string | null>(null);
+  const [isLoadingEditor, setIsLoadingEditor] = useState(true);
 
   // Canvas refs
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -134,39 +66,74 @@ export default function EditorClient() {
   useEffect(() => {
     if (!id) return;
 
-    toast.info('Loomo Editor is ready!');
+    setIsLoadingEditor(true);
 
-    // Load workspaces
-    fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(data => {
-        if (data.authenticated) {
-          setWorkspaces(data.workspaces);
-          const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
-          const targetWorkspace = data.workspaces.find((w: any) => w.id === savedWorkspaceId) || data.workspaces[0];
-          setSelectedWorkspaceId(targetWorkspace?.id || '');
+    const handleDataReady = () => {
+      console.log('[EditorClient] Data ready event received, loading media...');
+      loadEditorData();
+    };
+
+    const loadEditorData = () => {
+      // Load workspaces
+      fetch('/api/auth/me')
+        .then(res => res.json())
+        .then(data => {
+          if (data.authenticated) {
+            setWorkspaces(data.workspaces);
+            const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
+            const targetWorkspace = data.workspaces.find((w: any) => w.id === savedWorkspaceId) || data.workspaces[0];
+            setSelectedWorkspaceId(targetWorkspace?.id || '');
+          }
+        });
+
+      // Load screenshot metadata
+      const rawMeta = localStorage.getItem(`jam_meta_${id}`);
+      if (rawMeta) {
+        try {
+          const parsed = JSON.parse(rawMeta);
+          setMetadata(parsed);
+          setTitle(parsed.title || `${parsed.type === 'recording' ? 'Recording' : 'Screenshot'} ${new Date().toLocaleDateString()}`);
+        } catch (e) {}
+      }
+
+      // Fetch image blob from IndexedDB
+      getVideoFromIndexedDB(id).then((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          setImageSrc(url);
+          setIsLoadingEditor(false);
+          toast.success('Loomo Editor is ready!');
+        } else {
+          setIsLoadingEditor(false);
+          toast.error('Failed to load media from local storage.');
         }
       });
+    };
 
-    // Load screenshot metadata
-    const rawMeta = localStorage.getItem(`jam_meta_${id}`);
-    if (rawMeta) {
-      try {
-        const parsed = JSON.parse(rawMeta);
-        setMetadata(parsed);
-        setTitle(parsed.title || `${parsed.type === 'recording' ? 'Recording' : 'Screenshot'} ${new Date().toLocaleDateString()}`);
-      } catch (e) {}
-    }
+    window.addEventListener('loomo_editor_data_ready', handleDataReady);
 
-    // Fetch image blob from IndexedDB
-    getVideoFromIndexedDB(id).then((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        setImageSrc(url);
+    const checkDataWithRetry = (attempt = 0) => {
+      const maxAttempts = 10;
+      const retryDelay = 300;
+
+      const rawMeta = localStorage.getItem(`jam_meta_${id}`);
+      if (rawMeta) {
+        console.log('[EditorClient] Data found in localStorage, loading...');
+        loadEditorData();
+      } else if (attempt < maxAttempts) {
+        console.log(`[EditorClient] Data not ready yet, retry ${attempt + 1}/${maxAttempts}...`);
+        setTimeout(() => checkDataWithRetry(attempt + 1), retryDelay);
+      } else {
+        console.error('[EditorClient] Data not available after maximum retries');
+        setIsLoadingEditor(false);
+        toast.error('Failed to load media from local storage.');
       }
-    });
+    };
+
+    checkDataWithRetry();
 
     return () => {
+      window.removeEventListener('loomo_editor_data_ready', handleDataReady);
       if (imageSrc) URL.revokeObjectURL(imageSrc);
     };
   }, [id]);
@@ -214,8 +181,9 @@ export default function EditorClient() {
     }
   };
 
-  const handleClear = () => {
-    if (confirm('Clear all annotations?')) {
+  const handleClear = async () => {
+    const confirmed = await showConfirm('Clear all annotations?');
+    if (confirmed) {
       setAnnotations([]);
       pushToHistory([]);
     }
@@ -350,14 +318,14 @@ export default function EditorClient() {
     };
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseDown = async (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (savingState === 'saving') return;
     const pos = getMousePos(e);
     isDrawingRef.current = true;
     startPosRef.current = pos;
 
     if (activeTool === 'text') {
-      const text = prompt('Enter annotation text:');
+      const text = await showPrompt('Enter annotation text:');
       if (text) {
         const newAnn: Annotation = {
           id: Math.random().toString(),
@@ -551,14 +519,28 @@ export default function EditorClient() {
     }
   };
 
+  if (isLoadingEditor) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--bg-main)] text-slate-200 font-sans">
+        <div className="glass-panel p-10 rounded-xl max-w-md w-full text-center border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-300">
+          <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Loading Editor</h3>
+          <p className="text-slate-400 text-sm font-medium leading-relaxed">
+            Preparing your capture for editing...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#0F172A] text-slate-200 font-sans">
+    <div className="min-h-screen flex flex-col bg-[var(--bg-main)] text-[var(--text-main)] font-sans">
       {/* Editor Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl z-50 sticky top-0">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/90 backdrop-blur-md z-50 sticky top-0">
         {/* Title */}
         <div className="flex items-center gap-4">
           <button 
-            className="btn-secondary py-1.5 px-4 text-xs font-bold border-slate-700 hover:border-slate-500"
+            className="btn-secondary py-1.5 px-4 text-xs font-bold border-[var(--border-color)] hover:border-[var(--text-dark)]"
             onClick={async () => {
               localStorage.removeItem(`jam_meta_${id}`);
               try {
@@ -585,26 +567,22 @@ export default function EditorClient() {
             <span className="text-base font-black tracking-tighter text-white">Loomo</span>
           </div>
 
-          <div className="w-px h-5 bg-slate-800"></div>
+          <div className="w-px h-5 bg-[var(--border-color)]"></div>
 
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Name your capture..."
-            className="bg-transparent border-none text-white text-sm font-bold px-2 py-1 outline-none focus:ring-0 placeholder:text-slate-600 min-w-[240px]"
+            className="bg-transparent border-none text-white text-sm font-bold px-2 py-1 outline-none focus:ring-0 placeholder:text-[var(--text-dark)] min-w-[240px]"
           />
         </div>
 
         {/* Save */}
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2 mr-4">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Workspace</span>
-            <CustomSelect
-              value={selectedWorkspaceId}
-              onChange={(val) => setSelectedWorkspaceId(val)}
-              options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
-            />
+            <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Workspace</span>
+            <span className="text-xs font-bold text-white">{selectedWorkspace?.name || 'Loading...'}</span>
           </div>
 
           <button
@@ -629,7 +607,7 @@ export default function EditorClient() {
         
         {/* Left Toolbar */}
         {metadata?.type !== 'recording' && (
-          <div className="w-20 border-r border-slate-800 bg-[#0F172A]/50 backdrop-blur-md flex flex-col items-center py-8 gap-4 z-10 sticky left-0">
+          <div className="w-20 border-r border-[var(--border-color)] bg-[var(--bg-card)]/85 backdrop-blur-md flex flex-col items-center py-8 gap-4 z-10 sticky left-0">
             {/* Tool buttons */}
             {[
               { id: 'rectangle', icon: <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>, label: 'Box' },
@@ -640,7 +618,7 @@ export default function EditorClient() {
               <button 
                 key={tool.id}
                 onClick={() => setActiveTool(tool.id as any)}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[var(--primary)] text-white shadow-[0_0_15px_var(--primary-glow)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
+                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all ${activeTool === tool.id ? 'bg-[var(--primary)] text-white' : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'}`}
                 title={tool.label}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -651,22 +629,31 @@ export default function EditorClient() {
 
             <button 
               onClick={() => setActiveTool('text')}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[var(--primary)] text-white shadow-[0_0_15px_var(--primary-glow)]' : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800'}`}
+              className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all text-xl font-black ${activeTool === 'text' ? 'bg-[var(--primary)] text-white' : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'}`}
               title="Text"
             >
               T
             </button>
 
-            <div className="w-8 h-px bg-slate-800 my-4"></div>
+            <div className="w-8 h-px bg-[var(--border-color)] my-4"></div>
 
             {/* Color Palettes */}
             <div className="flex flex-col gap-3">
-              {['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#6366F1', '#FFFFFF', '#000000'].map((color) => (
+              {[
+                { color: '#ef4444', label: 'Red' },
+                { color: '#3b82f6', label: 'Blue' },
+                { color: '#10b981', label: 'Green' },
+                { color: '#f59e0b', label: 'Yellow' },
+                { color: '#6366f1', label: 'Purple' },
+                { color: '#ffffff', label: 'White' },
+                { color: '#000000', label: 'Black' }
+              ].map((item) => (
                 <button
-                  key={color}
-                  onClick={() => setActiveColor(color)}
-                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-125 ${activeColor === color ? 'border-white scale-125' : 'border-slate-800'}`}
-                  style={{ backgroundColor: color }}
+                  key={item.color}
+                  onClick={() => setActiveColor(item.color)}
+                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-125 ${activeColor === item.color ? 'border-white scale-125' : 'border-[var(--border-color)]'}`}
+                  style={{ backgroundColor: item.color }}
+                  title={item.label}
                 />
               ))}
             </div>
@@ -674,14 +661,14 @@ export default function EditorClient() {
         )}
 
         {/* Edit Area / Canvas Container */}
-        <div className="flex-1 flex flex-col items-center justify-center overflow-auto bg-slate-950/50 p-6 md:p-12 relative">
+        <div className="flex-1 flex flex-col items-center justify-center overflow-auto bg-[var(--bg-main)]/40 p-6 md:p-12 relative">
           {/* Top Canvas Controls Bar (Undo/Redo/Clear) */}
           {metadata?.type !== 'recording' && (
-            <div className="glass-panel absolute top-8 flex items-center gap-2 px-3 py-1.5 rounded-full border-slate-700/50 shadow-2xl z-10">
+            <div className="glass-panel absolute top-8 flex items-center gap-2 px-3 py-1.5 rounded-full border-[var(--border-color)] z-10">
               <button 
                 onClick={handleUndo} 
                 disabled={historyIndex < 0}
-                className="p-2 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                className="p-2 text-[var(--text-muted)] hover:text-white disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                 title="Undo (Ctrl+Z)"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
@@ -689,12 +676,12 @@ export default function EditorClient() {
               <button 
                 onClick={handleRedo} 
                 disabled={historyIndex >= history.length - 1}
-                className="p-2 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400 transition-colors"
+                className="p-2 text-[var(--text-muted)] hover:text-white disabled:opacity-30 disabled:hover:text-[var(--text-muted)] transition-colors"
                 title="Redo (Ctrl+Y)"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
               </button>
-              <div className="w-px h-4 bg-slate-800"></div>
+              <div className="w-px h-4 bg-[var(--border-color)]"></div>
               <button 
                 onClick={handleClear} 
                 className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors"
@@ -705,7 +692,7 @@ export default function EditorClient() {
           )}
  
           {/* Canvas Wrapper */}
-          <div className="relative shadow-[0_30px_100px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden bg-slate-900 border border-slate-800 max-w-full max-h-full flex items-center justify-center">
+          <div className="relative rounded-xl overflow-hidden bg-[var(--bg-card)] border border-[var(--border-color)] max-w-full max-h-full flex items-center justify-center">
             {metadata?.type === 'recording' ? (
               <video
                 src={imageSrc || undefined}
@@ -728,11 +715,11 @@ export default function EditorClient() {
 
       {/* Saving Overlay */}
       {savingState === 'saving' && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel p-10 rounded-3xl max-w-xs w-full text-center border-slate-700 animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel p-10 rounded-xl max-w-xs w-full text-center border-[var(--border-color)] animate-in fade-in zoom-in duration-300">
             <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mx-auto mb-6"></div>
             <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Saving Media</h3>
-            <p className="text-slate-400 text-sm font-medium leading-relaxed">
+            <p className="text-[var(--text-muted)] text-sm font-medium leading-relaxed">
               Applying annotations and uploading to your Google Drive...
             </p>
           </div>
@@ -741,14 +728,14 @@ export default function EditorClient() {
 
       {/* Error Modal */}
       {savingState === 'error' && (
-        <div className="fixed inset-0 bg-slate-950/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel p-10 rounded-3xl max-w-sm w-full text-center border-red-500/50 animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
+          <div className="glass-panel p-10 rounded-xl max-w-sm w-full text-center border-red-500/50 animate-in fade-in zoom-in duration-300">
             <div className="w-16 h-16 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             </div>
             <h3 className="text-xl font-black text-white mb-3">Upload Failed</h3>
-            <p className="text-slate-400 text-sm mb-8 font-medium">{savingError}</p>
-            <button onClick={() => setSavingState('idle')} className="btn-primary w-full py-3 rounded-xl font-black uppercase tracking-widest text-[10px]">
+            <p className="text-[var(--text-muted)] text-sm mb-8 font-medium">{savingError}</p>
+            <button onClick={() => setSavingState('idle')} className="btn-primary w-full py-3 rounded-lg font-black uppercase tracking-widest text-[10px]">
               Try Again
             </button>
           </div>

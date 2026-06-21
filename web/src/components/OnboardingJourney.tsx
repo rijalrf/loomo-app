@@ -96,7 +96,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-200 flex flex-col justify-between p-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[var(--bg-overlay)] text-slate-200 flex flex-col justify-between p-6 relative overflow-hidden font-sans">
       {/* Decorative Gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[var(--primary)]/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[var(--secondary)]/10 rounded-full blur-[120px] pointer-events-none"></div>
@@ -115,7 +115,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
 
       {/* Main Form Body */}
       <main className="max-w-2xl w-full mx-auto z-10 flex-1 flex flex-col justify-center my-12">
-        <div className="glass-panel bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl relative">
+        <div className="glass-panel bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-xl p-8 md:p-12 relative">
           
           {/* Step Indicator */}
           <div className="flex items-center gap-2 mb-8">
@@ -147,7 +147,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                     placeholder="e.g. Acme Marketing, Personal projects..."
                     value={workspaceName}
                     onChange={(e) => setWorkspaceName(e.target.value)}
-                    className="w-full bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-base py-3 px-4 rounded-xl outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"
+                    className="w-full bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-base py-3 px-4 rounded-lg outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"
                     required
                   />
                 </div>
@@ -159,7 +159,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                     placeholder="Briefly describe the purpose of this workspace (optional)..."
                     value={workspaceDesc}
                     onChange={(e) => setWorkspaceDesc(e.target.value)}
-                    className="w-full bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-base py-3 px-4 rounded-xl outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"
+                    className="w-full bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-base py-3 px-4 rounded-lg outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"
                   />
                 </div>
 
@@ -171,13 +171,13 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                         key={dept.id}
                         type="button"
                         onClick={() => setSelectedDept(dept.id)}
-                        className={`flex items-center gap-3 p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                        className={`flex items-center gap-3 p-4 rounded-lg border text-left transition-all cursor-pointer ${
                           selectedDept === dept.id
-                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white shadow-[0_0_15px_rgba(12,178,235,0.15)]'
+                            ? 'bg-[var(--primary)]/10 border-[var(--primary)] text-white'
                             : 'bg-slate-950/25 border-slate-800 hover:border-slate-700/80 text-slate-400 hover:text-white'
                         }`}
                       >
-                        <div className={`p-2 rounded-xl transition-all ${
+                        <div className={`p-2 rounded-lg transition-all ${
                           selectedDept === dept.id ? 'bg-[var(--primary)]/20' : 'bg-slate-900/60'
                         }`}>
                           {dept.icon}
@@ -228,12 +228,12 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                         placeholder="colleague@company.com"
                         value={email}
                         onChange={(e) => updateEmail(idx, e.target.value)}
-                        className="flex-1 bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-sm py-2.5 px-4 rounded-xl outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"
+                        className="flex-1 bg-slate-950/40 border border-slate-800 focus:border-[var(--primary)] text-white text-sm py-2.5 px-4 rounded-lg outline-none focus:ring-1 focus:ring-[var(--primary)] transition-all"
                       />
                       <button
                         type="button"
                         onClick={() => removeEmailField(idx)}
-                        className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-slate-800 rounded-xl transition-all cursor-pointer"
+                        className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-slate-800 rounded-lg transition-all cursor-pointer"
                         title="Remove member"
                       >
                         <Trash2 size={16} />
@@ -266,7 +266,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                   type="button"
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="btn-primary py-3 px-8 rounded-xl text-sm font-bold"
+                  className="btn-primary py-3 px-8 rounded-lg text-sm font-bold"
                 >
                   {submitting ? (
                     <>

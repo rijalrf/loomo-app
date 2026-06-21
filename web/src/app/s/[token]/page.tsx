@@ -101,9 +101,9 @@ export default async function SharePage({ params }: SharePageProps) {
   const fileUrl = `/api/share/${token}/file`;
 
   return (
-    <div className="fixed inset-0 bg-[#0F172A] text-slate-200 font-sans flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-[var(--bg-main)] text-[var(--text-main)] font-sans flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-[#0F172A]/80 backdrop-blur-xl z-10">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/80 backdrop-blur-xl z-10">
         <div className="flex items-center gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
@@ -111,12 +111,12 @@ export default async function SharePage({ params }: SharePageProps) {
             <span className="text-base font-black tracking-tighter text-white">Loomo</span>
           </Link>
           
-          <div className="w-px h-6 bg-slate-800"></div>
+          <div className="w-px h-6 bg-[var(--border-color)]"></div>
           
           {/* Title & Metadata */}
           <div>
             <h3 className="text-sm font-bold text-white mb-0.5">{media.title}</h3>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+            <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">
               By {media.uploader.displayName} • {new Date(media.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -139,22 +139,20 @@ export default async function SharePage({ params }: SharePageProps) {
 
       {/* Media Body */}
       <div className="flex-1 flex items-center justify-center p-6 md:p-12 overflow-hidden relative">
-        <div className="w-full h-full max-w-6xl flex items-center justify-center bg-black rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] border border-slate-800">
-          {media.type === 'SCREENSHOT' ? (
-            <img 
-              src={fileUrl} 
-              alt={media.title}
-              className="max-w-full max-h-full object-contain"
-            />
-          ) : (
-            <video 
-              src={fileUrl}
-              controls
-              autoPlay
-              className="max-w-full max-h-full"
-            />
-          )}
-        </div>
+        {media.type === 'SCREENSHOT' ? (
+          <img 
+            src={fileUrl} 
+            alt={media.title}
+            className="max-w-full max-h-full object-contain"
+          />
+        ) : (
+          <video 
+            src={fileUrl}
+            controls
+            autoPlay
+            className="max-w-full max-h-full"
+          />
+        )}
       </div>
     </div>
   );
@@ -162,8 +160,8 @@ export default async function SharePage({ params }: SharePageProps) {
 
 function renderErrorPage(title: string, message: string, status: number) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F172A] text-slate-200 font-sans p-6 text-center">
-      <div className="glass-panel p-10 rounded-3xl max-w-md w-full border-slate-800 shadow-2xl animate-in fade-in zoom-in duration-300">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg-main)] text-[var(--text-muted)] font-sans p-6 text-center">
+      <div className="glass-panel p-10 rounded-xl max-w-md w-full border border-[var(--border-color)] shadow-2xl animate-in fade-in zoom-in duration-300">
         <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${status === 202 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
           {status === 202 ? (
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse">
@@ -177,9 +175,9 @@ function renderErrorPage(title: string, message: string, status: number) {
         </div>
 
         <h3 className="text-2xl font-black text-white mb-3 tracking-tight">{title}</h3>
-        <p className="text-slate-400 text-sm mb-8 leading-relaxed font-medium">{message}</p>
+        <p className="text-[var(--text-muted)] text-sm mb-8 leading-relaxed font-medium">{message}</p>
 
-        <Link href="/" className="btn-secondary w-full py-3 rounded-xl justify-center font-bold">
+        <Link href="/" className="btn-secondary w-full py-3 rounded-lg justify-center font-bold">
           Back to Loomo Home
         </Link>
       </div>
