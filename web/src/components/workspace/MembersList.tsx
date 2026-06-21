@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { clientLogger } from '@/lib/clientLogger';
-import { showConfirm } from '@/lib/customDialog';
+import PopupModal from '@/components/PopupModal';
 import MemberCard from './MemberCard';
 
 interface Member {
@@ -25,6 +25,7 @@ interface MembersListProps {
 
 export default function MembersList({ activeWorkspaceId, currentUserId, isOwner }: MembersListProps) {
   const [members, setMembers] = useState<Member[]>([]);
+  const [showRemoveModal, setShowRemoveModal] = useState<string | null>(null);
 
   const fetchMembers = async () => {
     if (!activeWorkspaceId) return;
@@ -44,8 +45,11 @@ export default function MembersList({ activeWorkspaceId, currentUserId, isOwner 
   }, [activeWorkspaceId]);
 
   const handleRemoveMember = async (membershipId: string) => {
-    const confirmed = await showConfirm('Remove this member from the workspace?');
-    if (!confirmed) return;
+    setShowRemoveModal(membershipId);
+  };
+
+  const confirmRemove = async (membershipId: string) => {
+    setShowRemoveModal(null);
     
     try {
       const res = await fetch(`/api/workspace/members/${membershipId}`, {
@@ -65,20 +69,48 @@ export default function MembersList({ activeWorkspaceId, currentUserId, isOwner 
   };
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-lg">
-      <h3 className="text-base font-black text-white tracking-tight mb-4">Workspace Members</h3>
+    <>
+      <div className="bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-lg">
+        <h3 className="text-base font-black text-white tracking-tight mb-4">Workspace Members</h3>
 
-      <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-        {members.map((member) => (
-          <MemberCard
-            key={member.membershipId}
-            member={member}
-            currentUserId={currentUserId}
-            isOwner={isOwner}
-            onRemove={handleRemoveMember}
-          />
-        ))}
+        <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+          {members.map((member) => (
+            <MemberCard
+              key={member.membershipId}
+              member={member}
+              currentUserId={currentUserId}
+              isOwner={isOwner}
+              onRemove={handleRemoveMember}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+
+      <PopupModal
+        isOpen={!!showRemoveModal}
+        onClose={() => setShowRemoveModal(null)}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Remove Member</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed">
+          Remove this member from the workspace?
+        </p>
+
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => setShowRemoveModal(null)}
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => showRemoveModal && confirmRemove(showRemoveModal)}
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Remove
+          </button>
+        </div>
+      </PopupModal>
+    </>
   );
 }

@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexeddb';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { showConfirm, showPrompt } from '@/lib/customDialog';
+import PopupModal from '@/components/PopupModal';
+import { Link2, X } from 'lucide-react';
 
 interface Annotation {
   id: string;
@@ -48,6 +49,10 @@ export default function EditorClient() {
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState('');
   const selectedWorkspace = workspaces.find(ws => ws.id === selectedWorkspaceId);
   const [title, setTitle] = useState('');
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showPromptModal, setShowPromptModal] = useState(false);
+  const [promptText, setPromptText] = useState('');
+  const [currentPromptResolve, setCurrentPromptResolve] = useState<((value: string | null) => void) | null>(null);
 
   const isPopup = searchParams.get('isPopup') === 'true';
   const [copiedLink, setCopiedLink] = useState<string>('');
@@ -181,13 +186,15 @@ export default function EditorClient() {
     }
   };
 
-  const handleClear = async () => {
-    const confirmed = await showConfirm('Clear all annotations?');
-    if (confirmed) {
+    const handleClear = async () => {
+      setShowClearConfirm(true);
+    };
+
+    const confirmClear = () => {
       setAnnotations([]);
       pushToHistory([]);
-    }
-  };
+      setShowClearConfirm(false);
+    };
 
   // Keyboard Shortcuts for Undo/Redo
   useEffect(() => {
@@ -325,7 +332,11 @@ export default function EditorClient() {
     startPosRef.current = pos;
 
     if (activeTool === 'text') {
-      const text = await showPrompt('Enter annotation text:');
+      const text = await new Promise<string | null>((resolve) => {
+        setCurrentPromptResolve(() => resolve);
+        setShowPromptModal(true);
+      });
+
       if (text) {
         const newAnn: Annotation = {
           id: Math.random().toString(),
@@ -713,35 +724,110 @@ export default function EditorClient() {
         </div>
       </div>
 
-      {/* Saving Overlay */}
       {savingState === 'saving' && (
-        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel p-10 rounded-xl max-w-xs w-full text-center border-[var(--border-color)] animate-in fade-in zoom-in duration-300">
+        <PopupModal isOpen={true} onClose={() => {}} maxWidth="sm">
+          <div className="text-center">
             <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mx-auto mb-6"></div>
             <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Saving Media</h3>
             <p className="text-[var(--text-muted)] text-sm font-medium leading-relaxed">
               Applying annotations and uploading to your Google Drive...
             </p>
           </div>
-        </div>
+        </PopupModal>
       )}
 
       {/* Error Modal */}
       {savingState === 'error' && (
-        <div className="fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-          <div className="glass-panel p-10 rounded-xl max-w-sm w-full text-center border-red-500/50 animate-in fade-in zoom-in duration-300">
+        <PopupModal isOpen={true} onClose={() => setSavingState('idle')} maxWidth="sm">
+          <div className="text-center">
             <div className="w-16 h-16 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <X size={32} />
             </div>
             <h3 className="text-xl font-black text-white mb-3">Upload Failed</h3>
             <p className="text-[var(--text-muted)] text-sm mb-8 font-medium">{savingError}</p>
-            <button onClick={() => setSavingState('idle')} className="btn-primary w-full py-3 rounded-lg font-black uppercase tracking-widest text-[10px]">
+            <button onClick={() => setSavingState('idle')} className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white py-3 rounded-lg font-black uppercase tracking-widest text-[10px] w-full hover:-translate-y-0.5 transition-transform cursor-pointer">
               Try Again
             </button>
           </div>
-        </div>
+        </PopupModal>
       )}
 
+      {/* Clear All Annotations Confirmation Modal */}
+      <PopupModal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Clear Annotations</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed">
+          Are you sure you want to clear all annotations? This action cannot be undone.
+        </p>
+
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => setShowClearConfirm(false)}
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmClear}
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Clear All
+          </button>
+        </div>
+      </PopupModal>
+
+      {/* Prompt for Text Annotation */}
+      <PopupModal
+        isOpen={showPromptModal}
+        onClose={() => {
+          currentPromptResolve && currentPromptResolve(null);
+          setShowPromptModal(false);
+          setPromptText('');
+        }}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Enter Annotation Text</h3>
+        <input
+          type="text"
+          value={promptText}
+          onChange={(e) => setPromptText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              currentPromptResolve && currentPromptResolve(promptText);
+              setShowPromptModal(false);
+              setPromptText('');
+            }
+          }}
+          placeholder="Type your text here..."
+          className="bg-[#111113] border border-[#3f3f46] rounded-lg px-4 py-2 text-white text-sm w-full mb-6 outline-none focus:border-[#3b82f6] transition-colors"
+          autoFocus
+        />
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={() => {
+              currentPromptResolve && currentPromptResolve(null);
+              setShowPromptModal(false);
+              setPromptText('');
+            }}
+            className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              currentPromptResolve && currentPromptResolve(promptText);
+              setShowPromptModal(false);
+              setPromptText('');
+            }}
+            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+          >
+            Save
+          </button>
+        </div>
+      </PopupModal>
     </div>
   );
 }
