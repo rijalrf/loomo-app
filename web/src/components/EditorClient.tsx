@@ -5,78 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getVideoFromIndexedDB, deleteVideoFromIndexedDB } from '../lib/indexeddb';
 import { clientLogger } from '@/lib/clientLogger';
 import { toast } from 'sonner';
-import { ChevronDown, Check } from 'lucide-react';
 import { showConfirm, showPrompt } from '@/lib/customDialog';
-
-interface SelectOption {
-  value: string;
-  label: string;
-}
-
-function CustomSelect({
-  value,
-  onChange,
-  options,
-  className = ""
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
-  className?: string;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const selected = options.find(o => o.value === value);
-
-  return (
-    <div className={`relative inline-block ${className}`} ref={ref}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between gap-1.5 bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-bold text-[var(--primary)] px-2.5 py-1.5 rounded-lg outline-none cursor-pointer"
-      >
-        <span>{selected ? selected.label : 'Select...'}</span>
-        <ChevronDown size={12} className="text-[var(--text-muted)]" />
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 mt-1 z-50 min-w-[140px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1 animate-in fade-in duration-150">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-              }}
-              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-md text-xs font-bold transition-colors ${
-                option.value === value
-                  ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
-                  : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
-              }`}
-            >
-              <span className="flex-1 truncate text-left">{option.label}</span>
-              {option.value === value && (
-                <Check size={12} className="text-[var(--primary)]" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface Annotation {
   id: string;
@@ -117,6 +46,7 @@ export default function EditorClient() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState('');
+  const selectedWorkspace = workspaces.find(ws => ws.id === selectedWorkspaceId);
   const [title, setTitle] = useState('');
 
   const isPopup = searchParams.get('isPopup') === 'true';
@@ -652,11 +582,7 @@ export default function EditorClient() {
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2 mr-4">
             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Workspace</span>
-            <CustomSelect
-              value={selectedWorkspaceId}
-              onChange={(val) => setSelectedWorkspaceId(val)}
-              options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
-            />
+            <span className="text-xs font-bold text-white">{selectedWorkspace?.name || 'Loading...'}</span>
           </div>
 
           <button
