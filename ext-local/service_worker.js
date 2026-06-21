@@ -137,7 +137,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         pending_jam_metadata: metadata,
         pending_jam_video: imageBase64
       }, () => {
-        const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/?importPending=true&isPopup=true`;
+        const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
         chrome.windows.create({
           url: backofficeUrl,
           type: 'popup',
@@ -323,8 +323,8 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
-    // D. Buka window popup mengarah ke Backoffice dengan instruksi importPending dan isPopup=true
-    const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/?importPending=true&isPopup=true`;
+    // D. Buka window popup langsung ke Editor dengan ID
+    const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
     chrome.windows.create({
       url: backofficeUrl,
       type: 'popup',

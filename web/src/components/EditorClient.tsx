@@ -111,7 +111,7 @@ export default function EditorClient() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const [activeTool, setActiveTool] = useState<'rectangle' | 'circle' | 'arrow' | 'text' | 'highlight'>('rectangle');
-  const [activeColor, setActiveColor] = useState('var(--editor-red)');
+  const [activeColor, setActiveColor] = useState('#ef4444');
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [history, setHistory] = useState<Annotation[][]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -123,6 +123,7 @@ export default function EditorClient() {
   const [copiedLink, setCopiedLink] = useState<string>('');
   const [savingState, setSavingState] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   const [savingError, setSavingError] = useState<string | null>(null);
+  const [isLoadingEditor, setIsLoadingEditor] = useState(true);
 
   // Canvas refs
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -135,39 +136,74 @@ export default function EditorClient() {
   useEffect(() => {
     if (!id) return;
 
-    toast.info('Loomo Editor is ready!');
+    setIsLoadingEditor(true);
 
-    // Load workspaces
-    fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(data => {
-        if (data.authenticated) {
-          setWorkspaces(data.workspaces);
-          const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
-          const targetWorkspace = data.workspaces.find((w: any) => w.id === savedWorkspaceId) || data.workspaces[0];
-          setSelectedWorkspaceId(targetWorkspace?.id || '');
+    const handleDataReady = () => {
+      console.log('[EditorClient] Data ready event received, loading media...');
+      loadEditorData();
+    };
+
+    const loadEditorData = () => {
+      // Load workspaces
+      fetch('/api/auth/me')
+        .then(res => res.json())
+        .then(data => {
+          if (data.authenticated) {
+            setWorkspaces(data.workspaces);
+            const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
+            const targetWorkspace = data.workspaces.find((w: any) => w.id === savedWorkspaceId) || data.workspaces[0];
+            setSelectedWorkspaceId(targetWorkspace?.id || '');
+          }
+        });
+
+      // Load screenshot metadata
+      const rawMeta = localStorage.getItem(`jam_meta_${id}`);
+      if (rawMeta) {
+        try {
+          const parsed = JSON.parse(rawMeta);
+          setMetadata(parsed);
+          setTitle(parsed.title || `${parsed.type === 'recording' ? 'Recording' : 'Screenshot'} ${new Date().toLocaleDateString()}`);
+        } catch (e) {}
+      }
+
+      // Fetch image blob from IndexedDB
+      getVideoFromIndexedDB(id).then((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          setImageSrc(url);
+          setIsLoadingEditor(false);
+          toast.success('Loomo Editor is ready!');
+        } else {
+          setIsLoadingEditor(false);
+          toast.error('Failed to load media from local storage.');
         }
       });
+    };
 
-    // Load screenshot metadata
-    const rawMeta = localStorage.getItem(`jam_meta_${id}`);
-    if (rawMeta) {
-      try {
-        const parsed = JSON.parse(rawMeta);
-        setMetadata(parsed);
-        setTitle(parsed.title || `${parsed.type === 'recording' ? 'Recording' : 'Screenshot'} ${new Date().toLocaleDateString()}`);
-      } catch (e) {}
-    }
+    window.addEventListener('loomo_editor_data_ready', handleDataReady);
 
-    // Fetch image blob from IndexedDB
-    getVideoFromIndexedDB(id).then((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        setImageSrc(url);
+    const checkDataWithRetry = (attempt = 0) => {
+      const maxAttempts = 10;
+      const retryDelay = 300;
+
+      const rawMeta = localStorage.getItem(`jam_meta_${id}`);
+      if (rawMeta) {
+        console.log('[EditorClient] Data found in localStorage, loading...');
+        loadEditorData();
+      } else if (attempt < maxAttempts) {
+        console.log(`[EditorClient] Data not ready yet, retry ${attempt + 1}/${maxAttempts}...`);
+        setTimeout(() => checkDataWithRetry(attempt + 1), retryDelay);
+      } else {
+        console.error('[EditorClient] Data not available after maximum retries');
+        setIsLoadingEditor(false);
+        toast.error('Failed to load media from local storage.');
       }
-    });
+    };
+
+    checkDataWithRetry();
 
     return () => {
+      window.removeEventListener('loomo_editor_data_ready', handleDataReady);
       if (imageSrc) URL.revokeObjectURL(imageSrc);
     };
   }, [id]);
@@ -553,6 +589,20 @@ export default function EditorClient() {
     }
   };
 
+  if (isLoadingEditor) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[var(--bg-main)] text-slate-200 font-sans">
+        <div className="glass-panel p-10 rounded-xl max-w-md w-full text-center border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-300">
+          <div className="w-16 h-16 rounded-full border-4 border-[var(--primary)]/20 border-t-[var(--primary)] animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Loading Editor</h3>
+          <p className="text-slate-400 text-sm font-medium leading-relaxed">
+            Preparing your capture for editing...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-main)] text-[var(--text-main)] font-sans">
       {/* Editor Header */}
@@ -663,12 +713,21 @@ export default function EditorClient() {
 
             {/* Color Palettes */}
             <div className="flex flex-col gap-3">
-              {['var(--editor-red)', 'var(--editor-blue)', 'var(--editor-green)', 'var(--editor-yellow)', 'var(--editor-purple)', 'var(--editor-white)', 'var(--editor-black)'].map((color) => (
+              {[
+                { color: '#ef4444', label: 'Red' },
+                { color: '#3b82f6', label: 'Blue' },
+                { color: '#10b981', label: 'Green' },
+                { color: '#f59e0b', label: 'Yellow' },
+                { color: '#6366f1', label: 'Purple' },
+                { color: '#ffffff', label: 'White' },
+                { color: '#000000', label: 'Black' }
+              ].map((item) => (
                 <button
-                  key={color}
-                  onClick={() => setActiveColor(color)}
-                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-125 ${activeColor === color ? 'border-white scale-125' : 'border-[var(--border-color)]'}`}
-                  style={{ backgroundColor: color }}
+                  key={item.color}
+                  onClick={() => setActiveColor(item.color)}
+                  className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-125 ${activeColor === item.color ? 'border-white scale-125' : 'border-[var(--border-color)]'}`}
+                  style={{ backgroundColor: item.color }}
+                  title={item.label}
                 />
               ))}
             </div>
