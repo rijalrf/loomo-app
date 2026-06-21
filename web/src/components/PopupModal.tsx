@@ -1,54 +1,36 @@
 'use client';
 
-import { ReactNode } from 'react';
-
-export type PopupVariant = 'confirm' | 'alert' | 'info' | 'custom';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface PopupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  variant?: PopupVariant;
-  title?: string;
-  message?: string | ReactNode;
   children?: ReactNode;
-  confirmText?: string;
-  cancelText?: string;
-  onConfirm?: () => void | Promise<void>;
-  onCancel?: () => void;
-  showCancel?: boolean;
-  dangerous?: boolean;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export default function PopupModal({
   isOpen,
   onClose,
-  variant = 'info',
-  title,
-  message,
   children,
-  confirmText = 'OK',
-  cancelText = 'Cancel',
-  onConfirm,
-  onCancel,
-  showCancel = false,
-  dangerous = false,
   maxWidth = 'md'
 }: PopupModalProps) {
-  if (!isOpen) return null;
+  const [isClosing, setIsClosing] = useState(false);
 
-  const handleConfirm = async () => {
-    if (onConfirm) {
-      await onConfirm();
+  useEffect(() => {
+    if (isOpen) {
+      setIsClosing(false);
     }
-    onClose();
-  };
+  }, [isOpen]);
 
-  const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    }
-    onClose();
+  if (!isOpen && !isClosing) return null;
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+      setIsClosing(false);
+    }, 200);
   };
 
   const maxWidthClass = {
@@ -60,58 +42,28 @@ export default function PopupModal({
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md"
-      onClick={handleCancel}
+      className={`fixed inset-0 bg-black/85 z-[100] flex items-center justify-center p-6 backdrop-blur-[12px] transition-opacity duration-200 ${
+        isClosing ? 'opacity-0' : 'opacity-100'
+      }`}
+      onClick={handleClose}
     >
       <div 
-        className={`w-full ${maxWidthClass} bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl overflow-hidden p-6 animate-in fade-in zoom-in duration-200`}
+        className={`w-full ${maxWidthClass} bg-gradient-to-br from-[#1a1a1d] to-[#111113] border border-[#3f3f46] rounded-2xl overflow-hidden p-8 relative transition-all duration-300 ${
+          isClosing ? 'scale-90 opacity-0 translate-y-4' : 'scale-100 opacity-100 translate-y-0'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && (
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-black text-white tracking-tight">{title}</h3>
-            <button 
-              onClick={handleCancel}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] transition-colors"
-            >
-              ✕
-            </button>
-          </div>
-        )}
+        <button 
+          onClick={handleClose}
+          className="absolute top-4 right-4 w-7 h-7 rounded-md flex items-center justify-center text-[#71717a] hover:text-[#e4e4e7] hover:bg-[#27272a] transition-all cursor-pointer"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
 
-        {message && (
-          <div className="text-sm text-[var(--text-muted)] mb-6 leading-relaxed">
-            {message}
-          </div>
-        )}
-
-        {children && (
-          <div className="mb-6">
-            {children}
-          </div>
-        )}
-
-        <div className={`flex gap-3 ${showCancel || variant === 'confirm' ? 'justify-end' : 'justify-end'}`}>
-          {(showCancel || variant === 'confirm') && (
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 bg-[var(--bg-hover)] border border-[var(--border-color)] text-white rounded-lg text-sm font-bold hover:bg-[var(--bg-main)] transition-all"
-            >
-              {cancelText}
-            </button>
-          )}
-          
-          <button
-            onClick={handleConfirm}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-              dangerous
-                ? 'bg-[var(--error)] text-white hover:bg-[var(--error-hover)]'
-                : 'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]'
-            }`}
-          >
-            {confirmText}
-          </button>
-        </div>
+        {children}
       </div>
     </div>
   );
