@@ -11,6 +11,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Verify if user is allowed to create workspace (members cannot create workspace)
+    const memberships = await prisma.workspaceMember.findMany({
+      where: { userId: session.userId }
+    });
+
+    const isOnlyMember = memberships.length > 0 && memberships.every(m => m.role === 'MEMBER');
+    if (isOnlyMember) {
+      return NextResponse.json({ error: 'Forbidden. Members are not allowed to create workspaces.' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { name, description, department } = body;
 

@@ -246,17 +246,21 @@ export default function Sidebar({
                     {w.id === activeWorkspaceId && <Check size={14} className="text-[var(--primary)] shrink-0" />}
                   </button>
                 ))}
-                <div className="h-px bg-[var(--border-color)] my-1"></div>
-                <button
-                  onClick={() => {
-                    onCreateWorkspaceClick();
-                    setWorkspaceDropdownOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-lg text-sm text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors cursor-pointer font-bold"
-                >
-                  <Plus size={16} />
-                  <span>Create Workspace</span>
-                </button>
+                {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
+                  <>
+                    <div className="h-px bg-[var(--border-color)] my-1"></div>
+                    <button
+                      onClick={() => {
+                        onCreateWorkspaceClick();
+                        setWorkspaceDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-lg text-sm text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors cursor-pointer font-bold"
+                    >
+                      <Plus size={16} />
+                      <span>Create Workspace</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}
