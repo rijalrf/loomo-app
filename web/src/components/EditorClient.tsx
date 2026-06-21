@@ -826,7 +826,7 @@ export default function EditorClient() {
             </div>
             <h3 className="text-xl font-black text-white mb-3">Upload Failed</h3>
             <p className="text-[var(--text-muted)] text-sm mb-8 font-medium">{savingError}</p>
-            <button onClick={() => setSavingState('idle')} className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white py-3 rounded-lg font-black uppercase tracking-widest text-[10px] w-full transition-transform cursor-pointer">
+            <button onClick={() => setSavingState('idle')} className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] hover:from-[#2563eb] hover:to-[#1e40af] text-white py-3 rounded-lg font-black uppercase tracking-widest text-[10px] w-full transition-all cursor-pointer">
               Try Again
             </button>
           </div>
@@ -853,7 +853,7 @@ export default function EditorClient() {
           </button>
           <button
             onClick={confirmClear}
-            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] hover:from-[#dc2626] hover:to-[#b91c1c] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
           >
             Clear All
           </button>
@@ -903,7 +903,7 @@ export default function EditorClient() {
               setShowPromptModal(false);
               setPromptText('');
             }}
-            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] hover:from-[#2563eb] hover:to-[#1e40af] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
           >
             Save
           </button>

@@ -481,7 +481,7 @@ export default function Sidebar({
             <button
               type="submit"
               disabled={isCreatingFolder || !newFolderName.trim()}
-              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] hover:from-[var(--primary-hover)] hover:to-[var(--primary-hover)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isCreatingFolder ? 'Creating...' : 'Create'}
             </button>
@@ -527,7 +527,7 @@ export default function Sidebar({
             <button
               type="submit"
               disabled={isRenamingFolder || !renamingFolderName.trim()}
-              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] hover:from-[var(--primary-hover)] hover:to-[var(--primary-hover)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isRenamingFolder ? 'Renaming...' : 'Rename'}
             </button>
@@ -563,7 +563,7 @@ export default function Sidebar({
           <button
             onClick={handleDeleteFolder}
             disabled={isDeletingFolder}
-            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] hover:from-[#dc2626] hover:to-[#b91c1c] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50"
           >
             {isDeletingFolder ? 'Deleting...' : 'Delete'}
           </button>

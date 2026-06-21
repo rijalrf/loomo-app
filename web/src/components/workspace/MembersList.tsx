@@ -105,7 +105,7 @@ export default function MembersList({ activeWorkspaceId, currentUserId, isOwner 
           </button>
           <button
             onClick={() => showRemoveModal && confirmRemove(showRemoveModal)}
-            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] hover:from-[#dc2626] hover:to-[#b91c1c] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
           >
             Remove
           </button>

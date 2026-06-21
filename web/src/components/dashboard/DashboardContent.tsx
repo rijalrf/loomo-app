@@ -544,7 +544,7 @@ export default function DashboardContent({
           />
           <button
             onClick={() => showShareModal && handleCopyShareLink(showShareModal.shareToken!)}
-            className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white py-1.5 px-4 text-xs rounded-lg cursor-pointer shrink-0 font-semibold transition-transform"
+            className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] hover:from-[#2563eb] hover:to-[#1e40af] text-white py-1.5 px-4 text-xs rounded-lg cursor-pointer shrink-0 font-semibold transition-all"
           >
             Copy
           </button>
@@ -577,7 +577,7 @@ export default function DashboardContent({
         </button>
         <button
           onClick={() => showDeleteModal && confirmDelete(showDeleteModal)}
-          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] hover:from-[#dc2626] hover:to-[#b91c1c] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
         >
           Delete
         </button>
@@ -603,7 +603,7 @@ export default function DashboardContent({
         </button>
         <button
           onClick={() => showRevokeModal && confirmRevoke(showRevokeModal)}
-          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
+          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] hover:from-[#dc2626] hover:to-[#b91c1c] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer"
         >
           Revoke
         </button>
