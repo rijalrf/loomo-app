@@ -138,7 +138,7 @@ export default async function SharePage({ params }: SharePageProps) {
       </div>
 
       {/* Media Body */}
-      <div className="flex-1 flex items-center justify-center p-2 md:p-4 overflow-hidden relative">
+      <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-hidden relative">
         {media.type === 'SCREENSHOT' ? (
           <img 
             src={fileUrl} 
