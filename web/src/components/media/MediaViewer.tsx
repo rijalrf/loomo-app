@@ -32,17 +32,15 @@ interface MediaViewerProps {
 export default function MediaViewer({ media, onClose }: MediaViewerProps) {
   if (!media) return null;
 
+  const hasDescription = !!media.description;
+
   return (
     <div className="fixed inset-0 bg-[var(--bg-overlay-dark)]/95 z-[100] flex flex-col backdrop-blur-sm overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/50">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]/50 shrink-0">
         <div>
           <h3 className="text-lg font-black text-white leading-tight">{media.title}</h3>
-          {media.description && (
-            <p className="text-xs text-[var(--text-muted)] mt-1.5 max-w-2xl leading-relaxed whitespace-pre-wrap bg-[#111113]/55 border border-[#3f3f46]/35 rounded-lg py-2 px-3">
-              {media.description}
-            </p>
-          )}
-          <p className="text-[10px] text-[var(--text-muted)] mt-1.5 font-bold uppercase tracking-widest">
+          <p className="text-[10px] text-[var(--text-muted)] mt-1 font-bold uppercase tracking-widest">
             Captured by {media.uploader.displayName} • {new Date(media.createdAt).toLocaleString()}
           </p>
         </div>
@@ -54,20 +52,38 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-0.5 md:p-1 m-[10px] overflow-y-auto">
-        {media.type === 'SCREENSHOT' ? (
-          <img
-            src={`/api/media/${media.id}/file`}
-            alt={media.title}
-            className="max-w-full max-h-full object-contain"
-          />
-        ) : (
-          <video
-            src={`/api/media/${media.id}/file`}
-            controls
-            autoPlay
-            className="max-w-full max-h-full object-contain"
-          />
+      {/* Body: media + optional description sidebar */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Media area */}
+        <div className="flex-1 flex items-center justify-center p-2 md:p-4 overflow-hidden">
+          {media.type === 'SCREENSHOT' ? (
+            <img
+              src={`/api/media/${media.id}/file`}
+              alt={media.title}
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          ) : (
+            <video
+              src={`/api/media/${media.id}/file`}
+              controls
+              autoPlay
+              className="max-w-full max-h-full object-contain rounded-lg"
+            />
+          )}
+        </div>
+
+        {/* Description sidebar — only shown if description exists */}
+        {hasDescription && (
+          <div className="w-72 shrink-0 border-l border-[var(--border-color)] bg-[var(--bg-card)]/60 backdrop-blur-sm flex flex-col overflow-hidden">
+            <div className="px-5 py-4 border-b border-[var(--border-color)]">
+              <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Description</p>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4 custom-scrollbar">
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap">
+                {media.description}
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>
