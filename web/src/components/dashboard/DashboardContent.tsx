@@ -75,7 +75,13 @@ export default function DashboardContent({
     renamingId,
     setRenamingId,
     showShareModal,
-    setShowShareModal
+    setShowShareModal,
+    showDeleteModal,
+    setShowDeleteModal,
+    confirmDelete,
+    showRevokeModal,
+    setShowRevokeModal,
+    confirmRevoke
   } = useMediaActions(mediaList, setMediaList, fetchMedia);
 
   const [renamingTitle, setRenamingTitle] = useState('');
@@ -327,16 +333,15 @@ export default function DashboardContent({
       <PopupModal
         isOpen={!!showShareModal}
         onClose={() => setShowShareModal(null)}
-        title="Share Capture"
-        variant="custom"
         maxWidth="md"
       >
-        <p className="text-sm text-[var(--text-muted)] mb-6 leading-relaxed">
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Share Capture</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed">
           Anyone with this link can view this capture. You can revoke access anytime.
         </p>
 
-        <div className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-lg p-4 flex items-center gap-3">
-          <Link2 size={18} className="text-[var(--primary)] shrink-0" />
+        <div className="bg-[#0a0a0b] border border-[#3f3f46] rounded-lg p-4 flex items-center gap-3 mb-6">
+          <Link2 size={18} className="text-[#3b82f6] shrink-0" />
           <input
             type="text"
             readOnly
@@ -345,10 +350,69 @@ export default function DashboardContent({
           />
           <button
             onClick={() => showShareModal && handleCopyShareLink(showShareModal.shareToken!)}
-            className="btn-primary py-1.5 px-4 text-xs rounded-lg cursor-pointer shrink-0"
+            className="bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white py-1.5 px-4 text-xs rounded-lg cursor-pointer shrink-0 font-semibold hover:-translate-y-0.5 transition-transform"
           >
             Copy
           </button>
+        </div>
+
+        <button
+          onClick={() => showShareModal && handleRevokeShare(showShareModal)}
+          className="text-sm text-[#ef4444] hover:text-[#dc2626] transition-colors font-medium cursor-pointer"
+        >
+          Revoke Link
+        </button>
+      </PopupModal>
+
+      <PopupModal
+        isOpen={!!showDeleteModal}
+        onClose={() => setShowDeleteModal(null)}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Delete Media</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed">
+          Are you sure you want to delete this media? This will permanently delete it from Loomo and your Google Drive.
+        </p>
+
+        <div className="flex gap-3 justify-end">
+        <button
+          onClick={() => setShowDeleteModal(null)}
+          className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => showDeleteModal && confirmDelete(showDeleteModal)}
+          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+        >
+          Delete
+        </button>
+        </div>
+      </PopupModal>
+
+      <PopupModal
+        isOpen={!!showRevokeModal}
+        onClose={() => setShowRevokeModal(null)}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Revoke Share Link</h3>
+        <p className="text-sm text-[#a1a1aa] mb-6 leading-relaxed">
+          Revoking this link will deactivate the current share URL. Anyone visiting it will lose access. Proceed?
+        </p>
+
+        <div className="flex gap-3 justify-end">
+        <button
+          onClick={() => setShowRevokeModal(null)}
+          className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] hover:-translate-y-0.5 transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => showRevokeModal && confirmRevoke(showRevokeModal)}
+          className="px-4 py-2 bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-lg text-sm font-semibold hover:-translate-y-0.5 transition-all cursor-pointer"
+        >
+          Revoke
+        </button>
         </div>
       </PopupModal>
     </div>
