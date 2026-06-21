@@ -46,8 +46,170 @@
   --editor-black: #000000;
 }
 
+/* THEME: Dark Purple */
+[data-theme="dark-purple"] {
+  --primary: #a855f7;
+  --primary-hover: #9333ea;
+  --primary-glow: rgba(168, 85, 247, 0.1);
+  --secondary: #ec4899;
+  --secondary-hover: #db2777;
+  --secondary-glow: rgba(236, 72, 153, 0.1);
+  --primary-gradient: linear-gradient(135deg, #9333ea 0%, #a855f7 100%);
+  
+  --bg-main: #0f0a14;
+  --bg-card: #1a0f23;
+  --bg-card-alt: #1f1429;
+  --bg-overlay: #1a1020;
+  --bg-overlay-dark: #0d0812;
+  --bg-hover: #221831;
+  --border-color: #2d1f3d;
+}
+
+/* THEME: Dark Emerald */
+[data-theme="dark-emerald"] {
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-glow: rgba(16, 185, 129, 0.1);
+  --secondary: #14b8a6;
+  --secondary-hover: #0d9488;
+  --secondary-glow: rgba(20, 184, 166, 0.1);
+  --primary-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  
+  --bg-main: #0a120f;
+  --bg-card: #0f1b16;
+  --bg-card-alt: #11201a;
+  --bg-overlay: #0d1813;
+  --bg-overlay-dark: #081210;
+  --bg-hover: #132520;
+  --border-color: #1f2e28;
+}
+
+/* THEME: Dark Amber */
+[data-theme="dark-amber"] {
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --primary-glow: rgba(245, 158, 11, 0.1);
+  --secondary: #ef4444;
+  --secondary-hover: #dc2626;
+  --secondary-glow: rgba(239, 68, 68, 0.1);
+  --primary-gradient: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  
+  --bg-main: #120f0a;
+  --bg-card: #1a1510;
+  --bg-card-alt: #1f1912;
+  --bg-overlay: #171310;
+  --bg-overlay-dark: #0f0d09;
+  --bg-hover: #221c14;
+  --border-color: #2d2519;
+}
+
+/* THEME: Dark Cyan */
+[data-theme="dark-cyan"] {
+  --primary: #06b6d4;
+  --primary-hover: #0891b2;
+  --primary-glow: rgba(6, 182, 212, 0.1);
+  --secondary: #3b82f6;
+  --secondary-hover: #2563eb;
+  --secondary-glow: rgba(59, 130, 246, 0.1);
+  --primary-gradient: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  
+  --bg-main: #0a1014;
+  --bg-card: #0f1720;
+  --bg-card-alt: #111c26;
+  --bg-overlay: #0d1519;
+  --bg-overlay-dark: #080e12;
+  --bg-hover: #13202a;
+  --border-color: #1f2d38;
+}
+
+/* THEME: OLED Black */
+[data-theme="oled-black"] {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.15);
+  --secondary: #8b5cf6;
+  --secondary-hover: #7c3aed;
+  --secondary-glow: rgba(139, 92, 246, 0.15);
+  --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  
+  --bg-main: #000000;
+  --bg-card: #0a0a0a;
+  --bg-card-alt: #0f0f0f;
+  --bg-overlay: #0d0d0d;
+  --bg-overlay-dark: #000000;
+  --bg-hover: #141414;
+  --border-color: #1a1a1a;
+}
+
+/* THEME: Dark Rose */
+[data-theme="dark-rose"] {
+  --primary: #f43f5e;
+  --primary-hover: #e11d48;
+  --primary-glow: rgba(244, 63, 94, 0.1);
+  --secondary: #ec4899;
+  --secondary-hover: #db2777;
+  --secondary-glow: rgba(236, 72, 153, 0.1);
+  --primary-gradient: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%);
+  
+  --bg-main: #140a0c;
+  --bg-card: #1f0f13;
+  --bg-card-alt: #241318;
+  --bg-overlay: #1a0d10;
+  --bg-overlay-dark: #0f0709;
+  --bg-hover: #2a151a;
+  --border-color: #381f25;
+}
+
+/* THEME: Soft Gray */
+[data-theme="soft-gray"] {
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.12);
+  --secondary: #8b5cf6;
+  --secondary-hover: #7c3aed;
+  --secondary-glow: rgba(139, 92, 246, 0.12);
+  --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  
+  --bg-main: #1e1e22;
+  --bg-card: #28282e;
+  --bg-card-alt: #2d2d34;
+  --bg-overlay: #2a2a30;
+  --bg-overlay-dark: #1a1a1e;
+  --bg-hover: #32323a;
+  --border-color: #3d3d47;
+}
+
+/* THEME: Light Mode */
+[data-theme="light"] {
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-glow: rgba(37, 99, 235, 0.1);
+  --secondary: #7c3aed;
+  --secondary-hover: #6d28d9;
+  --secondary-glow: rgba(124, 58, 237, 0.1);
+  --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  
+  --bg-main: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f1f3f5;
+  --bg-overlay: #ffffff;
+  --bg-overlay-dark: #f8f9fa;
+  --bg-hover: #f1f3f5;
+  --border-color: #e5e7eb;
+  --border-light: rgba(0, 0, 0, 0.08);
+  
+  --text-main: #18181b;
+  --text-muted: #52525b;
+  --text-dark: #a1a1aa;
+  
+  --error: #dc2626;
+  --error-hover: #b91c1c;
+  --success: #16a34a;
+  --warning: #ea580c;
+}
+
 html {
-  background-color: #0a0a0b; /* dark base for blending opacity */
+  background-color: #0a0a0b;
 }
 
 body {
@@ -59,7 +221,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -75,14 +236,12 @@ body {
   background: var(--text-dark);
 }
 
-/* Glassmorphism & Panel Classes */
 .glass-panel {
   background: rgba(28, 27, 28, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
 }
 
-/* Neon Border effect */
 .neon-border {
   position: relative;
   border: 1px solid transparent;
@@ -98,7 +257,6 @@ body {
   border-radius: inherit;
 }
 
-/* Animations */
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.02); }
@@ -108,7 +266,6 @@ body {
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
-/* Utility buttons */
 .btn-primary {
   background-color: var(--primary);
   color: white;
@@ -192,7 +349,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Input Styles */
 .input-text {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -208,7 +364,6 @@ body {
   background-color: var(--bg-hover);
 }
 
-/* Grid & Layouts */
 .media-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -228,14 +383,12 @@ body {
   box-shadow: 0 12px 24px rgba(0,0,0,0.5);
 }
 
-/* Fade state for deleting media */
 .media-card-deleting {
   opacity: 0.4;
   pointer-events: none;
   border-color: var(--error);
 }
 
-/* Skeleton loader */
 @keyframes skeleton-loading {
   0% { background-position: 100% 50%; }
   100% { background-position: 0 50%; }
@@ -246,7 +399,6 @@ body {
   animation: skeleton-loading 1.5s infinite;
 }
 
-/* Font styles */
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-main);
   font-weight: 700;
