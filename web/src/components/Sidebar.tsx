@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Folder, Settings, BookOpen, ChevronDown, Check, Plus, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import ThemeSwitcherDropdown from './ThemeSwitcherDropdown';
 
 interface SidebarProps {
   initialUser: {
@@ -216,6 +217,13 @@ export default function Sidebar({
             <div className="px-2.5 py-1.5 border-b border-[var(--border-color)] mb-1">
               <div className="text-xs font-bold text-[var(--text-muted)] truncate">{initialUser.email}</div>
             </div>
+            
+            <div className="mb-1">
+              <ThemeSwitcherDropdown />
+            </div>
+            
+            <div className="h-px bg-[var(--border-color)] my-1"></div>
+            
             <button
               onClick={handleLogout}
               className="w-full py-2 px-2.5 text-left hover:bg-red-500/10 hover:text-red-400 transition-colors text-sm font-bold text-[var(--text-muted)] rounded-lg flex items-center gap-2 cursor-pointer"
