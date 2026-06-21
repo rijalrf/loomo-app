@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import InviteForm from '../workspace/InviteForm';
 import MembersList from '../workspace/MembersList';
 import StorageSettings from './StorageSettings';
@@ -32,6 +33,7 @@ export default function SettingsContent({
   activeWorkspaceId,
   onWorkspaceUpdate
 }: SettingsContentProps) {
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <div className="max-w-7xl mx-auto w-full">
@@ -49,10 +51,11 @@ export default function SettingsContent({
           <InviteForm
             activeWorkspaceId={activeWorkspaceId}
             isOwner={activeWorkspace?.isOwner || false}
-            onInviteSuccess={() => {}}
+            onInviteSuccess={() => setRefreshKey(k => k + 1)}
           />
 
           <MembersList
+            key={refreshKey}
             activeWorkspaceId={activeWorkspaceId}
             currentUserId={user.id}
             isOwner={activeWorkspace?.isOwner || false}
