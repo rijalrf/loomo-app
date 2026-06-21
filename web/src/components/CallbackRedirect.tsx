@@ -15,7 +15,7 @@ export default function CallbackRedirect({ code, state }: CallbackRedirectProps)
   }, [code, state]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#131314] text-slate-200 font-sans">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg-overlay)] text-slate-200 font-sans">
       <div className="flex flex-col items-center gap-6">
         <div className="w-12 h-12 border-4 border-slate-800 border-t-[var(--primary)] rounded-full animate-spin shadow-[0_0_20px_var(--primary-glow)]"></div>
         <div className="flex flex-col items-center gap-2">

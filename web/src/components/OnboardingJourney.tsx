@@ -96,7 +96,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
   };
 
   return (
-    <div className="min-h-screen bg-[#131314] text-slate-200 flex flex-col justify-between p-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[var(--bg-overlay)] text-slate-200 flex flex-col justify-between p-6 relative overflow-hidden font-sans">
       {/* Decorative Gradients */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-[var(--primary)]/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-[var(--secondary)]/10 rounded-full blur-[120px] pointer-events-none"></div>
