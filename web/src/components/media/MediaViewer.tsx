@@ -47,19 +47,19 @@ export default function MediaViewer({ media, onClose }: MediaViewerProps) {
         </button>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+      <div className="flex-1 flex items-center justify-center p-2 md:p-4">
         {media.type === 'SCREENSHOT' ? (
           <img
             src={`/api/media/${media.id}/file`}
             alt={media.title}
-            className="max-w-full max-h-[80vh] object-contain"
+            className="max-w-full max-h-[90vh] object-contain"
           />
         ) : (
           <video
             src={`/api/media/${media.id}/file`}
             controls
             autoPlay
-            className="max-w-full max-h-[80vh]"
+            className="max-w-full max-h-[90vh]"
           />
         )}
       </div>

@@ -138,19 +138,19 @@ export default async function SharePage({ params }: SharePageProps) {
       </div>
 
       {/* Media Body */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 overflow-hidden relative">
+      <div className="flex-1 flex items-center justify-center p-2 md:p-4 overflow-hidden relative">
         {media.type === 'SCREENSHOT' ? (
           <img 
             src={fileUrl} 
             alt={media.title}
-            className="max-w-full max-h-[80vh] object-contain"
+            className="max-w-full max-h-[90vh] object-contain"
           />
         ) : (
           <video 
             src={fileUrl}
             controls
             autoPlay
-            className="max-w-full max-h-[80vh]"
+            className="max-w-full max-h-[90vh]"
           />
         )}
       </div>
