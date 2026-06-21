@@ -66,6 +66,36 @@ export async function GET(request: NextRequest) {
       where: { googleId }
     });
 
+    if (!user) {
+      // Check if there is an invited user (placeholder user) with the same email
+      const invitedUser = await prisma.user.findUnique({
+        where: { email }
+      });
+
+      if (invitedUser && invitedUser.googleId.startsWith('invited_')) {
+        // Link the Google account and update details
+        user = await prisma.user.update({
+          where: { id: invitedUser.id },
+          data: {
+            googleId,
+            displayName,
+            avatarUrl
+          }
+        });
+
+        // Accept workspace memberships that were pending acceptance
+        await prisma.workspaceMember.updateMany({
+          where: {
+            userId: user.id,
+            acceptedAt: null
+          },
+          data: {
+            acceptedAt: new Date()
+          }
+        });
+      }
+    }
+
     // Enforce isolation: if flow is login but user is not registered, redirect with error
     if (state === 'login' && !user) {
       console.log(`[google-oauth-callback] Access denied: email ${email} is not registered.`);
