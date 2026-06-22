@@ -135,7 +135,9 @@ model BackgroundJob {
   userId        String    @map("user_id")
   jobType       JobType   @map("job_type")
   status        JobStatus @default(QUEUED)
-  tempFilePath  String?   @map("temp_file_path")
+  fileData      String?   @db.Text
+  fileName      String?   @map("file_name")
+  fileMimeType  String?   @map("file_mime_type")
   errorMessage  String?   @map("error_message")
   attempts      Int       @default(0)
   maxAttempts   Int       @default(5) @map("max_attempts")

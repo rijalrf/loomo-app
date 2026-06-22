@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log("[cron-process-jobs] Triggering background job processing via cron...");
-    await runSchedulerOnce();
-    return NextResponse.json({ success: true, message: "Scheduler run complete" });
+  console.log("[cron] Starting job processing...");
+  await runSchedulerOnce();
+  console.log("[cron] Job processing complete");
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error(`[cron-process-jobs] Cron run failed: ${error.message || error}`);
     return NextResponse.json({ error: "Cron execution failed", details: error.message }, { status: 500 });
