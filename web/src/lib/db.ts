@@ -30,8 +30,8 @@ if (isPrismaPostgres) {
   if (!globalForPrisma.pool) {
     globalForPrisma.pool = new Pool({
       connectionString,
-      max: 10,
-      idleTimeoutMillis: 30000,
+      max: 5,
+      idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 2000,
     });
   }
