@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
-import fs from 'fs/promises';
-import path from 'path';
-import os from 'os';
 import { runSchedulerOnce } from '@/lib/scheduler';
 
 export async function POST(request: NextRequest) {
@@ -57,9 +54,9 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(arrayBuffer);
 
     // Validate file limits
-    const maxSizeBytes = 500 * 1024 * 1024; // 500 MB
+    const maxSizeBytes = 100 * 1024 * 1024; // 100 MB
     if (fileBuffer.length > maxSizeBytes) {
-      return NextResponse.json({ error: 'File size exceeds 500 MB limit' }, { status: 400 });
+      return NextResponse.json({ error: 'File size exceeds 100 MB limit' }, { status: 400 });
     }
 
     // 3. Create Media and BackgroundJob records inside transaction
@@ -98,10 +95,10 @@ export async function POST(request: NextRequest) {
       });
 
       const fileExt = type === 'SCREENSHOT' ? 'png' : 'webm';
-      const tempFilePath = path.join(os.tmpdir(), `${media.id}.${fileExt}`);
+      const fileName = `${media.id}.${fileExt}`;
 
-      // Save file to temp path
-      await fs.writeFile(tempFilePath, fileBuffer);
+      // Convert file buffer to base64
+      const base64Data = fileBuffer.toString('base64');
 
       const job = await tx.backgroundJob.create({
         data: {
@@ -109,7 +106,9 @@ export async function POST(request: NextRequest) {
           userId: session.userId,
           jobType: 'UPLOAD',
           status: 'QUEUED',
-          tempFilePath,
+          fileData: base64Data,
+          fileName: fileName,
+          fileMimeType: mimeType,
           maxAttempts: 5
         }
       });

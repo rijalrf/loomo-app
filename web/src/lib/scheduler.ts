@@ -1,4 +1,3 @@
-import fs from "fs/promises";
 import { prisma } from "./db";
 import {
   getFreshAccessToken,
@@ -133,12 +132,12 @@ async function handleUploadJob(job: any, accessToken: string, media: any) {
     throw new Error("Media record not found for upload job");
   }
 
-  if (!job.tempFilePath) {
-    throw new Error("No temp file path specified for upload job");
+  if (!job.fileData) {
+    throw new Error("No file data in job");
   }
 
-  // 1. Read temp file from disk
-  const fileBuffer = await fs.readFile(job.tempFilePath);
+  // 1. Decode base64 to Buffer
+  const fileBuffer = Buffer.from(job.fileData, 'base64');
 
   // 2. Ensure Loomo folders exist in Google Drive dynamically
   const pathParts = ["Loomo"];
@@ -187,24 +186,9 @@ async function handleUploadJob(job: any, accessToken: string, media: any) {
     },
   });
 
-  // 6. Delete local temp file
-  try {
-    await fs.unlink(job.tempFilePath);
-    console.log("scheduler", `Deleted local temp file: ${job.tempFilePath}`);
-  } catch (err: any) {
-    console.error(
-      "scheduler",
-      `Failed to delete temp file ${job.tempFilePath}: ${err.message || err}`,
-    );
-  }
-
-  // 7. Update job status to COMPLETED
-  await prisma.backgroundJob.update({
+  // 6. Delete job from DB (cleanup)
+  await prisma.backgroundJob.delete({
     where: { id: job.id },
-    data: {
-      status: "COMPLETED",
-      completedAt: new Date(),
-    },
   });
 
   console.log("scheduler", `Job ${job.id} completed successfully!`);
@@ -232,22 +216,12 @@ async function handleDeleteJob(job: any, accessToken: string) {
     await deleteFromDrive(accessToken, media.driveFileId);
   }
 
-  // 2. Delete local temp file if it exists (e.g. if deleted while still processing/failed)
-  if (job.tempFilePath) {
-    try {
-      await fs.unlink(job.tempFilePath);
-      console.log("scheduler", `Deleted local temp file: ${job.tempFilePath}`);
-    } catch (err) {
-      // Ignored if file does not exist
-    }
-  }
-
-  // 3. Delete media record from DB (permanent and irreversible, as in NFR-003)
+  // 2. Delete media record from DB (permanent and irreversible, as in NFR-003)
   await prisma.media.delete({
     where: { id: media.id },
   });
 
-  // 4. Delete job record from DB
+  // 3. Delete job record from DB
   await prisma.backgroundJob.delete({
     where: { id: job.id },
   });

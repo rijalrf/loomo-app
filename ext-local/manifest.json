@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Loomo Capture Engine",
+  "name": "Loomo - Local",
   "version": "1.0.0",
   "description": "Ambil tangkapan layar area (screenshot) dengan anotasi dan rekam tab aktif Anda. Media di-upload otomatis ke Google Drive pribadi Anda.",
   "icons": {
