@@ -6,6 +6,27 @@ window.addEventListener('unhandledrejection', (event) => {
   console.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
 });
 
+// Set Environment Label
+document.addEventListener('DOMContentLoaded', () => {
+  const envLabelElement = document.getElementById('environment-label');
+  if (envLabelElement) {
+    const baseUrl = globalThis.LoomoConfig.API_BASE_URL;
+    let label = '';
+    if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+      label = '- Local';
+    } else if (baseUrl.includes('qa.loomo.my.id')) {
+      label = '- QA';
+    }
+    envLabelElement.textContent = label;
+  }
+});
+window.addEventListener('error', (event) => {
+  console.error(`[popup] Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}`);
+});
+window.addEventListener('unhandledrejection', (event) => {
+  console.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
+});
+
 function showAlert(message) {
   return new Promise((resolve) => {
     const overlay = document.createElement('div');

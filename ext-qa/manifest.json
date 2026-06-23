@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Loomo",
+  "name": "Loomo - QA",
   "version": "1.0.0",
   "description": "Ambil tangkapan layar area (screenshot) dengan anotasi dan rekam tab aktif Anda. Media di-upload otomatis ke Google Drive pribadi Anda.",
   "icons": {
