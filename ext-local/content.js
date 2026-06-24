@@ -649,7 +649,77 @@ function generateUUID() {
     return v.toString(16);
   });
 }
+// Listen to window messages for background upload hand-off from Loomo Web Page
+window.addEventListener('message', async (event) => {
+  if (event.data && event.data.source === 'loomo-web-page' && event.data.action === 'START_BACKGROUND_UPLOAD') {
+    const { mediaId, uploadUrl, id, title } = event.data.payload;
+    console.log('[Loomo Content] START_BACKGROUND_UPLOAD received for:', title, 'Media ID:', mediaId);
 
+    try {
+      // 1. Get video blob from local IndexedDB
+      const blob = await getVideoFromIndexedDB(id);
+      if (!blob) {
+        console.error('[Loomo Content] Video blob not found in IndexedDB for ID:', id);
+        return;
+      }
 
+      // 2. Send request to background service worker to upload in background
+      chrome.runtime.sendMessage({
+        action: 'BACKGROUND_UPLOAD_START',
+        payload: {
+          mediaId,
+          uploadUrl,
+          blob,
+          id,
+          title
+        }
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('[Loomo Content] Failed to send BACKGROUND_UPLOAD_START to background:', chrome.runtime.lastError.message);
+        } else {
+          console.log('[Loomo Content] Background upload request successfully sent to background worker');
+        }
+      });
+    } catch (err) {
+      console.error('[Loomo Content] Failed to read video and trigger background upload:', err);
+    }
+  }
+});
 
+function getVideoFromIndexedDB(id) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('JamDevCloneDB', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains('videos')) {
+        resolve(null);
+        return;
+      }
+      const transaction = db.transaction('videos', 'readonly');
+      const store = transaction.objectStore('videos');
+      const getRequest = store.get(id);
+      getRequest.onsuccess = () => resolve(getRequest.result || null);
+      getRequest.onerror = () => reject(getRequest.error);
+    };
+  });
+}
 
+function deleteVideoFromIndexedDB(id) {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('JamDevCloneDB', 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains('videos')) {
+        resolve();
+        return;
+      }
+      const transaction = db.transaction('videos', 'readwrite');
+      const store = transaction.objectStore('videos');
+      const deleteRequest = store.delete(id);
+      deleteRequest.onsuccess = () => resolve();
+      deleteRequest.onerror = () => reject(deleteRequest.error);
+    };
+  });
+}

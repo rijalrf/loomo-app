@@ -484,7 +484,7 @@ export default function EditorClient() {
       let mediaId: string;
 
       if (isRecording || blob.size > 4 * 1024 * 1024) {
-        // Direct resumable upload to Google Drive to bypass Vercel 4.5MB limit
+        // 1. Initiate upload session on server (very fast)
         const initResponse = await fetch('/api/media/upload', {
           method: 'POST',
           headers: {
@@ -509,39 +509,52 @@ export default function EditorClient() {
         const { mediaId: initMediaId, uploadUrl } = await initResponse.json();
         mediaId = initMediaId;
 
-        // PUT directly to Google Drive resumable session URL
-        const gDriveUploadRes = await fetch(uploadUrl, {
-          method: 'PUT',
-          body: blob,
-          headers: {
-            'Content-Type': blob.type || (isRecording ? 'video/webm' : 'image/png')
+        // 2. Generate public share link and copy to clipboard instantly (very fast)
+        const shareRes = await fetch(`/api/media/${mediaId}/share`, {
+          method: 'POST'
+        });
+
+        let shareLink = '';
+        if (shareRes.ok) {
+          const shareData = await shareRes.json();
+          shareLink = `${window.location.origin}/s/${shareData.shareToken}`;
+          setCopiedLink(shareLink);
+          
+          // Copy to clipboard
+          try {
+            await navigator.clipboard.writeText(shareLink);
+          } catch (clipErr) {
+            console.warn('Failed to copy to clipboard automatically:', clipErr);
           }
-        });
-
-        if (!gDriveUploadRes.ok) {
-          throw new Error('Failed to upload file content directly to Google Drive');
         }
 
-        const googleFileMetadata = await gDriveUploadRes.json();
-        const driveFileId = googleFileMetadata.id;
-
-        // Finalize on server
-        const completeRes = await fetch('/api/media/upload/complete', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
+        // 3. Trigger Chrome Extension Background Upload (delegates upload to service worker)
+        window.postMessage({
+          source: 'loomo-web-page',
+          action: 'START_BACKGROUND_UPLOAD',
+          payload: {
             mediaId,
-            driveFileId,
-            fileSize: blob.size
-          })
-        });
+            uploadUrl,
+            id,
+            title: title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot')
+          }
+        }, '*');
 
-        if (!completeRes.ok) {
-          const errJson = await completeRes.json();
-          throw new Error(errJson.error || 'Server failed to finalize upload');
+        toast.success('Upload started in background! Share link copied to clipboard.', { id: 'save-media' });
+
+        // 4. Success behavior: close editor immediately
+        if (isPopup) {
+          window.dispatchEvent(new CustomEvent('loomo_close_window'));
+          setTimeout(() => {
+            window.close();
+          }, 800);
+        } else {
+          router.push('/');
+          setTimeout(() => {
+            window.location.reload();
+          }, 800);
         }
+        return; // Skip the rest of standard save logic
       } else {
         // Fallback to standard multipart upload for small screenshots
         const formData = new FormData();

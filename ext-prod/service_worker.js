@@ -148,6 +148,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     saveRecordingAndRedirect(message.payload);
   }
 
+  // 3b. Menerima request upload latar belakang dari content script
+  if (message.action === 'BACKGROUND_UPLOAD_START') {
+    const { mediaId, uploadUrl, blob, id, title } = message.payload;
+    performBackgroundUpload(mediaId, uploadUrl, blob, id, title);
+    sendResponse({ success: true });
+    return false;
+  }
+
   // 4. Jembatan Impor Data untuk Backoffice LocalStorage
   if (message.action === 'GET_PENDING_JAM') {
     chrome.storage.local.get(['pending_jam_metadata', 'pending_jam_video'], (result) => {
@@ -349,4 +357,68 @@ function generateUUID() {
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
+}
+
+async function performBackgroundUpload(mediaId, uploadUrl, blob, id, title) {
+  console.log('[background] Starting background upload to Google Drive for:', title, 'Media ID:', mediaId);
+  
+  try {
+    // 1. Upload directly to Google Drive (PUT request)
+    const uploadRes = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: blob,
+      headers: {
+        'Content-Type': blob.type || 'video/webm'
+      }
+    });
+
+    if (!uploadRes.ok) {
+      throw new Error(`Google Drive upload failed: ${uploadRes.statusText}`);
+    }
+
+    const gMetadata = await uploadRes.json();
+    const driveFileId = gMetadata.id;
+    console.log('[background] Google Drive upload success, file ID:', driveFileId);
+
+    // 2. Finalize on server
+    const completeRes = await fetch(`${globalThis.LoomoConfig.API_BASE_URL}/api/media/upload/complete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        mediaId,
+        driveFileId,
+        fileSize: blob.size
+      })
+    });
+
+    if (!completeRes.ok) {
+      const errText = await completeRes.text();
+      throw new Error(`Failed to finalize upload on server: ${errText}`);
+    }
+
+    console.log('[background] Background upload successfully finalized for:', title);
+
+    // 3. Show System Notification (CORS/Permissions allowed)
+    chrome.notifications.create(mediaId, {
+      type: 'basic',
+      iconUrl: 'icon.png',
+      title: 'Loomo - Upload Sukses!',
+      message: `Video "${title}" berhasil di-upload ke Google Drive.`,
+      priority: 2
+    });
+
+  } catch (err) {
+    console.error('[background] Background upload error:', err.message || err);
+    
+    // Show Error Notification
+    chrome.notifications.create(mediaId, {
+      type: 'basic',
+      iconUrl: 'icon.png',
+      title: 'Loomo - Upload Gagal',
+      message: `Gagal mengunggah video "${title}": ${err.message || String(err)}`,
+      priority: 2
+    });
+  }
 }

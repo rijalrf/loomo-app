@@ -13,6 +13,7 @@
     "activeTab",
     "storage",
     "unlimitedStorage",
+    "notifications",
     "scripting",
     "offscreen",
     "tabCapture"

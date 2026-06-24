@@ -83,48 +83,9 @@ export default function PendingImportHandler() {
 
       const { mediaId, uploadUrl } = await initResponse.json();
 
-      setUploadState(prev => ({ ...prev, progress: 'Uploading directly to Google Drive...' }));
-
-      // 4. PUT blob directly to Google Drive resumable session URL
-      const gDriveUploadRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        body: videoBlob,
-        headers: {
-          'Content-Type': videoBlob.type || 'video/webm'
-        }
-      });
-
-      if (!gDriveUploadRes.ok) {
-        throw new Error('Failed to upload file content directly to Google Drive');
-      }
-
-      // 5. Google returns details of uploaded file
-      const googleFileMetadata = await gDriveUploadRes.json();
-      const driveFileId = googleFileMetadata.id;
-
-      setUploadState(prev => ({ ...prev, progress: 'Finalizing upload...' }));
-
-      // 6. Complete the upload on server
-      const completeRes = await fetch('/api/media/upload/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          mediaId,
-          driveFileId,
-          fileSize: videoBlob.size
-        })
-      });
-
-      if (!completeRes.ok) {
-        const errJson = await completeRes.json();
-        throw new Error(errJson.error || 'Server failed to finalize upload');
-      }
-
       setUploadState(prev => ({ ...prev, progress: 'Generating public share link...' }));
 
-      // 7. Generate public share link
+      // 4. Generate public share link
       const shareRes = await fetch(`/api/media/${mediaId}/share`, {
         method: 'POST'
       });
@@ -141,25 +102,34 @@ export default function PendingImportHandler() {
         }
       }
 
-      setUploadState(prev => ({ ...prev, progress: 'Upload complete! Finalizing...' }));
+      // 5. Trigger Chrome Extension Background Upload
+      window.postMessage({
+        source: 'loomo-web-page',
+        action: 'START_BACKGROUND_UPLOAD',
+        payload: {
+          mediaId,
+          uploadUrl,
+          id,
+          title: metadata.title || 'Screen Recording'
+        }
+      }, '*');
 
-      // 8. Cleanup local storage and IndexedDB
-      localStorage.removeItem(`jam_meta_${id}`);
-      await deleteVideoFromIndexedDB(id);
+      setUploadState(prev => ({ ...prev, progress: 'Background upload started! Closing...' }));
 
-      // 9. Success behavior
+      // 6. Success behavior
       const isPopup = searchParams.get('isPopup') === 'true';
       if (isPopup) {
         window.dispatchEvent(new CustomEvent('loomo_close_window'));
         setTimeout(() => {
           window.close();
-        }, 100);
+        }, 800);
       } else {
         setTimeout(() => {
           router.push('/');
           window.location.reload();
-        }, 1000);
+        }, 800);
       }
+
 
     } catch (err: any) {
       clientLogger.error('pending-import-handler', 'Video upload failed:', err);
