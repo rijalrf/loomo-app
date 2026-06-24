@@ -56,43 +56,75 @@ export default function PendingImportHandler() {
         throw new Error('Video recording not found in browser local database. Please try capturing again.');
       }
 
-      setUploadState(prev => ({ ...prev, progress: 'Uploading to Loomo server...' }));
+      setUploadState(prev => ({ ...prev, progress: 'Initiating upload session...' }));
 
-      // 2. Prepare FormData
-      const formData = new FormData();
-      formData.append('file', videoBlob, `${id}.webm`);
-      formData.append('title', metadata.title);
-      formData.append('type', 'recording');
-      formData.append('durationSeconds', String(metadata.duration || 0));
-      
-      const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id');
-      if (savedWorkspaceId) {
-        formData.append('workspaceId', savedWorkspaceId);
-      }
-      
-      if (metadata.systemInfo?.viewportSize) {
-        const [w, h] = metadata.systemInfo.viewportSize.split('x');
-        formData.append('width', w);
-        formData.append('height', h);
-      }
+      // 2. Resolve workspaceId
+      const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id') || undefined;
 
-      // 3. Send upload request
-      const response = await fetch('/api/media/upload', {
+      // 3. Call initiate endpoint
+      const initResponse = await fetch('/api/media/upload', {
         method: 'POST',
-        body: formData
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: metadata.title,
+          type: 'recording',
+          workspaceId: savedWorkspaceId,
+          durationSeconds: metadata.duration || 0,
+          fileSize: videoBlob.size
+        })
       });
 
-      if (!response.ok) {
-        const errJson = await response.json();
-        throw new Error(errJson.error || 'Server upload failed');
+      if (!initResponse.ok) {
+        const errJson = await initResponse.json();
+        throw new Error(errJson.error || 'Server failed to initiate upload session');
       }
 
-      const uploadResult = await response.json();
-      const mediaId = uploadResult.mediaId;
+      const { mediaId, uploadUrl } = await initResponse.json();
+
+      setUploadState(prev => ({ ...prev, progress: 'Uploading directly to Google Drive...' }));
+
+      // 4. PUT blob directly to Google Drive resumable session URL
+      const gDriveUploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: videoBlob,
+        headers: {
+          'Content-Type': videoBlob.type || 'video/webm'
+        }
+      });
+
+      if (!gDriveUploadRes.ok) {
+        throw new Error('Failed to upload file content directly to Google Drive');
+      }
+
+      // 5. Google returns details of uploaded file
+      const googleFileMetadata = await gDriveUploadRes.json();
+      const driveFileId = googleFileMetadata.id;
+
+      setUploadState(prev => ({ ...prev, progress: 'Finalizing upload...' }));
+
+      // 6. Complete the upload on server
+      const completeRes = await fetch('/api/media/upload/complete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mediaId,
+          driveFileId,
+          fileSize: videoBlob.size
+        })
+      });
+
+      if (!completeRes.ok) {
+        const errJson = await completeRes.json();
+        throw new Error(errJson.error || 'Server failed to finalize upload');
+      }
 
       setUploadState(prev => ({ ...prev, progress: 'Generating public share link...' }));
 
-      // 3b. Generate public share link
+      // 7. Generate public share link
       const shareRes = await fetch(`/api/media/${mediaId}/share`, {
         method: 'POST'
       });
@@ -111,11 +143,11 @@ export default function PendingImportHandler() {
 
       setUploadState(prev => ({ ...prev, progress: 'Upload complete! Finalizing...' }));
 
-      // 4. Cleanup local storage and IndexedDB
+      // 8. Cleanup local storage and IndexedDB
       localStorage.removeItem(`jam_meta_${id}`);
       await deleteVideoFromIndexedDB(id);
 
-      // 5. Success behavior
+      // 9. Success behavior
       const isPopup = searchParams.get('isPopup') === 'true';
       if (isPopup) {
         window.dispatchEvent(new CustomEvent('loomo_close_window'));

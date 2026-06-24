@@ -481,35 +481,97 @@ export default function EditorClient() {
         throw new Error(isRecording ? 'Failed to read video recording.' : 'Failed to flatten image canvas.');
       }
 
-      // 2. Prepare Form Data
-      const formData = new FormData();
-      formData.append('file', blob, filename);
-      formData.append('title', title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'));
-      formData.append('type', isRecording ? 'recording' : 'screenshot');
-      formData.append('workspaceId', selectedWorkspaceId);
-      if (description) {
-        formData.append('description', description);
-      }
-      if (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') {
-        formData.append('folderId', selectedFolderId);
-      }
-      if (isRecording && metadata?.duration) {
-        formData.append('durationSeconds', String(metadata.duration));
-      }
+      let mediaId: string;
 
-      // 3. Upload to server
-      const res = await fetch('/api/media/upload', {
-        method: 'POST',
-        body: formData
-      });
+      if (isRecording || blob.size > 4 * 1024 * 1024) {
+        // Direct resumable upload to Google Drive to bypass Vercel 4.5MB limit
+        const initResponse = await fetch('/api/media/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'),
+            description: description || undefined,
+            type: isRecording ? 'recording' : 'screenshot',
+            workspaceId: selectedWorkspaceId,
+            folderId: (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') ? selectedFolderId : undefined,
+            durationSeconds: (isRecording && metadata?.duration) ? metadata.duration : 0,
+            fileSize: blob.size
+          })
+        });
 
-      if (!res.ok) {
-        const errJson = await res.json();
-        throw new Error(errJson.error || 'Server upload failed');
+        if (!initResponse.ok) {
+          const errJson = await initResponse.json();
+          throw new Error(errJson.error || 'Server failed to initiate upload session');
+        }
+
+        const { mediaId: initMediaId, uploadUrl } = await initResponse.json();
+        mediaId = initMediaId;
+
+        // PUT directly to Google Drive resumable session URL
+        const gDriveUploadRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          body: blob,
+          headers: {
+            'Content-Type': blob.type || (isRecording ? 'video/webm' : 'image/png')
+          }
+        });
+
+        if (!gDriveUploadRes.ok) {
+          throw new Error('Failed to upload file content directly to Google Drive');
+        }
+
+        const googleFileMetadata = await gDriveUploadRes.json();
+        const driveFileId = googleFileMetadata.id;
+
+        // Finalize on server
+        const completeRes = await fetch('/api/media/upload/complete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            mediaId,
+            driveFileId,
+            fileSize: blob.size
+          })
+        });
+
+        if (!completeRes.ok) {
+          const errJson = await completeRes.json();
+          throw new Error(errJson.error || 'Server failed to finalize upload');
+        }
+      } else {
+        // Fallback to standard multipart upload for small screenshots
+        const formData = new FormData();
+        formData.append('file', blob, filename);
+        formData.append('title', title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'));
+        formData.append('type', isRecording ? 'recording' : 'screenshot');
+        formData.append('workspaceId', selectedWorkspaceId);
+        if (description) {
+          formData.append('description', description);
+        }
+        if (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') {
+          formData.append('folderId', selectedFolderId);
+        }
+        if (isRecording && metadata?.duration) {
+          formData.append('durationSeconds', String(metadata.duration));
+        }
+
+        const res = await fetch('/api/media/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const errJson = await res.json();
+          throw new Error(errJson.error || 'Server upload failed');
+        }
+
+        const uploadResult = await res.json();
+        mediaId = uploadResult.mediaId;
       }
-
-      const uploadResult = await res.json();
-      const mediaId = uploadResult.mediaId;
 
       // 3b. Generate public share link
       const shareRes = await fetch(`/api/media/${mediaId}/share`, {
