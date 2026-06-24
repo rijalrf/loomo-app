@@ -129,6 +129,7 @@ export async function POST(request: NextRequest) {
       const driveFilename = `${cleanWorkspaceName}_${tgltime}_${shortId}_loomo.${fileExt}`;
 
       // Initiate Resumable Upload on Google Drive
+      const clientOrigin = request.headers.get('origin') || '';
       const gDriveInitiateRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
         method: 'POST',
         headers: {
@@ -136,6 +137,7 @@ export async function POST(request: NextRequest) {
           'Content-Type': 'application/json; charset=UTF-8',
           'X-Upload-Content-Length': fileSize.toString(),
           'X-Upload-Content-Type': mimeType,
+          Origin: clientOrigin
         },
         body: JSON.stringify({
           name: driveFilename,
