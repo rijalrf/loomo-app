@@ -98,9 +98,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 const configUrl = new URL(globalThis.LoomoConfig.API_BASE_URL);
 const isLoomoHost = window.location.origin === configUrl.origin;
 if (isLoomoHost) {
-  // Tandai bahwa ekstensi Loomo sudah terinstal dan aktif di browser
-  document.documentElement.dataset.loomoExtensionInstalled = 'true';
-
   const params = new URLSearchParams(window.location.search);
   const isEditorPage = window.location.pathname === '/editor';
   const editorId = params.get('id');
@@ -155,20 +152,14 @@ async function importPendingJamFromExtension() {
       return;
     }
     
-    const { metadata, videoBase64, videoBlob } = response;
+    const { metadata, videoBase64 } = response;
     
     try {
-      let finalBlob = videoBlob;
-      if (metadata.type === 'screenshot' && videoBase64) {
-        finalBlob = base64ToBlob(videoBase64, 'image/png');
-      }
-      
-      if (!finalBlob) {
-        throw new Error('Media blob not found in extension transfer');
-      }
+      const mime = (metadata.type === 'screenshot') ? 'image/png' : 'video/webm';
+      const videoBlob = base64ToBlob(videoBase64, mime);
       
       localStorage.setItem(`jam_meta_${metadata.id}`, JSON.stringify(metadata));
-      await saveVideoToIndexedDB(metadata.id, finalBlob);
+      await saveVideoToIndexedDB(metadata.id, videoBlob);
       
       console.log('[Jam Extension Content] Data berhasil disimpan ke IndexedDB dan localStorage');
       
@@ -669,11 +660,6 @@ window.addEventListener('message', async (event) => {
       const blob = await getVideoFromIndexedDB(id);
       if (!blob) {
         console.error('[Loomo Content] Video blob not found in IndexedDB for ID:', id);
-        window.postMessage({
-          source: 'loomo-extension',
-          action: 'BACKGROUND_UPLOAD_FAILED',
-          payload: { mediaId, error: 'Video blob not found in local IndexedDB' }
-        }, '*');
         return;
       }
 
@@ -690,27 +676,12 @@ window.addEventListener('message', async (event) => {
       }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('[Loomo Content] Failed to send BACKGROUND_UPLOAD_START to background:', chrome.runtime.lastError.message);
-          window.postMessage({
-            source: 'loomo-extension',
-            action: 'BACKGROUND_UPLOAD_FAILED',
-            payload: { mediaId, error: chrome.runtime.lastError.message }
-          }, '*');
         } else {
           console.log('[Loomo Content] Background upload request successfully sent to background worker');
-          window.postMessage({
-            source: 'loomo-extension',
-            action: 'BACKGROUND_UPLOAD_ACK',
-            payload: { mediaId }
-          }, '*');
         }
       });
     } catch (err) {
       console.error('[Loomo Content] Failed to read video and trigger background upload:', err);
-      window.postMessage({
-        source: 'loomo-extension',
-        action: 'BACKGROUND_UPLOAD_FAILED',
-        payload: { mediaId, error: err.message || String(err) }
-      }, '*');
     }
   }
 });

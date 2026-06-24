@@ -145,7 +145,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 3. Terima Video Blob dari Offscreen Document (offscreen.js)
   if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY') {
-    saveRecordingAndRedirect(message.payload); // message.payload is raw Blob now
+    saveRecordingAndRedirect(message.payload);
   }
 
   // 3b. Menerima request upload latar belakang dari content script
@@ -158,32 +158,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 4. Jembatan Impor Data untuk Backoffice LocalStorage
   if (message.action === 'GET_PENDING_JAM') {
-    chrome.storage.local.get(['pending_jam_metadata', 'pending_jam_video'], async (result) => {
+    chrome.storage.local.get(['pending_jam_metadata', 'pending_jam_video'], (result) => {
       if (result.pending_jam_metadata) {
-        const metadata = result.pending_jam_metadata;
-        const id = metadata.id;
-        
-        if (metadata.type === 'recording') {
-          try {
-            const videoBlob = await getBlobFromExtensionDB(id);
-            sendResponse({
-              metadata,
-              videoBlob
-            });
-            chrome.storage.local.remove(['pending_jam_metadata']);
-            await deleteBlobFromExtensionDB(id);
-          } catch (err) {
-            console.error('[background] Failed to read recording blob:', err);
-            sendResponse(null);
-          }
-        } else {
-          // Screenshot
-          sendResponse({
-            metadata,
-            videoBase64: result.pending_jam_video
-          });
-          chrome.storage.local.remove(['pending_jam_metadata', 'pending_jam_video']);
-        }
+        sendResponse({
+          metadata: result.pending_jam_metadata,
+          videoBase64: result.pending_jam_video
+        });
+        // Bersihkan storage setelah dibaca agar tidak menumpuk
+        chrome.storage.local.remove(['pending_jam_metadata', 'pending_jam_video']);
       } else {
         sendResponse(null);
       }
@@ -330,16 +312,15 @@ function createCenteredEditorWindow(url) {
   });
 }
 
-async function saveRecordingAndRedirect(videoBlob) {
+async function saveRecordingAndRedirect(videoDataBase64) {
   // A. Hapus offscreen document karena perekaman selesai
   chrome.offscreen.closeDocument().catch(() => {});
   
   const durationSec = Math.round((Date.now() - startTime) / 1000);
-  const id = generateUUID();
  
   // B. Susun objek Metadata Jam
   const metadata = {
-    id: id,
+    id: generateUUID(),
     title: `Loomo Recording - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
     createdAt: new Date().toISOString(),
     type: 'recording', // Tipe: Recording
@@ -357,20 +338,14 @@ async function saveRecordingAndRedirect(videoBlob) {
     userActions: userActions
   };
  
-  try {
-    // Simpan video blob ke IndexedDB milik Extension
-    await saveBlobToExtensionDB(id, videoBlob);
-    
-    // C. Simpan sementara metadata di chrome.storage.local
-    chrome.storage.local.set({
-      pending_jam_metadata: metadata
-    }, () => {
-      const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${id}&isPopup=true`;
-      createCenteredEditorWindow(backofficeUrl);
-    });
-  } catch (err) {
-    console.error('[background] Failed to save video blob to extension DB:', err);
-  }
+  // C. Simpan sementara di chrome.storage.local agar bisa dibaca halaman Loomo
+  chrome.storage.local.set({
+    pending_jam_metadata: metadata,
+    pending_jam_video: videoDataBase64
+  }, () => {
+    const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
+    createCenteredEditorWindow(backofficeUrl);
+  });
 }
 
 function generateUUID() {
@@ -446,64 +421,4 @@ async function performBackgroundUpload(mediaId, uploadUrl, blob, id, title) {
       priority: 2
     });
   }
-}
-
-// Helper IndexedDB di Service Worker Extension untuk menyimpan Large Blobs (Video)
-function saveBlobToExtensionDB(id, blob) {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('LoomoExtensionDB', 1);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => {
-      const db = request.result;
-      const transaction = db.transaction('videos', 'readwrite');
-      const store = transaction.objectStore('videos');
-      const putRequest = store.put(blob, id);
-      putRequest.onsuccess = () => resolve();
-      putRequest.onerror = () => reject(putRequest.error);
-    };
-    request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains('videos')) {
-        db.createObjectStore('videos');
-      }
-    };
-  });
-}
-
-function getBlobFromExtensionDB(id) {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('LoomoExtensionDB', 1);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains('videos')) {
-        resolve(null);
-        return;
-      }
-      const transaction = db.transaction('videos', 'readonly');
-      const store = transaction.objectStore('videos');
-      const getRequest = store.get(id);
-      getRequest.onsuccess = () => resolve(getRequest.result || null);
-      getRequest.onerror = () => reject(getRequest.error);
-    };
-  });
-}
-
-function deleteBlobFromExtensionDB(id) {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('LoomoExtensionDB', 1);
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains('videos')) {
-        resolve();
-        return;
-      }
-      const transaction = db.transaction('videos', 'readwrite');
-      const store = transaction.objectStore('videos');
-      const deleteRequest = store.delete(id);
-      deleteRequest.onsuccess = () => resolve();
-      deleteRequest.onerror = () => reject(deleteRequest.error);
-    };
-  });
 }
