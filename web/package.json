@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/cli": "^3.0.0-beta.16",
     "@prisma/client": "^7.8.0",
     "@prisma/extension-accelerate": "^3.0.1",
     "lucide-react": "^1.20.0",
