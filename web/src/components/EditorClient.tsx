@@ -484,6 +484,8 @@ export default function EditorClient() {
       let mediaId: string;
 
       if (isRecording || blob.size > 4 * 1024 * 1024) {
+        const hasExtension = typeof document !== 'undefined' && document.documentElement.dataset.loomoExtensionInstalled === 'true';
+
         // 1. Initiate upload session on server (very fast)
         const initResponse = await fetch('/api/media/upload', {
           method: 'POST',
@@ -528,33 +530,113 @@ export default function EditorClient() {
           }
         }
 
-        // 3. Trigger Chrome Extension Background Upload (delegates upload to service worker)
-        window.postMessage({
-          source: 'loomo-web-page',
-          action: 'START_BACKGROUND_UPLOAD',
-          payload: {
-            mediaId,
-            uploadUrl,
-            id,
-            title: title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot')
+        if (hasExtension) {
+          // Promise that resolves when extension ACKs or rejects on failure/timeout
+          await new Promise<void>((resolve, reject) => {
+            let timeoutId: any;
+
+            const handleUploadMessage = (event: MessageEvent) => {
+              if (event.data && event.data.source === 'loomo-extension') {
+                if (event.data.action === 'BACKGROUND_UPLOAD_ACK' && event.data.payload.mediaId === mediaId) {
+                  cleanup();
+                  resolve();
+                } else if (event.data.action === 'BACKGROUND_UPLOAD_FAILED' && event.data.payload.mediaId === mediaId) {
+                  cleanup();
+                  reject(new Error(event.data.payload.error || 'Failed to start background upload'));
+                }
+              }
+            };
+
+            const cleanup = () => {
+              window.removeEventListener('message', handleUploadMessage);
+              clearTimeout(timeoutId);
+            };
+
+            // Set up a 5-second timeout fallback in case the extension fails to ACK
+            timeoutId = setTimeout(() => {
+              cleanup();
+              console.warn('[EditorClient] Extension upload ACK timed out, proceeding anyway');
+              resolve(); // Resolve anyway to avoid blocking the user
+            }, 5000);
+
+            window.addEventListener('message', handleUploadMessage);
+
+            // 3. Trigger Chrome Extension Background Upload (delegates upload to service worker)
+            window.postMessage({
+              source: 'loomo-web-page',
+              action: 'START_BACKGROUND_UPLOAD',
+              payload: {
+                mediaId,
+                uploadUrl,
+                id,
+                title: title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot')
+              }
+            }, '*');
+          });
+
+          // Cleanup IndexedDB locally after successfully handing off
+          try {
+            localStorage.removeItem(`jam_meta_${id}`);
+            await deleteVideoFromIndexedDB(id);
+          } catch (e) {
+            console.warn('Failed to cleanup local IndexedDB:', e);
           }
-        }, '*');
 
-        toast.success('Upload started in background! Share link copied to clipboard.', { id: 'save-media' });
+          toast.success('Upload started in background! Share link copied to clipboard.', { id: 'save-media' });
 
-        // 4. Success behavior: close editor immediately
-        if (isPopup) {
-          window.dispatchEvent(new CustomEvent('loomo_close_window'));
-          setTimeout(() => {
-            window.close();
-          }, 800);
+          // 4. Success behavior: close editor immediately
+          if (isPopup) {
+            window.dispatchEvent(new CustomEvent('loomo_close_window'));
+            setTimeout(() => {
+              window.close();
+            }, 200);
+          } else {
+            router.push('/');
+            setTimeout(() => {
+              window.location.reload();
+            }, 200);
+          }
+          return; // Skip the rest of standard save logic
         } else {
-          router.push('/');
-          setTimeout(() => {
-            window.location.reload();
-          }, 800);
+          // If no extension, we cannot do background upload for recordings, but if it is a large screenshot, we could try uploading directly or throw.
+          if (isRecording) {
+            throw new Error('Loomo extension is required to upload recordings.');
+          }
+          // Standard upload fallback for large screenshot since there's no extension
+          console.warn('[EditorClient] No extension detected, performing direct client upload for screenshot');
+          
+          const uploadRes = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: blob,
+            headers: {
+              'Content-Type': blob.type || 'image/png'
+            }
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error(`Google Drive upload failed: ${uploadRes.statusText}`);
+          }
+
+          const gMetadata = await uploadRes.json();
+          const driveFileId = gMetadata.id;
+
+          // Finalize on server
+          const completeRes = await fetch('/api/media/upload/complete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              mediaId,
+              driveFileId,
+              fileSize: blob.size
+            })
+          });
+
+          if (!completeRes.ok) {
+            throw new Error('Failed to finalize upload on server');
+          }
         }
-        return; // Skip the rest of standard save logic
       } else {
         // Fallback to standard multipart upload for small screenshots
         const formData = new FormData();
