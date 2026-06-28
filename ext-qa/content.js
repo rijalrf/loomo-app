@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         source: 'jam-content-script',
         action: 'START_CAPTURE'
       }, '*');
-      showFloatingControls(); // Tampilkan panel kontrol mengambang
+      showFloatingControls(0, false); // Tampilkan panel kontrol mengambang
       sendResponse({ status: 'Capture starting in tab' });
     } else if (message.action === 'STOP_RECORDING') {
       window.postMessage({
@@ -424,25 +424,25 @@ function saveScreenshotJam(imageBase64, width, height) {
 }
 
 // 6. Fungsi Panel Kontrol Perekaman Mengambang (Floating Control Bar)
-function showFloatingControls() {
+function showFloatingControls(initialElapsed = 0, initialIsPaused = false) {
   if (document.getElementById('jam-floating-controls')) return;
 
   floatingPanel = document.createElement('div');
   floatingPanel.id = 'jam-floating-controls';
   floatingPanel.style.cssText = `
     position: fixed;
-    bottom: 32px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2147483647;
     background: #0F172A;
     border: 1px solid #334155;
-    border-radius: 16px;
-    padding: 12px 20px;
+    border-radius: 12px;
+    padding: 6px 12px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: white;
     user-select: none;
@@ -452,8 +452,8 @@ function showFloatingControls() {
   const dot = document.createElement('div');
   dot.id = 'jam-floating-dot';
   dot.style.cssText = `
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background: #EF4444;
     border-radius: 50%;
   `;
@@ -471,25 +471,32 @@ function showFloatingControls() {
     }
   `;
   document.head.appendChild(styleEl);
-  dot.classList.add('jam-blinking');
+  
+  if (initialIsPaused) {
+    dot.style.background = '#F59E0B'; // Orange when paused
+  } else {
+    dot.classList.add('jam-blinking');
+  }
   floatingPanel.appendChild(dot);
 
   const timerText = document.createElement('span');
   timerText.id = 'jam-floating-timer';
   timerText.style.cssText = `
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     font-family: monospace;
-    min-width: 40px;
+    min-width: 36px;
   `;
-  timerText.textContent = '00:00';
+  const minutes = String(Math.floor(initialElapsed / 60)).padStart(2, '0');
+  const seconds = String(initialElapsed % 60).padStart(2, '0');
+  timerText.textContent = `${minutes}:${seconds}`;
   floatingPanel.appendChild(timerText);
 
   // Divider
   const divider = document.createElement('div');
   divider.style.cssText = `
     width: 1px;
-    height: 20px;
+    height: 14px;
     background: #334155;
   `;
   floatingPanel.appendChild(divider);
@@ -501,24 +508,39 @@ function showFloatingControls() {
     background: #1E293B;
     border: 1px solid #334155;
     color: white;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
     cursor: pointer;
     font-weight: 800;
     transition: all 0.15s;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   `;
-  pauseBtn.textContent = 'Pause';
+  
+  if (initialIsPaused) {
+    pauseBtn.textContent = 'Resume';
+    pauseBtn.style.borderColor = '#6366F1';
+    pauseBtn.style.color = '#C4B5FD';
+    pauseBtn.style.background = 'rgba(138, 92, 246, 0.1)';
+  } else {
+    pauseBtn.textContent = 'Pause';
+  }
+
   pauseBtn.addEventListener('mouseenter', () => {
-    pauseBtn.style.background = '#334155';
-    pauseBtn.style.borderColor = '#0CB2EB';
+    if (!isPaused) {
+      pauseBtn.style.background = '#334155';
+      pauseBtn.style.borderColor = '#0CB2EB';
+    } else {
+      pauseBtn.style.background = 'rgba(138, 92, 246, 0.2)';
+    }
   });
   pauseBtn.addEventListener('mouseleave', () => {
     if (!isPaused) {
       pauseBtn.style.background = '#1E293B';
       pauseBtn.style.borderColor = '#334155';
+    } else {
+      pauseBtn.style.background = 'rgba(138, 92, 246, 0.1)';
     }
   });
   
@@ -574,24 +596,24 @@ function showFloatingControls() {
     background: #EF4444;
     border: none;
     color: white;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
     cursor: pointer;
     font-weight: 800;
     transition: all 0.15s;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
   `;
   stopBtn.textContent = 'Stop';
   stopBtn.addEventListener('mouseenter', () => {
-    stopBtn.style.transform = 'translateY(-1px)';
-    stopBtn.style.boxShadow = '0 6px 16px rgba(239, 68, 68, 0.4)';
+    stopBtn.style.transform = 'translateY(-0.5px)';
+    stopBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
   });
   stopBtn.addEventListener('mouseleave', () => {
     stopBtn.style.transform = 'translateY(0)';
-    stopBtn.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+    stopBtn.style.boxShadow = '0 2px 8px rgba(239, 68, 68, 0.3)';
   });
   
   stopBtn.addEventListener('click', () => {
@@ -612,8 +634,11 @@ function showFloatingControls() {
 
   document.body.appendChild(floatingPanel);
 
-  elapsedSeconds = 0;
-  startTimer(timerText, dot);
+  elapsedSeconds = initialElapsed;
+  isPaused = initialIsPaused;
+  if (!isPaused) {
+    startTimer(timerText, dot);
+  }
 }
 
 function startTimer(timerText, dot) {
@@ -704,6 +729,27 @@ function getVideoFromIndexedDB(id) {
     };
   });
 }
+
+// Auto-check active recording on load/refresh
+function checkActiveRecording() {
+  if (!isExtensionValid()) return;
+  chrome.runtime.sendMessage({
+    source: 'jam-extension-content',
+    action: 'GET_STATUS'
+  }, (response) => {
+    if (chrome.runtime.lastError) return;
+    if (response && response.isRecording && response.isCurrentTabRecording) {
+      if (document.body) {
+        showFloatingControls(response.elapsed, response.isPaused);
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          showFloatingControls(response.elapsed, response.isPaused);
+        });
+      }
+    }
+  });
+}
+checkActiveRecording();
 
 function deleteVideoFromIndexedDB(id) {
   return new Promise((resolve, reject) => {

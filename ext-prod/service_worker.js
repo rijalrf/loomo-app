@@ -10,7 +10,10 @@ self.addEventListener('unhandledrejection', (event) => {
 
 // State Perekaman Global di Background
 let isRecording = false;
+let isPaused = false;
 let startTime = 0;
+let accumulatedTime = 0;
+let finalDuration = 0;
 let activeTabId = null;
 
 let logs = [];
@@ -49,19 +52,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       stopRecordingFlow(sendResponse);
       return true; // async response
     } else if (message.action === 'PAUSE_RECORDING') {
+      if (isRecording && !isPaused) {
+        accumulatedTime += (Date.now() - startTime);
+        isPaused = true;
+      }
       chrome.runtime.sendMessage({
         source: 'jam-extension-background',
         action: 'PAUSE_OFFSCREEN_CAPTURE'
       });
       sendResponse({ success: true });
     } else if (message.action === 'RESUME_RECORDING') {
+      if (isRecording && isPaused) {
+        startTime = Date.now();
+        isPaused = false;
+      }
       chrome.runtime.sendMessage({
         source: 'jam-extension-background',
         action: 'RESUME_OFFSCREEN_CAPTURE'
       });
       sendResponse({ success: true });
     } else if (message.action === 'GET_STATUS') {
-      sendResponse({ isRecording, elapsed: isRecording ? Math.round((Date.now() - startTime) / 1000) : 0 });
+      let elapsed = 0;
+      if (isRecording) {
+        if (isPaused) {
+          elapsed = Math.round(accumulatedTime / 1000);
+        } else {
+          elapsed = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
+        }
+      }
+      const senderTabId = (sender && sender.tab) ? sender.tab.id : null;
+      const isCurrentTabRecording = isRecording && (senderTabId === activeTabId);
+      sendResponse({ isRecording, isCurrentTabRecording, isPaused, elapsed });
     } else if (message.action === 'START_SCREENSHOT') {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const activeTab = tabs[0];
@@ -186,7 +207,10 @@ async function startRecordingFlow(sendResponse) {
 
     activeTabId = tab.id;
     isRecording = true;
+    isPaused = false;
     startTime = Date.now();
+    accumulatedTime = 0;
+    finalDuration = 0;
     logs = [];
     networkRequests = [];
     userActions = [];
@@ -256,6 +280,12 @@ async function stopRecordingFlow(sendResponse) {
     return;
   }
 
+  if (isPaused) {
+    finalDuration = Math.round(accumulatedTime / 1000);
+  } else {
+    finalDuration = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
+  }
+
   // A. Beri tahu content script halaman target untuk stop menyadap
   if (activeTabId) {
     await chrome.tabs.sendMessage(activeTabId, {
@@ -271,6 +301,10 @@ async function stopRecordingFlow(sendResponse) {
   });
 
   isRecording = false;
+  isPaused = false;
+  activeTabId = null;
+  accumulatedTime = 0;
+  startTime = 0;
   sendResponse({ success: true });
 }
 
@@ -316,7 +350,7 @@ async function saveRecordingAndRedirect(videoDataBase64) {
   // A. Hapus offscreen document karena perekaman selesai
   chrome.offscreen.closeDocument().catch(() => {});
   
-  const durationSec = Math.round((Date.now() - startTime) / 1000);
+  const durationSec = finalDuration || 1;
  
   // B. Susun objek Metadata Jam
   const metadata = {
