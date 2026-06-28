@@ -142,6 +142,12 @@ function stopRecording() {
       reader.onloadend = () => {
         const base64Data = reader.result;
         console.log('[offscreen] Base64 data created, length:', base64Data.length);
+        
+        if (typeof chrome === 'undefined' || !chrome.storage) {
+          console.error('[offscreen] chrome.storage is not available');
+          return;
+        }
+        
         chrome.storage.local.set({
           pending_video_blob: base64Data
         }, () => {
