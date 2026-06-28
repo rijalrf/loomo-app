@@ -80,13 +80,12 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, saveToOwnerDrive } = body;
+    const { id, saveToOwnerDrive, name, description, department } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Workspace ID is required' }, { status: 400 });
     }
 
-    // Verify workspace existence and ownership
     const workspace = await prisma.workspace.findUnique({
       where: { id }
     });
@@ -100,11 +99,27 @@ export async function PATCH(request: NextRequest) {
     }
 
     const data: any = {};
+    
     if (typeof saveToOwnerDrive === 'boolean') {
       data.saveToOwnerDrive = saveToOwnerDrive;
     }
 
-    // Update the workspace setting
+    if (name !== undefined) {
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        return NextResponse.json({ error: 'Workspace name cannot be empty' }, { status: 400 });
+      }
+      data.name = trimmedName;
+    }
+
+    if (description !== undefined) {
+      data.description = description ? description.trim() : null;
+    }
+
+    if (department !== undefined) {
+      data.department = department ? department.trim() : null;
+    }
+
     const updatedWorkspace = await prisma.workspace.update({
       where: { id },
       data
@@ -115,6 +130,8 @@ export async function PATCH(request: NextRequest) {
       workspace: {
         id: updatedWorkspace.id,
         name: updatedWorkspace.name,
+        description: updatedWorkspace.description,
+        department: updatedWorkspace.department,
         saveToOwnerDrive: updatedWorkspace.saveToOwnerDrive
       }
     });
