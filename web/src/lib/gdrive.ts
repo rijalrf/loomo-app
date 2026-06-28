@@ -24,6 +24,10 @@ export async function getFreshAccessToken(userId: string): Promise<string> {
     throw new Error('No refresh token available. User must re-authenticate.');
   }
 
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    throw new Error('Google OAuth configuration is missing.');
+  }
+
   const decryptedRefreshToken = decrypt(user.refreshToken);
 
   const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -39,6 +43,10 @@ export async function getFreshAccessToken(userId: string): Promise<string> {
 
   if (!response.ok) {
     const errText = await response.text();
+    // Jika refresh token invalid, throw specific error agar bisa ditangkap
+    if (response.status === 400 && errText.includes('invalid_grant')) {
+       throw new Error('AUTH_REVOKED');
+    }
     throw new Error(`Failed to refresh Google OAuth token: ${response.statusText} - ${errText}`);
   }
 
