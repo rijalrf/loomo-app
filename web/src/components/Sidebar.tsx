@@ -487,7 +487,7 @@ export default function Sidebar({
             )}
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-white truncate">{initialUser.displayName}</span>
-              <span className="text-xs font-bold text-[var(--text-muted)] truncate leading-none mt-1">Pro Plan</span>
+              <span className="text-xs font-bold text-[var(--text-muted)] truncate leading-none mt-1">{workspaces.find(w => w.id === activeWorkspaceId)?.role || 'Member'}</span>
             </div>
           </div>
           <ChevronDown size={14} className="text-[var(--text-muted)] shrink-0" />
