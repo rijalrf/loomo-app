@@ -11,6 +11,7 @@ import MediaViewer from '../media/MediaViewer';
 import PopupModal from '../PopupModal';
 import { Link2, X, Edit2, Trash2, Folder, MoreVertical } from 'lucide-react';
 import { toast } from 'sonner';
+import { showLoadingAlert, hideLoadingAlert } from '@/components/LoadingAlert';
 import MediaVisibilitySelect from '../ui/MediaVisibilitySelect';
 import Dropdown from '../ui/Dropdown';
 
@@ -64,6 +65,7 @@ export default function DashboardContent({
   const [folders, setFolders] = useState<Array<{ id: string; name: string }>>([]);
   const [isFoldersLoading, setIsFoldersLoading] = useState(false);
   const [isMovingMedia, setIsMovingMedia] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
   const fetchFoldersForMove = async () => {
     if (!activeWorkspaceId) return;
@@ -83,13 +85,17 @@ export default function DashboardContent({
 
   useEffect(() => {
     if (showMoveModal) {
+      setSelectedFolderId(showMoveModal.folderId || null);
       fetchFoldersForMove();
+    } else {
+      setSelectedFolderId(null);
     }
   }, [showMoveModal]);
 
   const handleMoveMedia = async (folderId: string | null) => {
     if (!showMoveModal) return;
     setIsMovingMedia(true);
+    const loadingId = showLoadingAlert('Moving media...');
     try {
       const res = await fetch(`/api/media/${showMoveModal.id}`, {
         method: 'PATCH',
@@ -108,6 +114,7 @@ export default function DashboardContent({
       toast.error('Connection error');
     } finally {
       setIsMovingMedia(false);
+      hideLoadingAlert(loadingId);
     }
   };
 
@@ -641,10 +648,10 @@ export default function DashboardContent({
 
         <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar mb-6 font-sans">
           <button
-            onClick={() => handleMoveMedia(null)}
+            onClick={() => setSelectedFolderId(null)}
             disabled={isMovingMedia}
             className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-bold transition-all cursor-pointer ${
-              showMoveModal?.folderId === null
+              selectedFolderId === null
                 ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
                 : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
             }`}
@@ -656,10 +663,10 @@ export default function DashboardContent({
           {folders.map((folder) => (
             <button
               key={folder.id}
-              onClick={() => handleMoveMedia(folder.id)}
+              onClick={() => setSelectedFolderId(folder.id)}
               disabled={isMovingMedia}
               className={`w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg text-sm font-bold transition-all cursor-pointer ${
-                showMoveModal?.folderId === folder.id
+                selectedFolderId === folder.id
                   ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
                   : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
               }`}
@@ -677,13 +684,20 @@ export default function DashboardContent({
           )}
         </div>
 
-        <div className="flex justify-end font-sans">
+        <div className="flex gap-3 justify-end font-sans">
           <button
             onClick={() => setShowMoveModal(null)}
             disabled={isMovingMedia}
             className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
           >
             Cancel
+          </button>
+          <button
+            onClick={() => handleMoveMedia(selectedFolderId)}
+            disabled={isMovingMedia || (showMoveModal?.folderId || null) === selectedFolderId}
+            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none hover:-translate-y-0.5 disabled:transform-none"
+          >
+            Move
           </button>
         </div>
       </PopupModal>

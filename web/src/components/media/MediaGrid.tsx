@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Edit2, Trash2, Link2, Download, Eye, MoreHorizontal, Folder } from 'lucide-react';
+import { Edit2, Trash2, Link2, Download, Eye, MoreHorizontal, FolderInput } from 'lucide-react';
 import MediaCard from './MediaCard';
 import MediaVisibilitySelect from '../ui/MediaVisibilitySelect';
 
@@ -148,7 +148,7 @@ export default function MediaGrid({
                         className="flex items-center justify-center gap-1.5 bg-[var(--bg-hover)] hover:bg-[var(--primary)]/10 border border-[var(--border-color)] hover:border-[var(--primary)] text-[var(--text-muted)] hover:text-[var(--primary)] py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer"
                         title="Move to Project"
                       >
-                        <Folder size={14} />
+                        <FolderInput size={14} />
                       </button>
 
                       <button
