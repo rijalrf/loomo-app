@@ -265,29 +265,15 @@ export default function Sidebar({
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest leading-none mb-1">Workspace</span>
-                <span className="text-sm font-bold text-white group-hover:text-[var(--primary)] transition-colors truncate">
+                <span className="text-sm text-white group-hover:text-[var(--primary)] transition-colors truncate">
                   {activeWorkspace?.name}
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleOpenEditWorkspace();
-                  }}
-                  className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--bg-hover)] rounded-md transition-colors cursor-pointer"
-                  title="Edit Workspace"
-                >
-                  <Pencil size={14} />
-                </button>
-              )}
-              <ChevronDown
-                size={14}
-                className={`text-[var(--text-muted)] transition-transform duration-200 ${workspaceDropdownOpen ? 'rotate-180' : ''}`}
-              />
-            </div>
+            <ChevronDown
+              size={14}
+              className={`text-[var(--text-muted)] transition-transform duration-200 shrink-0 ${workspaceDropdownOpen ? 'rotate-180' : ''}`}
+            />
           </button>
 
           {workspaceDropdownOpen && (
@@ -320,10 +306,20 @@ export default function Sidebar({
                     <div className="h-px bg-[var(--border-color)] my-1"></div>
                     <button
                       onClick={() => {
+                        handleOpenEditWorkspace();
+                        setWorkspaceDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white transition-colors cursor-pointer"
+                    >
+                      <Pencil size={16} />
+                      <span>Edit Workspace</span>
+                    </button>
+                    <button
+                      onClick={() => {
                         onCreateWorkspaceClick();
                         setWorkspaceDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-lg text-sm text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-colors cursor-pointer font-bold"
+                      className="w-full flex items-center gap-2 px-2.5 py-2 text-left rounded-lg text-sm text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white transition-colors cursor-pointer"
                     >
                       <Plus size={16} />
                       <span>Create Workspace</span>
