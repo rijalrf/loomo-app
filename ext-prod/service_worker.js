@@ -179,9 +179,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   }
 
-  // 3. Terima Video Blob dari Offscreen Document (offscreen.js)
-  if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY') {
-    saveRecordingAndRedirect(message.payload);
+  // 3. Terima Video Blob dari Offscreen Document (offscreen.js) via Storage
+  if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY_IN_STORAGE') {
+    chrome.storage.local.get(['pending_video_blob'], (result) => {
+      if (chrome.runtime.lastError) {
+        console.error('[background] Gagal mengambil pending_video_blob dari storage:', chrome.runtime.lastError.message);
+        return;
+      }
+      const videoBase64 = result.pending_video_blob;
+      chrome.storage.local.remove('pending_video_blob');
+      if (videoBase64) {
+        saveRecordingAndRedirect(videoBase64);
+      } else {
+        console.error('[background] pending_video_blob kosong di storage.');
+      }
+    });
   }
 
   // 3b. Menerima request upload latar belakang dari content script
@@ -329,8 +341,12 @@ function createCenteredEditorWindow(url) {
   chrome.windows.getLastFocused((win) => {
     const winWidth = 1600;
     const winHeight = 960;
-    const left = Math.round((win.width - winWidth) / 2 + (win.left || 0));
-    const top = Math.round((win.height - winHeight) / 2 + (win.top || 0));
+    let left = 100;
+    let top = 100;
+    if (win && typeof win.width === 'number' && typeof win.height === 'number') {
+      left = Math.round((win.width - winWidth) / 2 + (win.left || 0));
+      top = Math.round((win.height - winHeight) / 2 + (win.top || 0));
+    }
     chrome.windows.create({
       url,
       type: 'popup',
@@ -338,6 +354,16 @@ function createCenteredEditorWindow(url) {
       height: winHeight,
       left: Math.max(0, left),
       top: Math.max(0, top)
+    }, (newWin) => {
+      if (chrome.runtime.lastError) {
+        console.warn('Gagal membuat centered window, mencoba fallback:', chrome.runtime.lastError.message);
+        chrome.windows.create({
+          url,
+          type: 'popup',
+          width: winWidth,
+          height: winHeight
+        });
+      }
     });
   });
 }

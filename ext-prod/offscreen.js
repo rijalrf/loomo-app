@@ -119,15 +119,18 @@ function stopRecording() {
     mediaRecorder.onstop = () => {
       const blob = new Blob(chunks, { type: 'video/webm' });
       
-      // Konversi blob ke base64 agar bisa ditransmisikan lewat message passing ke service worker
+      // Konversi blob ke base64
       const reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
         const base64Data = reader.result;
-        chrome.runtime.sendMessage({
-          source: 'jam-extension-offscreen',
-          action: 'VIDEO_BLOB_READY',
-          payload: base64Data
+        chrome.storage.local.set({
+          pending_video_blob: base64Data
+        }, () => {
+          chrome.runtime.sendMessage({
+            source: 'jam-extension-offscreen',
+            action: 'VIDEO_BLOB_READY_IN_STORAGE'
+          });
         });
       };
     };
