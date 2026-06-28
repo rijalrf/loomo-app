@@ -26,6 +26,7 @@ interface Media {
 
 type FilterType = 'ALL' | 'SCREENSHOT' | 'RECORDING';
 type FilterStatus = 'ALL' | 'READY' | 'PROCESSING' | 'FAILED';
+type FilterVisibility = 'ALL' | 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
 type SortBy = 'DATE_DESC' | 'DATE_ASC' | 'NAME_ASC' | 'SIZE_DESC';
 
 interface UseMediaFiltersReturn {
@@ -35,6 +36,8 @@ interface UseMediaFiltersReturn {
   setFilterType: (type: FilterType) => void;
   filterStatus: FilterStatus;
   setFilterStatus: (status: FilterStatus) => void;
+  filterVisibility: FilterVisibility;
+  setFilterVisibility: (visibility: FilterVisibility) => void;
   sortBy: SortBy;
   setSortBy: (sort: SortBy) => void;
   page: number;
@@ -46,6 +49,7 @@ export function useMediaFilters(mediaList: Media[]): UseMediaFiltersReturn {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('ALL');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL');
+  const [filterVisibility, setFilterVisibility] = useState<FilterVisibility>('ALL');
   const [sortBy, setSortBy] = useState<SortBy>('DATE_DESC');
   const [page, setPage] = useState(1);
 
@@ -74,6 +78,8 @@ export function useMediaFilters(mediaList: Media[]): UseMediaFiltersReturn {
     setFilterType,
     filterStatus,
     setFilterStatus,
+    filterVisibility,
+    setFilterVisibility,
     sortBy,
     setSortBy,
     page,

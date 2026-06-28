@@ -118,6 +118,8 @@ export default function DashboardContent({
     setFilterType,
     filterStatus,
     setFilterStatus,
+    filterVisibility,
+    setFilterVisibility,
     sortBy,
     setSortBy,
     page,
@@ -153,6 +155,7 @@ export default function DashboardContent({
       params.append('workspaceId', activeWorkspaceId);
       if (filterType !== 'ALL') params.append('type', filterType);
       if (filterStatus !== 'ALL') params.append('status', filterStatus);
+      if (filterVisibility !== 'ALL') params.append('visibility', filterVisibility);
       if (searchQuery) params.append('search', searchQuery);
       if (activeFolderId) params.append('folderId', activeFolderId);
       params.append('page', page.toString());
@@ -175,14 +178,14 @@ export default function DashboardContent({
     }
   }
 
-  useEffect(() => {
+      useEffect(() => {
     const isImportPending = new URLSearchParams(window.location.search).get('importPending') === 'true';
     if (isImportPending) return;
 
     if (activeWorkspaceId) {
       fetchMedia();
     }
-  }, [activeWorkspaceId, filterType, filterStatus, searchQuery, page, activeFolderId, sortBy]);
+  }, [activeWorkspaceId, filterType, filterStatus, filterVisibility, searchQuery, page, activeFolderId, sortBy]);
 
   useEffect(() => {
     const hasPendingMedia = mediaList.some(
@@ -248,6 +251,8 @@ export default function DashboardContent({
         onFilterTypeChange={setFilterType}
         filterStatus={filterStatus}
         onFilterStatusChange={setFilterStatus}
+        filterVisibility={filterVisibility}
+        onFilterVisibilityChange={setFilterVisibility}
         sortBy={sortBy}
         onSortChange={(sort) => {
           setSortBy(sort);
