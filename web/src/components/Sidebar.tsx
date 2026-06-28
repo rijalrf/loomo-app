@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Folder, Settings, BookOpen, ChevronDown, Check, Plus, LogOut, Edit2, Trash2 } from 'lucide-react';
+import { Folder, Settings, BookOpen, ChevronDown, Check, Plus, LogOut, Edit2, Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import ThemeSwitcherDropdown from './ThemeSwitcherDropdown';
 import PopupModal from './PopupModal';
@@ -56,6 +56,12 @@ export default function Sidebar({
   const [deletingFolderId, setDeletingFolderId] = useState<string | null>(null);
   const [deletingFolderName, setDeletingFolderName] = useState('');
   const [isDeletingFolder, setIsDeletingFolder] = useState(false);
+
+  const [showEditWorkspaceModal, setShowEditWorkspaceModal] = useState(false);
+  const [editWorkspaceName, setEditWorkspaceName] = useState('');
+  const [editWorkspaceDesc, setEditWorkspaceDesc] = useState('');
+  const [editWorkspaceDept, setEditWorkspaceDept] = useState('');
+  const [isEditingWorkspace, setIsEditingWorkspace] = useState(false);
 
   const fetchFolders = async () => {
     if (!activeWorkspaceId) return;
@@ -196,6 +202,55 @@ export default function Sidebar({
     }
   };
 
+  const handleOpenEditWorkspace = async () => {
+    if (!activeWorkspace) return;
+    
+    try {
+      const res = await fetch(`/api/workspace/${activeWorkspaceId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setEditWorkspaceName(data.workspace.name || '');
+        setEditWorkspaceDesc(data.workspace.description || '');
+        setEditWorkspaceDept(data.workspace.department || 'Engineering & Product');
+        setShowEditWorkspaceModal(true);
+      } else {
+        toast.error('Failed to load workspace data');
+      }
+    } catch (err) {
+      toast.error('Failed to connect to server');
+    }
+  };
+
+  const handleEditWorkspace = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editWorkspaceName.trim() || !activeWorkspaceId) return;
+    setIsEditingWorkspace(true);
+    try {
+      const res = await fetch('/api/workspace', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: activeWorkspaceId,
+          name: editWorkspaceName,
+          description: editWorkspaceDesc,
+          department: editWorkspaceDept
+        })
+      });
+      if (res.ok) {
+        toast.success('Workspace updated successfully');
+        setShowEditWorkspaceModal(false);
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || 'Failed to update workspace');
+      }
+    } catch (err) {
+      toast.error('Failed to connect to server');
+    } finally {
+      setIsEditingWorkspace(false);
+    }
+  };
+
   return (
     <aside className="w-64 border-r border-[var(--border-color)] bg-[var(--bg-main)] flex flex-col justify-between shrink-0 h-screen sticky top-0 z-30 font-sans">
       <div className="flex flex-col gap-3.5 p-3.5">
@@ -215,10 +270,24 @@ export default function Sidebar({
                 </span>
               </div>
             </div>
-            <ChevronDown
-              size={14}
-              className={`text-[var(--text-muted)] transition-transform duration-200 shrink-0 ${workspaceDropdownOpen ? 'rotate-180' : ''}`}
-            />
+            <div className="flex items-center gap-1 shrink-0">
+              {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenEditWorkspace();
+                  }}
+                  className="p-1.5 text-[var(--text-muted)] hover:text-[var(--primary)] hover:bg-[var(--bg-hover)] rounded-md transition-colors cursor-pointer"
+                  title="Edit Workspace"
+                >
+                  <Pencil size={14} />
+                </button>
+              )}
+              <ChevronDown
+                size={14}
+                className={`text-[var(--text-muted)] transition-transform duration-200 ${workspaceDropdownOpen ? 'rotate-180' : ''}`}
+              />
+            </div>
           </button>
 
           {workspaceDropdownOpen && (
@@ -576,6 +645,86 @@ export default function Sidebar({
             {isDeletingFolder ? 'Deleting...' : 'Delete'}
           </button>
         </div>
+      </PopupModal>
+
+      {/* Edit Workspace Modal */}
+      <PopupModal
+        isOpen={showEditWorkspaceModal}
+        onClose={() => {
+          setShowEditWorkspaceModal(false);
+          setEditWorkspaceName('');
+          setEditWorkspaceDesc('');
+          setEditWorkspaceDept('');
+        }}
+        maxWidth="sm"
+      >
+        <h3 className="text-lg font-semibold text-[#e4e4e7] mb-2 pr-6">Edit Workspace</h3>
+        <p className="text-sm text-[#a1a1aa] mb-4 leading-relaxed font-sans">
+          Update your workspace information.
+        </p>
+        <form onSubmit={handleEditWorkspace} className="space-y-4 font-sans">
+          <div>
+            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Workspace Name</label>
+            <input
+              type="text"
+              placeholder="Workspace name"
+              value={editWorkspaceName}
+              onChange={(e) => setEditWorkspaceName(e.target.value)}
+              disabled={isEditingWorkspace}
+              autoFocus
+              className="w-full bg-[#0a0a0b] border border-[#3f3f46] text-white py-2 px-3 rounded-lg text-sm outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Description</label>
+            <input
+              type="text"
+              placeholder="Short description (optional)"
+              value={editWorkspaceDesc}
+              onChange={(e) => setEditWorkspaceDesc(e.target.value)}
+              disabled={isEditingWorkspace}
+              className="w-full bg-[#0a0a0b] border border-[#3f3f46] text-white py-2 px-3 rounded-lg text-sm outline-none focus:border-[var(--primary)] transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Department</label>
+            <select
+              value={editWorkspaceDept}
+              onChange={(e) => setEditWorkspaceDept(e.target.value)}
+              disabled={isEditingWorkspace}
+              className="w-full bg-[#0a0a0b] border border-[#3f3f46] text-white py-2 px-3 rounded-lg text-sm outline-none focus:border-[var(--primary)] transition-colors cursor-pointer"
+            >
+              <option value="Engineering & Product">Engineering & Product</option>
+              <option value="Design & Creative">Design & Creative</option>
+              <option value="Marketing & Sales">Marketing & Sales</option>
+              <option value="Operations & HR">Operations & HR</option>
+              <option value="Personal & Individual">Personal & Individual</option>
+              <option value="Other / Custom">Other / Custom</option>
+            </select>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                setShowEditWorkspaceModal(false);
+                setEditWorkspaceName('');
+                setEditWorkspaceDesc('');
+                setEditWorkspaceDept('');
+              }}
+              disabled={isEditingWorkspace}
+              className="px-4 py-2 bg-[#27272a] border border-[#3f3f46] text-[#e4e4e7] rounded-lg text-sm font-semibold hover:bg-[#3f3f46] transition-all cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isEditingWorkspace || !editWorkspaceName.trim()}
+              className="px-4 py-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary)] hover:from-[var(--primary-hover)] hover:to-[var(--primary-hover)] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isEditingWorkspace ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
       </PopupModal>
     </aside>
   );
