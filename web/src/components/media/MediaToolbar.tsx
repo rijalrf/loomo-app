@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Folder, Image as ImageIcon, Video, LayoutGrid, List } from 'lucide-react';
+import { Search, Folder, Image as ImageIcon, Video, LayoutGrid, List, Eye, EyeOff, Users } from 'lucide-react';
 import CustomSelect from '../CustomSelect';
 
 interface MediaToolbarProps {
@@ -10,6 +10,8 @@ interface MediaToolbarProps {
   onFilterTypeChange: (type: 'ALL' | 'SCREENSHOT' | 'RECORDING') => void;
   filterStatus: 'ALL' | 'READY' | 'PROCESSING' | 'FAILED';
   onFilterStatusChange: (status: 'ALL' | 'READY' | 'PROCESSING' | 'FAILED') => void;
+  filterVisibility: 'ALL' | 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY';
+  onFilterVisibilityChange: (visibility: 'ALL' | 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY') => void;
   sortBy: 'DATE_DESC' | 'DATE_ASC' | 'NAME_ASC' | 'SIZE_DESC';
   onSortChange: (sort: 'DATE_DESC' | 'DATE_ASC' | 'NAME_ASC' | 'SIZE_DESC') => void;
   isGridView: boolean;
@@ -24,6 +26,8 @@ export default function MediaToolbar({
   onFilterTypeChange,
   filterStatus,
   onFilterStatusChange,
+  filterVisibility,
+  onFilterVisibilityChange,
   sortBy,
   onSortChange,
   isGridView,
@@ -69,6 +73,21 @@ export default function MediaToolbar({
             { value: 'READY', label: 'Ready', icon: <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> },
             { value: 'PROCESSING', label: 'Processing', icon: <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse" /> },
             { value: 'FAILED', label: 'Failed', icon: <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> }
+          ]}
+          className="w-full sm:w-auto"
+        />
+
+        <CustomSelect
+          value={filterVisibility}
+          onChange={(val) => {
+            onFilterVisibilityChange(val as any);
+            onPageChange(1);
+          }}
+          options={[
+            { value: 'ALL', label: 'All Visibility', icon: <Folder size={16} className="text-[var(--text-muted)]" /> },
+            { value: 'PRIVATE', label: 'Private', icon: <EyeOff size={16} className="text-[var(--text-muted)]" /> },
+            { value: 'UNLISTED', label: 'Public', icon: <Eye size={16} className="text-[var(--text-muted)]" /> },
+            { value: 'WORKSPACE_ONLY', label: 'Workspace Only', icon: <Users size={16} className="text-[var(--text-muted)]" /> }
           ]}
           className="w-full sm:w-auto"
         />

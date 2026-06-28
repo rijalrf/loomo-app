@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
   const workspaceId = searchParams.get('workspaceId');
   const typeParam = searchParams.get('type'); // "screenshot" | "recording"
   const statusParam = searchParams.get('status'); // "ready" | "processing" etc
+  const visibilityParam = searchParams.get('visibility'); // "PRIVATE" | "UNLISTED" | "WORKSPACE_ONLY"
   const search = searchParams.get('search');
   const folderId = searchParams.get('folderId');
   const page = parseInt(searchParams.get('page') || '1', 10);
@@ -64,6 +65,10 @@ export async function GET(request: NextRequest) {
 
     if (statusParam) {
       where.uploadStatus = statusParam.toUpperCase();
+    }
+
+    if (visibilityParam) {
+      where.visibility = visibilityParam.toUpperCase();
     }
 
     if (search) {
