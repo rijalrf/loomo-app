@@ -151,7 +151,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Workspace Name</label>
+                  <label className="block text-xs font-bold text-slate-400 mb-2">Workspace Name</label>
                   <input
                     type="text"
                     placeholder="e.g. Acme Marketing, Personal projects..."
@@ -163,7 +163,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Workspace Description</label>
+                  <label className="block text-xs font-bold text-slate-400 mb-2">Workspace Description</label>
                   <input
                     type="text"
                     placeholder="Briefly describe the purpose of this workspace (optional)..."
@@ -174,7 +174,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Department / Team</label>
+                  <label className="block text-xs font-bold text-slate-400 mb-3">Department / Team</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {DEPARTMENTS.map((dept) => (
                       <button
@@ -228,7 +228,7 @@ export default function OnboardingJourney({ user, onComplete }: OnboardingJourne
               </div>
 
               <div className="space-y-3">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Team Member Gmails (Optional)</label>
+                <label className="block text-xs font-bold text-slate-400">Team Member Gmails (Optional)</label>
                 
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
                   {emails.map((email, idx) => (

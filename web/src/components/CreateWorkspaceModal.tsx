@@ -83,7 +83,7 @@ export default function CreateWorkspaceModal({
 
         <form onSubmit={handleCreateWorkspace} className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Workspace Name</label>
+            <label className="block text-sm font-bold text-[var(--text-muted)] mb-2">Workspace Name</label>
             <input
               type="text"
               placeholder="e.g. Marketing Team, Personal Projects..."
@@ -96,7 +96,7 @@ export default function CreateWorkspaceModal({
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Short Description</label>
+            <label className="block text-sm font-bold text-[var(--text-muted)] mb-2">Short Description</label>
             <input
               type="text"
               placeholder="e.g. Collaborative space for marketing team (optional)..."
@@ -107,7 +107,7 @@ export default function CreateWorkspaceModal({
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Department / Team</label>
+            <label className="block text-sm font-bold text-[var(--text-muted)] mb-2">Department / Team</label>
             <select
               value={newWorkspaceDept}
               onChange={(e) => setNewWorkspaceDept(e.target.value)}

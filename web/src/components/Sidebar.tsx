@@ -284,7 +284,7 @@ export default function Sidebar({
                 {activeWorkspace?.name?.charAt(0).toUpperCase() || 'L'}
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest leading-none mb-1">Workspace</span>
+                <span className="text-xs font-bold text-[var(--text-muted)] leading-none mb-1">Workspace</span>
                 <span className="text-sm text-white group-hover:text-[var(--primary)] transition-colors truncate">
                   {activeWorkspace?.name}
                 </span>
@@ -299,7 +299,7 @@ export default function Sidebar({
           {workspaceDropdownOpen && (
             <div className="absolute left-0 right-0 mt-1.5 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-0.5">
-                <label className="block text-xs font-black text-[var(--text-muted)] uppercase tracking-wider px-2.5 py-1.5">Select Workspace</label>
+                <label className="block text-xs font-bold text-[var(--text-muted)] px-2.5 py-1.5">Select Workspace</label>
                 {workspaces.map((w) => (
                   <button
                     key={w.id}
@@ -353,7 +353,7 @@ export default function Sidebar({
 
         <nav className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider mb-1.5 px-2.5">Main Menu</label>
+            <label className="text-sm font-bold text-[var(--text-muted)] mb-1.5 px-2.5">Main Menu</label>
             
             <button
               onClick={() => {
@@ -362,10 +362,10 @@ export default function Sidebar({
                   router.push('/');
                 }
               }}
-              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer text-left ${
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-all cursor-pointer text-left ${
                 pathname === '/' && activeFolderId === null
-                  ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
+                  ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] font-medium'
               }`}
             >
               <Folder size={16} />
@@ -376,7 +376,7 @@ export default function Sidebar({
           {/* Folders List */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between px-2.5 mb-1.5">
-              <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider">Projects</label>
+              <label className="text-sm font-bold text-[var(--text-muted)]">Projects</label>
               {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
                 <button
                   onClick={() => setShowCreateFolderModal(true)}
@@ -396,10 +396,10 @@ export default function Sidebar({
                     router.push('/');
                   }
                 }}
-                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer text-left ${
+                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer text-left ${
                   activeFolderId === 'none'
-                    ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                    : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                    : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] font-medium'
                 }`}
               >
                 <Folder size={14} className="opacity-50" />
@@ -415,10 +415,10 @@ export default function Sidebar({
                         router.push('/');
                       }
                     }}
-                    className={`flex-1 flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer text-left truncate ${
+                    className={`flex-1 flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer text-left truncate ${
                       activeFolderId === folder.id
-                        ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                        : 'text-[var(--text-muted)] hover:text-white'
+                        ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                        : 'text-[var(--text-muted)] hover:text-white font-medium'
                     }`}
                   >
                     <Folder size={14} className="shrink-0" />
@@ -456,7 +456,7 @@ export default function Sidebar({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider mb-1.5 px-2.5">System</label>
+            <label className="text-sm font-bold text-[var(--text-muted)] mb-1.5 px-2.5">System</label>
             
             <button
               onClick={() => {
@@ -464,10 +464,10 @@ export default function Sidebar({
                   router.push('/settings');
                 }
               }}
-              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer text-left ${
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-all cursor-pointer text-left ${
                 pathname === '/settings'
-                  ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
+                  ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] font-medium'
               }`}
             >
               <Settings size={16} />
@@ -478,7 +478,7 @@ export default function Sidebar({
               href="/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-bold text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
+              className="flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
             >
               <BookOpen size={16} />
               <span>Documentation</span>
@@ -507,7 +507,12 @@ export default function Sidebar({
             )}
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-white truncate">{initialUser.displayName}</span>
-              <span className="text-xs font-bold text-[var(--text-muted)] truncate leading-none mt-1">{workspaces.find(w => w.id === activeWorkspaceId)?.role || 'Member'}</span>
+              <span className="text-[11px] font-semibold text-[var(--text-muted)] truncate leading-none mt-1">
+                {(() => {
+                  const rawRole = workspaces.find(w => w.id === activeWorkspaceId)?.role || 'Member';
+                  return rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+                })()}
+              </span>
             </div>
           </div>
           <ChevronDown size={14} className="text-[var(--text-muted)] shrink-0" />
@@ -680,7 +685,7 @@ export default function Sidebar({
         </p>
         <form onSubmit={handleEditWorkspace} className="space-y-4 font-sans">
           <div>
-            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Workspace Name</label>
+            <label className="block text-xs font-bold text-[#a1a1aa] mb-2">Workspace Name</label>
             <input
               type="text"
               placeholder="Workspace name"
@@ -692,7 +697,7 @@ export default function Sidebar({
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Description</label>
+            <label className="block text-xs font-bold text-[#a1a1aa] mb-2">Description</label>
             <input
               type="text"
               placeholder="Short description (optional)"
@@ -703,7 +708,7 @@ export default function Sidebar({
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Department</label>
+            <label className="block text-xs font-bold text-[#a1a1aa] mb-2">Department</label>
             <select
               value={editWorkspaceDept}
               onChange={(e) => setEditWorkspaceDept(e.target.value)}
