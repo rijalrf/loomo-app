@@ -46,7 +46,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // 2. Instruksi Kontrol dari Popup (popup.js) atau Content Script (floating control bar)
   if (message.source === 'jam-extension-popup' || message.source === 'jam-extension-content') {
     if (message.action === 'START_RECORDING') {
-      startRecordingFlow(sendResponse);
+      let targetTabId = message.payload?.tabId;
+      if (!targetTabId && sender && sender.tab) {
+        targetTabId = sender.tab.id;
+      }
+      if (!targetTabId) {
+        sendResponse({ success: false, error: 'Target tab ID not found.' });
+        return false;
+      }
+      chrome.tabCapture.getMediaStreamId({ targetTabId: targetTabId }, (streamId) => {
+        if (chrome.runtime.lastError) {
+          console.warn('Gagal mengambil streamId tabCapture:', chrome.runtime.lastError.message);
+          startRecordingFlow(targetTabId, null, sendResponse);
+        } else {
+          startRecordingFlow(targetTabId, streamId, sendResponse);
+        }
+      });
       return true; // async response
     } else if (message.action === 'STOP_RECORDING') {
       stopRecordingFlow(sendResponse);
@@ -196,16 +211,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Memulai Perekaman
-async function startRecordingFlow(sendResponse) {
+async function startRecordingFlow(targetTabId, streamId, sendResponse) {
   try {
-    // A. Dapatkan tab aktif saat ini
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) {
-      sendResponse({ success: false, error: 'Tidak ada tab aktif yang ditemukan.' });
-      return;
-    }
-
-    activeTabId = tab.id;
+    activeTabId = targetTabId;
     isRecording = true;
     isPaused = false;
     startTime = Date.now();
@@ -242,18 +250,6 @@ async function startRecordingFlow(sendResponse) {
       source: 'jam-extension-background',
       action: 'START_RECORDING'
     }).catch((e) => console.log('Mungkin skrip belum dimuat pada halaman sistem:', e));
-
-    // C. Dapatkan streamId tabCapture untuk tab aktif (merekam tab tanpa prompt dialog sharing)
-    const streamId = await new Promise((resolve) => {
-      chrome.tabCapture.getMediaStreamId({ targetTabId: activeTabId }, (id) => {
-        if (chrome.runtime.lastError) {
-          console.warn('Gagal mengambil streamId tabCapture:', chrome.runtime.lastError.message);
-          resolve(null);
-        } else {
-          resolve(id);
-        }
-      });
-    });
 
     // D. Buat offscreen document untuk merekam video (karena worker Manifest V3 tidak punya DOM API)
     await createOffscreenDocument();

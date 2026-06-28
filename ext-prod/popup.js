@@ -152,24 +152,33 @@ btnAction.addEventListener('click', async () => {
   
   if (!isRecording) {
     // Mulai Perekaman
-    chrome.runtime.sendMessage(
-      { source: 'jam-extension-popup', action: 'START_RECORDING' },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          console.error(`[popup] [Popup] Gagal rekam: ${chrome.runtime.lastError.message}`);
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      const tabId = activeTab ? activeTab.id : null;
+
+      chrome.runtime.sendMessage(
+        { 
+          source: 'jam-extension-popup', 
+          action: 'START_RECORDING',
+          payload: { tabId }
+        },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error(`[popup] [Popup] Gagal rekam: ${chrome.runtime.lastError.message}`);
+            btnAction.disabled = false;
+            return;
+          }
           btnAction.disabled = false;
-          return;
+          if (response && response.success) {
+            isRecording = true;
+            updateUI(true, 0);
+            window.close();
+          } else {
+            showAlert('Failed to start recording: ' + (response?.error || 'Unknown error'));
+          }
         }
-        btnAction.disabled = false;
-        if (response && response.success) {
-          isRecording = true;
-          updateUI(true, 0);
-          window.close();
-        } else {
-          showAlert('Failed to start recording: ' + (response?.error || 'Unknown error'));
-        }
-      }
-    );
+      );
+    });
   } else {
     // Hentikan Perekaman
     statusDisplay.innerHTML = 'Processing...';
