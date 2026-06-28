@@ -695,7 +695,7 @@ export default function DashboardContent({
           <button
             onClick={() => handleMoveMedia(selectedFolderId)}
             disabled={isMovingMedia || (showMoveModal?.folderId || null) === selectedFolderId}
-            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] text-white rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none hover:brightness-110 hover:shadow-[0_0_12px_rgba(59,130,246,0.3)]"
+            className="px-4 py-2 bg-gradient-to-br from-[#3b82f6] to-[#1d4ed8] hover:from-[#2563eb] hover:to-[#1e40af] text-white rounded-lg text-sm font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
           >
             Move
           </button>
