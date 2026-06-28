@@ -92,7 +92,7 @@ Komponen `PopupModal` adalah komponen reusable minimal yang hanya menyediakan:
 ### Animasi
 - PopupModal sudah memiliki animasi bawaan: `animate-in fade-in zoom-in-95 duration-300`
 - Button interaktif gunakan hover effect seperti `-translate-y-0.5` atau perubahan warna
-- **ATURAN KHUSUS MODAL/POPUP BUTTONS:** Untuk tombol aksi di dalam popup modal (seperti 'Move', 'Delete', 'Cancel', atau tombol submit form di dalam modal), **DILARANG** menggunakan animasi hover yang menggeser posisi elemen (seperti `hover:-translate-y-0.5` atau efek transform translate lainnya). Cukup gunakan transisi warna latar belakang (background color) atau opacity untuk memberikan visual feedback hover yang stabil.
+- **ATURAN KHUSUS MODAL/POPUP BUTTONS:** Untuk tombol aksi di dalam popup modal (seperti 'Move', 'Delete', 'Cancel', atau tombol submit form di dalam modal), **DILARANG** menggunakan animasi hover yang menggeser posisi elemen (seperti `hover:-translate-y-0.5` atau efek transform translate lainnya). Sebagai gantinya, gunakan efek visual yang stabil seperti peningkatan kecerahan (`hover:brightness-110`), bayangan glow (seperti `hover:shadow-[0_0_12px_rgba(59,130,246,0.3)]`), atau transisi warna latar belakang/opacity.
 
 ## Contoh Implementasi
 
