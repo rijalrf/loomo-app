@@ -4,14 +4,66 @@
 
 ### Loading Alert
 
-Setiap kali ada action atau navigasi, tampilkan alert loading menggunakan komponen `Alert` yang sudah ada. Alert harus muncul saat proses loading dan hilang saat proses selesai. Gunakan komponen `Alert` yang sudah ada di proyek ini, jangan gunakan `alert()` dari JavaScript murni.
+Setiap kali ada action atau navigasi, tampilkan alert loading menggunakan komponen `LoadingAlert` atau helper function `showLoadingAlert()` / `hideLoadingAlert()`. Alert harus muncul saat proses loading dan hilang saat proses selesai. Gunakan komponen yang sudah ada di proyek ini, jangan gunakan `alert()` dari JavaScript murni.
 
-Contoh penggunaan:
+#### Cara Penggunaan:
+
+**1. Menggunakan Komponen `LoadingAlert` (untuk state-based loading):**
 ```tsx
-<Alert type="loading" message="Loading..." />
+import LoadingAlert from '@/components/LoadingAlert';
+
+function MyComponent() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleAction = async () => {
+    setIsLoading(true);
+    try {
+      await someAsyncAction();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <LoadingAlert isLoading={isLoading} message="Processing..." />
+      <button onClick={handleAction}>Submit</button>
+    </>
+  );
+}
 ```
 
-Pastikan untuk menghilangkan alert setelah proses selesai dengan mengatur state atau menggunakan lifecycle method yang sesuai.
+**2. Menggunakan Helper Function (untuk action langsung):**
+```tsx
+import { showLoadingAlert, hideLoadingAlert } from '@/components/LoadingAlert';
+
+const handleSave = async () => {
+  const loadingId = showLoadingAlert('Saving data...');
+  try {
+    await saveData();
+    hideLoadingAlert(loadingId);
+    toast.success('Data saved successfully');
+  } catch (error) {
+    hideLoadingAlert(loadingId);
+    toast.error('Failed to save data');
+  }
+};
+```
+
+**3. Untuk navigasi (menggunakan useRouter):**
+```tsx
+import { showLoadingAlert, hideLoadingAlert } from '@/components/LoadingAlert';
+import { useRouter } from 'next/navigation';
+
+const router = useRouter();
+
+const handleNavigate = () => {
+  showLoadingAlert('Loading page...');
+  router.push('/dashboard');
+};
+```
+
+Pastikan untuk menghilangkan alert setelah proses selesai dengan `hideLoadingAlert()` atau mengatur state `isLoading` menjadi `false`.
 
 ### Cursor Pointer
 Semua elemen yang memiliki aksi interaktif (button, link, clickable element) **WAJIB** memiliki `cursor: pointer` atau `cursor-pointer` class.
