@@ -29,7 +29,7 @@ export default function MediaVisibilitySelect({
       trigger={
         <button
           type="button"
-          className="flex items-center gap-1.5 bg-transparent text-xs font-bold text-[var(--text-muted)] outline-none cursor-pointer uppercase tracking-wider hover:text-white transition-all"
+          className="flex items-center gap-1.5 bg-transparent text-xs font-bold text-[var(--text-muted)] outline-none cursor-pointer hover:text-white transition-all"
         >
           <span className={`w-1.5 h-1.5 rounded-full ${current.color}`}></span>
           <span>{current.label}</span>
@@ -52,7 +52,7 @@ export default function MediaVisibilitySelect({
                 onChange(optKey);
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer ${
+              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                 optKey === value
                   ? 'bg-[var(--primary)]/15 text-[var(--primary)]'
                   : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
