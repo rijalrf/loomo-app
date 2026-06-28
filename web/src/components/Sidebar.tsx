@@ -362,10 +362,10 @@ export default function Sidebar({
                   router.push('/');
                 }
               }}
-              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer text-left ${
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-all cursor-pointer text-left ${
                 pathname === '/' && activeFolderId === null
-                  ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
+                  ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] font-medium'
               }`}
             >
               <Folder size={16} />
@@ -396,10 +396,10 @@ export default function Sidebar({
                     router.push('/');
                   }
                 }}
-                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer text-left ${
+                className={`w-full flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer text-left ${
                   activeFolderId === 'none'
-                    ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                    : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
+                    ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                    : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] font-medium'
                 }`}
               >
                 <Folder size={14} className="opacity-50" />
@@ -415,10 +415,10 @@ export default function Sidebar({
                         router.push('/');
                       }
                     }}
-                    className={`flex-1 flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer text-left truncate ${
+                    className={`flex-1 flex items-center gap-3 px-2.5 py-1.5 rounded-lg text-sm transition-all cursor-pointer text-left truncate ${
                       activeFolderId === folder.id
-                        ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                        : 'text-[var(--text-muted)] hover:text-white'
+                        ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                        : 'text-[var(--text-muted)] hover:text-white font-medium'
                     }`}
                   >
                     <Folder size={14} className="shrink-0" />
@@ -464,10 +464,10 @@ export default function Sidebar({
                   router.push('/settings');
                 }
               }}
-              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer text-left ${
+              className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm transition-all cursor-pointer text-left ${
                 pathname === '/settings'
-                  ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)]'
+                  ? 'bg-[var(--primary)]/10 text-[var(--primary)] font-bold'
+                  : 'text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] font-medium'
               }`}
             >
               <Settings size={16} />
@@ -478,7 +478,7 @@ export default function Sidebar({
               href="/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-bold text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
+              className="flex items-center gap-3 px-2.5 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
             >
               <BookOpen size={16} />
               <span>Documentation</span>
