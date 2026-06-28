@@ -20,6 +20,11 @@ let logs = [];
 let networkRequests = [];
 let userActions = [];
 
+const MAX_DURATION_MS = 4 * 60 * 1000;
+const WARNING_DURATION_MS = 2 * 60 * 1000;
+let maxDurationTimer = null;
+let warningShown = false;
+
 // Helper untuk sinkronisasi state ke storage (mengatasi service worker inactivity/idle termination)
 function withRecordingState(callback) {
   chrome.storage.local.get([
@@ -72,6 +77,11 @@ function clearRecordingState(cb) {
   logs = [];
   networkRequests = [];
   userActions = [];
+  warningShown = false;
+  if (maxDurationTimer) {
+    clearTimeout(maxDurationTimer);
+    maxDurationTimer = null;
+  }
   chrome.storage.local.remove([
     'rec_isRecording',
     'rec_isPaused',
@@ -148,6 +158,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (isRecording && !isPaused) {
           accumulatedTime += (Date.now() - startTime);
           isPaused = true;
+          if (maxDurationTimer) {
+            clearTimeout(maxDurationTimer);
+            maxDurationTimer = null;
+          }
           updateRecordingState(() => {
             chrome.runtime.sendMessage({
               source: 'jam-extension-background',
@@ -165,6 +179,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (isRecording && isPaused) {
           startTime = Date.now();
           isPaused = false;
+          const remainingTime = MAX_DURATION_MS - accumulatedTime;
+          const timeUntilWarning = WARNING_DURATION_MS - accumulatedTime;
+          
+          if (timeUntilWarning > 0 && !warningShown) {
+            maxDurationTimer = setTimeout(() => {
+              checkDurationWarningAndStop();
+            }, timeUntilWarning);
+          } else if (remainingTime > 0) {
+            maxDurationTimer = setTimeout(() => {
+              checkDurationWarningAndStop();
+            }, remainingTime);
+          }
+          
           updateRecordingState(() => {
             chrome.runtime.sendMessage({
               source: 'jam-extension-background',
@@ -319,7 +346,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// Memulai Perekaman
 async function startRecordingFlow(targetTabId, streamId, sendResponse) {
   try {
     activeTabId = targetTabId;
@@ -331,9 +357,9 @@ async function startRecordingFlow(targetTabId, streamId, sendResponse) {
     logs = [];
     networkRequests = [];
     userActions = [];
+    warningShown = false;
 
     updateRecordingState(async () => {
-      // B. Beri tahu content script tab aktif untuk mulai menyadap (dengan auto-injeksi jika diperlukan)
       const pingSuccess = await new Promise((resolve) => {
         chrome.tabs.sendMessage(activeTabId, { action: 'PING' }, (res) => {
           if (chrome.runtime.lastError) {
@@ -361,15 +387,17 @@ async function startRecordingFlow(targetTabId, streamId, sendResponse) {
         action: 'START_RECORDING'
       }).catch((e) => console.log('Mungkin skrip belum dimuat pada halaman sistem:', e));
 
-      // D. Buat offscreen document untuk merekam video (karena worker Manifest V3 tidak punya DOM API)
       await createOffscreenDocument();
 
-      // E. Beri tahu offscreen untuk mulai menangkap
       chrome.runtime.sendMessage({
         source: 'jam-extension-background',
         action: 'START_OFFSCREEN_CAPTURE',
         payload: { streamId }
       });
+
+      maxDurationTimer = setTimeout(() => {
+        checkDurationWarningAndStop();
+      }, WARNING_DURATION_MS);
 
       sendResponse({ success: true });
     });
@@ -381,7 +409,36 @@ async function startRecordingFlow(targetTabId, streamId, sendResponse) {
   }
 }
 
-// Menghentikan Perekaman
+function checkDurationWarningAndStop() {
+  withRecordingState(() => {
+    if (!isRecording) return;
+
+    const currentDuration = isPaused ? accumulatedTime : (accumulatedTime + (Date.now() - startTime));
+
+    if (currentDuration >= MAX_DURATION_MS) {
+      console.log('[background] Max duration 4 minutes reached, auto-stopping recording');
+      stopRecordingFlow(() => {});
+      return;
+    }
+
+    if (currentDuration >= WARNING_DURATION_MS && !warningShown) {
+      warningShown = true;
+      console.log('[background] Warning: 2 minutes reached, max 4 minutes');
+      if (activeTabId) {
+        chrome.tabs.sendMessage(activeTabId, {
+          source: 'jam-extension-background',
+          action: 'SHOW_DURATION_WARNING',
+          payload: { message: 'Recording has reached 2 minutes. Maximum is 4 minutes.' }
+        }).catch(() => {});
+      }
+
+      maxDurationTimer = setTimeout(() => {
+        checkDurationWarningAndStop();
+      }, MAX_DURATION_MS - WARNING_DURATION_MS);
+    }
+  });
+}
+
 async function stopRecordingFlow(sendResponse) {
   if (!isRecording) {
     sendResponse({ success: false, error: 'Perekaman tidak aktif.' });
@@ -395,7 +452,6 @@ async function stopRecordingFlow(sendResponse) {
   }
 
   updateRecordingState(async () => {
-    // A. Beri tahu content script halaman target untuk stop menyadap
     if (activeTabId) {
       await chrome.tabs.sendMessage(activeTabId, {
         source: 'jam-extension-background',
@@ -403,7 +459,6 @@ async function stopRecordingFlow(sendResponse) {
       }).catch(() => {});
     }
 
-    // B. Beri tahu offscreen document untuk menghentikan media recorder
     chrome.runtime.sendMessage({
       source: 'jam-extension-background',
       action: 'STOP_OFFSCREEN_CAPTURE'

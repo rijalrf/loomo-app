@@ -79,19 +79,25 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         source: 'jam-content-script',
         action: 'START_CAPTURE'
       }, '*');
-      showFloatingControls(0, false); // Tampilkan panel kontrol mengambang
+      showFloatingControls(0, false);
       sendResponse({ status: 'Capture starting in tab' });
     } else if (message.action === 'STOP_RECORDING') {
       window.postMessage({
         source: 'jam-content-script',
         action: 'STOP_CAPTURE'
       }, '*');
-      removeFloatingControls(); // Hapus panel kontrol mengambang
+      removeFloatingControls();
       sendResponse({ status: 'Capture stopping in tab' });
     } else if (message.action === 'INIT_SCREENSHOT_SELECTION') {
-      initScreenshotSelection(); // Mulai tangkapan layar area
+      initScreenshotSelection();
       sendResponse({ status: 'Screenshot selection initialized' });
+    } else if (message.action === 'SHOW_DURATION_WARNING') {
+      loadCustomDialog().then(() => {
+        window.showAlert(message.payload?.message || 'Recording duration warning');
+      });
+      sendResponse({ status: 'Warning shown' });
     }
+  }
   }
 });
 
