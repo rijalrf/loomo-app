@@ -10,6 +10,6 @@ web/uploads/
 client_secret_devnote.json
 prod-db-supabase.txt
 .vercel
-.env*
-!.env.extension.example
+.env
+!.env.example
 gemini-resume.txt

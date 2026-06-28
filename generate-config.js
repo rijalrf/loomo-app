@@ -14,9 +14,11 @@ function parseEnv(filePath) {
 
   content.split('\n').forEach(line => {
     line = line.trim();
-    if (!line || line.startsWith('#')) return;
+    if (!line || line.startsWith('#') || line.startsWith('=')) return;
     
     const [key, ...valueParts] = line.split('=');
+    if (!key || !valueParts.length) return;
+    
     let value = valueParts.join('=').trim();
     
     if (value.startsWith('"') && value.endsWith('"')) {
@@ -35,9 +37,18 @@ function parseEnv(filePath) {
   return config;
 }
 
+function generateExtensionConfig(allConfig) {
+  return {
+    API_BASE_URL: allConfig.EXT_API_BASE_URL || allConfig.NEXT_PUBLIC_APP_URL || 'http://localhost:8999',
+    MAX_RECORDING_MINUTES: allConfig.EXT_MAX_RECORDING_MINUTES || 4,
+    WARNING_RECORDING_MINUTES: allConfig.EXT_WARNING_RECORDING_MINUTES || 2,
+    DEBUG: allConfig.EXT_DEBUG !== undefined ? allConfig.EXT_DEBUG : true
+  };
+}
+
 function generateConfigJs(config, outputPath) {
   const configContent = `// Loomo Capture Engine Configuration
-// Auto-generated from .env.extension - DO NOT EDIT MANUALLY
+// Auto-generated from .env - DO NOT EDIT MANUALLY
 globalThis.LoomoConfig = ${JSON.stringify(config, null, 2)};
 `;
 
@@ -45,8 +56,9 @@ globalThis.LoomoConfig = ${JSON.stringify(config, null, 2)};
   console.log(`✓ Generated ${outputPath}`);
 }
 
-const envPath = path.join(__dirname, '.env.extension');
-const config = parseEnv(envPath);
+const envPath = path.join(__dirname, '.env');
+const allConfig = parseEnv(envPath);
+const extensionConfig = generateExtensionConfig(allConfig);
 
 const targets = [
   path.join(__dirname, 'ext-local', 'config.js'),
@@ -56,8 +68,8 @@ const targets = [
 
 targets.forEach(target => {
   if (fs.existsSync(path.dirname(target))) {
-    generateConfigJs(config, target);
+    generateConfigJs(extensionConfig, target);
   }
 });
 
-console.log('\n✓ Extension config generated successfully!');
+console.log('\n✓ Extension config generated successfully from .env!');
