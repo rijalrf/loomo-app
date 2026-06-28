@@ -40,6 +40,7 @@ interface MediaGridProps {
   onShareLink: (media: Media) => void;
   onView: (media: Media) => void;
   onMoveClick: (media: Media) => void;
+  onRetry: (id: string) => void;
 }
 
 export default function MediaGrid({
@@ -52,7 +53,8 @@ export default function MediaGrid({
   onVisibilityChange,
   onShareLink,
   onView,
-  onMoveClick
+  onMoveClick,
+  onRetry
 }: MediaGridProps) {
   return (
     <div className="media-grid">
@@ -61,6 +63,19 @@ export default function MediaGrid({
 
         return (
           <MediaCard key={item.id} media={item} onView={onView}>
+            {/* Added listener for retry event */}
+            <div
+              onKeyDown={() => {}}
+              ref={(el) => {
+                if (el) {
+                  const handler = (e: any) => {
+                    if (e.detail.id === item.id) onRetry(item.id);
+                  };
+                  window.addEventListener('retry-upload', handler as any);
+                  return () => window.removeEventListener('retry-upload', handler as any);
+                }
+              }}
+            />
             <div className="p-4 flex flex-col flex-1">
               <div className="mb-2">
                 <span

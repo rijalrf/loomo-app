@@ -84,14 +84,26 @@ export default function MediaCard({ media, onView, children }: MediaCardProps) {
                 </span>
               </>
             )}
-            {isFailed && (
-              <>
-                <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-                  <span className="text-2xl">⚠️</span>
-                </div>
-                <span className="text-xs font-bold text-red-500 tracking-wider uppercase">Upload Failed</span>
-              </>
-            )}
+                {isFailed && (
+                  <>
+                    <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                      <span className="text-2xl">⚠️</span>
+                    </div>
+                    <span className="text-xs font-bold text-red-500 tracking-wider uppercase mb-2">Upload Failed</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.dispatchEvent(new CustomEvent('retry-upload', { detail: { id: media.id } }));
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold bg-white/20 hover:bg-white/40 text-white px-3 py-1 rounded-full cursor-pointer"
+                      title="Retry Upload"
+                    >
+                      Retry
+                    </button>
+
+                  </>
+                )}
+
           </div>
         )}
       </div>

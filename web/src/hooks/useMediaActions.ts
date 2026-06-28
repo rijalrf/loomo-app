@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { clientLogger } from '@/lib/clientLogger';
+import { showLoadingAlert, hideLoadingAlert } from '@/components/LoadingAlert';
 
 interface Media {
   id: string;
@@ -32,6 +33,7 @@ interface UseMediaActionsReturn {
   handleVisibilityChange: (id: string, visibility: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY') => Promise<void>;
   handleShareLink: (media: Media) => Promise<void>;
   handleRevokeShare: (media: Media) => Promise<void>;
+  retryUpload: (id: string) => Promise<void>;
   renamingId: string | null;
   setRenamingId: (id: string | null) => void;
   showShareModal: Media | null;
@@ -57,6 +59,7 @@ export function useMediaActions(
   const handleRename = async (id: string, newTitle: string) => {
     if (!newTitle.trim()) return;
     
+    const loadingId = showLoadingAlert('Renaming media...');
     try {
       const res = await fetch(`/api/media/${id}`, {
         method: 'PATCH',
@@ -67,11 +70,14 @@ export function useMediaActions(
       if (res.ok) {
         setMediaList(prev => prev.map(m => m.id === id ? { ...m, title: newTitle } : m));
         setRenamingId(null);
+        hideLoadingAlert(loadingId);
         toast.success('Media renamed successfully');
       } else {
+        hideLoadingAlert(loadingId);
         toast.error('Failed to rename media');
       }
     } catch (e) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to rename media');
       clientLogger.error('media-actions', 'Failed to rename media:', e);
     }
@@ -85,25 +91,52 @@ export function useMediaActions(
     setShowDeleteModal(null);
     setMediaList(prev => prev.map(m => m.id === id ? { ...m, uploadStatus: 'DELETING' as const } : m));
 
+    const loadingId = showLoadingAlert('Deleting media...');
     try {
       const res = await fetch(`/api/media/${id}`, {
         method: 'DELETE'
       });
       
       if (!res.ok) {
+        hideLoadingAlert(loadingId);
         toast.error('Failed to delete media');
         fetchMedia();
       } else {
-        toast.success('Media queued for deletion successfully');
+        setMediaList(prev => prev.filter(m => m.id !== id));
+        hideLoadingAlert(loadingId);
+        toast.success('Media deleted successfully');
       }
     } catch (e) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to delete media');
       clientLogger.error('media-actions', 'Failed to delete media:', e);
       fetchMedia();
     }
   };
 
+  const retryUpload = async (id: string) => {
+    const loadingId = showLoadingAlert('Retrying upload...');
+    try {
+      const res = await fetch(`/api/media/${id}/retry`, {
+        method: 'POST'
+      });
+      
+      if (res.ok) {
+        toast.success('Upload retried successfully');
+        fetchMedia();
+      } else {
+        toast.error('Failed to retry upload');
+      }
+    } catch (e) {
+      toast.error('Connection error');
+      clientLogger.error('media-actions', 'Failed to retry upload:', e);
+    } finally {
+      hideLoadingAlert(loadingId);
+    }
+  };
+
   const handleVisibilityChange = async (id: string, visibility: 'PRIVATE' | 'UNLISTED' | 'WORKSPACE_ONLY') => {
+    const loadingId = showLoadingAlert('Updating visibility...');
     try {
       const res = await fetch(`/api/media/${id}`, {
         method: 'PATCH',
@@ -113,11 +146,14 @@ export function useMediaActions(
       
       if (res.ok) {
         setMediaList(prev => prev.map(m => m.id === id ? { ...m, visibility } : m));
+        hideLoadingAlert(loadingId);
         toast.success('Visibility updated');
       } else {
+        hideLoadingAlert(loadingId);
         toast.error('Failed to update visibility');
       }
     } catch (e) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to update visibility');
       clientLogger.error('media-actions', 'Failed to change media visibility:', e);
     }
@@ -127,6 +163,7 @@ export function useMediaActions(
     if (media.shareToken) {
       setShowShareModal(media);
     } else {
+      const loadingId = showLoadingAlert('Generating share link...');
       try {
         const res = await fetch(`/api/media/${media.id}/share`, {
           method: 'POST'
@@ -137,11 +174,14 @@ export function useMediaActions(
           const updatedMedia = { ...media, shareToken: data.shareToken, visibility: data.visibility };
           setMediaList(prev => prev.map(m => m.id === media.id ? updatedMedia : m));
           setShowShareModal(updatedMedia);
+          hideLoadingAlert(loadingId);
           toast.success('Share link generated successfully');
         } else {
+          hideLoadingAlert(loadingId);
           toast.error('Failed to generate share link');
         }
       } catch (e) {
+        hideLoadingAlert(loadingId);
         toast.error('Failed to generate share link');
         clientLogger.error('media-actions', 'Failed to create share link:', e);
       }
@@ -155,6 +195,7 @@ export function useMediaActions(
   const confirmRevoke = async (media: Media) => {
     setShowRevokeModal(null);
 
+    const loadingId = showLoadingAlert('Revoking share link...');
     try {
       const res = await fetch(`/api/media/${media.id}/share`, {
         method: 'DELETE'
@@ -163,11 +204,14 @@ export function useMediaActions(
       if (res.ok) {
         setMediaList(prev => prev.map(m => m.id === media.id ? { ...m, shareToken: null, visibility: 'PRIVATE' } : m));
         setShowShareModal(null);
+        hideLoadingAlert(loadingId);
         toast.success('Share link revoked successfully');
       } else {
+        hideLoadingAlert(loadingId);
         toast.error('Failed to revoke share link');
       }
     } catch (e) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to revoke share link');
       clientLogger.error('media-actions', 'Failed to revoke share link:', e);
     }
@@ -188,6 +232,7 @@ export function useMediaActions(
     confirmDelete,
     showRevokeModal,
     setShowRevokeModal,
-    confirmRevoke
+    confirmRevoke,
+    retryUpload
   };
 }

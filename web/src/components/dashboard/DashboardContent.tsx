@@ -142,8 +142,10 @@ export default function DashboardContent({
     confirmDelete,
     showRevokeModal,
     setShowRevokeModal,
-    confirmRevoke
-  } = useMediaActions(mediaList, setMediaList, fetchMedia);
+  confirmRevoke,
+  retryUpload
+} = useMediaActions(mediaList, setMediaList, fetchMedia);
+
 
   const [renamingTitle, setRenamingTitle] = useState('');
 
@@ -277,6 +279,7 @@ export default function DashboardContent({
           onShareLink={handleShareLink}
           onView={setActiveMediaViewer}
           onMoveClick={setShowMoveModal}
+          onRetry={retryUpload}
         />
       ) : (
         <div className="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg overflow-visible relative">
@@ -362,9 +365,19 @@ export default function DashboardContent({
                         />
                       )}
                       {isPending && (
-                        <span className="text-xs text-[var(--primary)] font-bold uppercase">
-                          {item.uploadStatus === 'UPLOADING' ? 'Uploading...' : 'Processing...'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-[var(--primary)] font-bold uppercase">
+                            {item.uploadStatus === 'UPLOADING' ? 'Uploading...' : 'Processing...'}
+                          </span>
+                          {item.uploadStatus === 'PROCESSING' && (
+                            <button
+                              onClick={() => retryUpload(item.id)}
+                              className="text-[10px] text-[var(--text-muted)] hover:text-white underline cursor-pointer"
+                            >
+                              Retry
+                            </button>
+                          )}
+                        </div>
                       )}
                       {isDeleting && (
                         <span className="text-xs text-red-500 font-bold uppercase">Deleting...</span>

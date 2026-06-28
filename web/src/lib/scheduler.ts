@@ -9,7 +9,15 @@ import { getDriveOwnerId } from "./workspace";
 
 export function startScheduler() {
   const g = global as any;
-  if (g.schedulerIntervalId) return;
+  if (g.schedulerStarted) {
+    return;
+  }
+  g.schedulerStarted = true;
+
+  if (g.schedulerIntervalId) {
+    clearInterval(g.schedulerIntervalId);
+    g.schedulerIntervalId = null;
+  }
 
   // Skip starting the interval scheduler in serverless environments or during build
   if (process.env.VERCEL || process.env.NEXT_PHASE === 'phase-production-build') {
@@ -62,12 +70,9 @@ export async function runSchedulerOnce() {
 }
 
 async function processJob(job: any) {
-  console.log(
-    "scheduler",
-    `Processing job ${job.id} (Type: ${job.jobType}, Media: ${job.mediaId})`,
-  );
+  console.log("scheduler", `Processing job ${job.id} (Type: ${job.jobType}, Media: ${job.mediaId}, Attempts: ${job.attempts})`);
 
-  // Update status to RUNNING and increment attempts
+  // Update status to RUNNING
   await prisma.backgroundJob.update({
     where: { id: job.id },
     data: {
@@ -78,6 +83,7 @@ async function processJob(job: any) {
   });
 
   try {
+    console.log("scheduler", `Job ${job.id} - Fetching media ${job.mediaId}...`);
     // Fetch media and workspace to find the storage target user
     const media = await prisma.media.findUnique({
       where: { id: job.mediaId },
@@ -88,21 +94,22 @@ async function processJob(job: any) {
       throw new Error(`Media record not found for job ${job.id}`);
     }
 
+    console.log("scheduler", `Job ${job.id} - Getting access token for user ${media.uploadedBy}...`);
     // Resolve target user ID based on workspace settings:
     const targetUserId = getDriveOwnerId(media.workspace, media.uploadedBy);
 
     const accessToken = await getFreshAccessToken(targetUserId);
 
+    console.log("scheduler", `Job ${job.id} - Executing ${job.jobType}...`);
     if (job.jobType === "UPLOAD") {
       await handleUploadJob(job, accessToken, media);
     } else if (job.jobType === "DELETE") {
       await handleDeleteJob(job, accessToken);
     }
+    console.log("scheduler", `Job ${job.id} - Finished successfully.`);
   } catch (error: any) {
-    console.error(
-      "scheduler",
-      `Job ${job.id} failed: ${error.message || error}`,
-    );
+    const errorMessage = error.message || String(error);
+    console.error("scheduler", `Job ${job.id} failed: ${errorMessage}`);
 
     // Update job status to FAILED with error message
     const updatedJob = await prisma.backgroundJob.update({
@@ -114,11 +121,8 @@ async function processJob(job: any) {
       },
     });
 
-    // If it's an UPLOAD job, update the media status to FAILED too (only if max attempts reached)
-    if (
-      job.jobType === "UPLOAD" &&
-      updatedJob.attempts >= updatedJob.maxAttempts
-    ) {
+    // If job fails and max attempts reached, mark media as FAILED
+    if (updatedJob.attempts >= updatedJob.maxAttempts || errorMessage === 'AUTH_REVOKED') {
       await prisma.media.update({
         where: { id: job.mediaId },
         data: { uploadStatus: "FAILED" },

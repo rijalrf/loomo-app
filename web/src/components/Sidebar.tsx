@@ -6,6 +6,7 @@ import { Folder, Settings, BookOpen, ChevronDown, Check, Plus, LogOut, Edit2, Tr
 import { toast } from 'sonner';
 import ThemeSwitcherDropdown from './ThemeSwitcherDropdown';
 import PopupModal from './PopupModal';
+import { showLoadingAlert, hideLoadingAlert } from './LoadingAlert';
 
 interface SidebarProps {
   initialUser: {
@@ -87,6 +88,7 @@ export default function Sidebar({
     e.preventDefault();
     if (!newFolderName.trim() || !activeWorkspaceId) return;
     setIsCreatingFolder(true);
+    const loadingId = showLoadingAlert('Creating folder...');
     try {
       const res = await fetch('/api/workspace/folders', {
         method: 'POST',
@@ -94,15 +96,18 @@ export default function Sidebar({
         body: JSON.stringify({ name: newFolderName, workspaceId: activeWorkspaceId })
       });
       if (res.ok) {
+        hideLoadingAlert(loadingId);
         toast.success('Folder created successfully');
         setNewFolderName('');
         setShowCreateFolderModal(false);
         fetchFolders();
       } else {
         const data = await res.json();
+        hideLoadingAlert(loadingId);
         toast.error(data.error || 'Failed to create folder');
       }
     } catch (err) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to connect to server');
     } finally {
       setIsCreatingFolder(false);
@@ -118,6 +123,7 @@ export default function Sidebar({
     e.preventDefault();
     if (!renamingFolderName.trim() || !renamingFolderId) return;
     setIsRenamingFolder(true);
+    const loadingId = showLoadingAlert('Renaming folder...');
     try {
       const res = await fetch(`/api/workspace/folders/${renamingFolderId}`, {
         method: 'PATCH',
@@ -125,15 +131,18 @@ export default function Sidebar({
         body: JSON.stringify({ name: renamingFolderName })
       });
       if (res.ok) {
+        hideLoadingAlert(loadingId);
         toast.success('Folder renamed successfully');
         setRenamingFolderId(null);
         setRenamingFolderName('');
         fetchFolders();
       } else {
         const data = await res.json();
+        hideLoadingAlert(loadingId);
         toast.error(data.error || 'Failed to rename folder');
       }
     } catch (err) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to connect to server');
     } finally {
       setIsRenamingFolder(false);
@@ -148,11 +157,13 @@ export default function Sidebar({
   const handleDeleteFolder = async () => {
     if (!deletingFolderId) return;
     setIsDeletingFolder(true);
+    const loadingId = showLoadingAlert('Deleting folder...');
     try {
       const res = await fetch(`/api/workspace/folders/${deletingFolderId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
+        hideLoadingAlert(loadingId);
         toast.success('Folder deleted successfully');
         if (activeFolderId === deletingFolderId) {
           setActiveFolderId(null);
@@ -162,9 +173,11 @@ export default function Sidebar({
         fetchFolders();
       } else {
         const data = await res.json();
+        hideLoadingAlert(loadingId);
         toast.error(data.error || 'Failed to delete folder');
       }
     } catch (err) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to connect to server');
     } finally {
       setIsDeletingFolder(false);
@@ -190,14 +203,17 @@ export default function Sidebar({
   const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
 
   const handleLogout = async () => {
+    const loadingId = showLoadingAlert('Logging out...');
     try {
       const res = await fetch('/api/auth/logout', { method: 'POST' });
       if (res.ok) {
         window.location.href = '/login';
       } else {
+        hideLoadingAlert(loadingId);
         toast.error('Gagal keluar dari sesi');
       }
     } catch (err) {
+      hideLoadingAlert(loadingId);
       toast.error('Terjadi kesalahan koneksi');
     }
   };
@@ -225,6 +241,7 @@ export default function Sidebar({
     e.preventDefault();
     if (!editWorkspaceName.trim() || !activeWorkspaceId) return;
     setIsEditingWorkspace(true);
+    const loadingId = showLoadingAlert('Updating workspace...');
     try {
       const res = await fetch('/api/workspace', {
         method: 'PATCH',
@@ -237,14 +254,17 @@ export default function Sidebar({
         })
       });
       if (res.ok) {
+        hideLoadingAlert(loadingId);
         toast.success('Workspace updated successfully');
         setShowEditWorkspaceModal(false);
         window.location.reload();
       } else {
         const data = await res.json();
+        hideLoadingAlert(loadingId);
         toast.error(data.error || 'Failed to update workspace');
       }
     } catch (err) {
+      hideLoadingAlert(loadingId);
       toast.error('Failed to connect to server');
     } finally {
       setIsEditingWorkspace(false);

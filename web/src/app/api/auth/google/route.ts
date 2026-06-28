@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     client_id: process.env.GOOGLE_CLIENT_ID || '',
     access_type: 'offline',
     response_type: 'code',
-    prompt: 'consent',
+    prompt: 'consent', // Force consent to ensure we get a refresh token
     state: flow,
     scope: [
       'openid',
