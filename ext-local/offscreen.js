@@ -119,6 +119,11 @@ function stopRecording() {
     mediaRecorder.onstop = () => {
       const blob = new Blob(chunks, { type: 'video/webm' });
       
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        stream = null;
+      }
+
       // Konversi blob ke base64
       const reader = new FileReader();
       reader.readAsDataURL(blob);
@@ -136,10 +141,10 @@ function stopRecording() {
     };
     
     mediaRecorder.stop();
-  }
-
-  if (stream) {
-    stream.getTracks().forEach((track) => track.stop());
-    stream = null;
+  } else {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      stream = null;
+    }
   }
 }
