@@ -1,0 +1,31 @@
+{
+  "name": "loomo-app",
+  "version": "1.0.0",
+  "description": "[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)",
+  "main": "build-extension.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "config:generate": "node generate-config.js",
+    "ext:build": "npm run config:generate && node build-extension.js prod",
+    "ext:build:local": "npm run config:generate && node build-extension.js local",
+    "ext:build:qa": "npm run config:generate && node build-extension.js qa",
+    "ext:build:all": "npm run ext:build:local && npm run ext:build:qa && npm run ext:build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rijalrf/loomo-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rijalrf/loomo-app/issues"
+  },
+  "homepage": "https://github.com/rijalrf/loomo-app#readme",
+  "devDependencies": {
+    "archiver": "^8.0.0"
+  }
+}
