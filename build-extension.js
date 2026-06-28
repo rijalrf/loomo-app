@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const archiver = require('archiver').default || require('archiver');
+const archiver = require('./web/node_modules/archiver');
 
 const environments = ['local', 'qa', 'prod'];
 

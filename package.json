@@ -24,8 +24,5 @@
   "bugs": {
     "url": "https://github.com/rijalrf/loomo-app/issues"
   },
-  "homepage": "https://github.com/rijalrf/loomo-app#readme",
-  "devDependencies": {
-    "archiver": "^8.0.0"
-  }
+  "homepage": "https://github.com/rijalrf/loomo-app#readme"
 }
