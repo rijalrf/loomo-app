@@ -116,23 +116,23 @@ let isRecording = false;
 // 1. Periksa Sesi Login dari storage terlebih dahulu
 chrome.storage.local.get(['gdrive_user_session'], (result) => {
   const session = result.gdrive_user_session;
+  console.log('[Jam Extension Popup] Checking session from storage:', session);
   
   if (!session || !session.token) {
-    // Belum login: Tampilkan warning dan sembunyikan tombol rekam/screenshot/dashboard
+    console.log('[Jam Extension Popup] No valid session, showing login warning');
     loginWarning.style.display = 'block';
     statusContainer.style.display = 'none';
     btnAction.style.display = 'none';
     btnScreenshot.style.display = 'none';
     if (btnDashboard) btnDashboard.style.display = 'none';
   } else {
-    // Sudah login: Tampilkan engine rekam
+    console.log('[Jam Extension Popup] Valid session found, showing controls');
     loginWarning.style.display = 'none';
     statusContainer.style.display = 'flex';
     btnAction.style.display = 'flex';
     btnScreenshot.style.display = 'flex';
     if (btnDashboard) btnDashboard.style.display = 'flex';
     
-    // Ambil status perekaman aktif saat ini dari service worker
     chrome.runtime.sendMessage(
       { source: 'jam-extension-popup', action: 'GET_STATUS' },
       (response) => {

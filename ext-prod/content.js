@@ -98,7 +98,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       sendResponse({ status: 'Warning shown' });
     }
   }
-  }
 });
 
 const configUrl = new URL(globalThis.LoomoConfig.API_BASE_URL);
@@ -128,11 +127,19 @@ if (isLoomoHost) {
 function syncSession() {
   if (!isExtensionValid()) return;
   const session = localStorage.getItem('gdrive_user_session');
+  console.log('[Jam Extension Content] Syncing session from localStorage:', session ? 'Found' : 'Not found');
   if (session) {
     try {
-      chrome.storage.local.set({ gdrive_user_session: JSON.parse(session) });
-    } catch (e) {}
+      const parsed = JSON.parse(session);
+      console.log('[Jam Extension Content] Session data:', parsed);
+      chrome.storage.local.set({ gdrive_user_session: parsed }, () => {
+        console.log('[Jam Extension Content] Session saved to chrome.storage.local');
+      });
+    } catch (e) {
+      console.error('[Jam Extension Content] Failed to parse session:', e);
+    }
   } else {
+    console.log('[Jam Extension Content] No session found, removing from storage');
     chrome.storage.local.remove('gdrive_user_session');
   }
 
