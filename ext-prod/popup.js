@@ -181,10 +181,12 @@ btnAction.addEventListener('click', async () => {
     });
   } else {
     // Hentikan Perekaman
+    console.log('[popup] Stop button clicked');
     statusDisplay.innerHTML = 'Processing...';
     chrome.runtime.sendMessage(
       { source: 'jam-extension-popup', action: 'STOP_RECORDING' },
       (response) => {
+        console.log('[popup] Stop recording response:', response);
         if (chrome.runtime.lastError) {
           console.error(`[popup] [Popup] Gagal stop: ${chrome.runtime.lastError.message}`);
           btnAction.disabled = false;
@@ -192,10 +194,12 @@ btnAction.addEventListener('click', async () => {
         }
         btnAction.disabled = false;
         if (response && response.success) {
+          console.log('[popup] Stop recording successful');
           isRecording = false;
           updateUI(false, 0);
           window.close();
         } else {
+          console.error('[popup] Stop recording failed:', response);
           showAlert('Failed to stop recording: ' + (response?.error || 'Unknown error'));
         }
       }

@@ -630,16 +630,23 @@ function showFloatingControls(initialElapsed = 0, initialIsPaused = false) {
   });
   
   stopBtn.addEventListener('click', () => {
+    console.log('[Jam Extension Content] Stop button clicked');
     if (!isExtensionValid()) {
+      console.log('[Jam Extension Content] Extension context invalid');
       loadCustomDialog().then(() => {
         window.showAlert('Extension context is no longer active. Please reload the page to control recording.');
       });
       return;
     }
+    console.log('[Jam Extension Content] Sending STOP_RECORDING message to background');
     chrome.runtime.sendMessage({
       source: 'jam-extension-content',
       action: 'STOP_RECORDING'
-    }, () => {
+    }, (response) => {
+      console.log('[Jam Extension Content] Stop recording response:', response);
+      if (chrome.runtime.lastError) {
+        console.error('[Jam Extension Content] Stop recording error:', chrome.runtime.lastError);
+      }
       removeFloatingControls();
     });
   });
