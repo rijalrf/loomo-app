@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Loomo",
+  "name": "Loomo - Local",
   "version": "1.0.0",
   "description": "Ambil tangkapan layar area (screenshot) dengan anotasi dan rekam tab aktif Anda. Media di-upload otomatis ke Google Drive pribadi Anda.",
   "icons": {
@@ -40,7 +40,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>", "http://localhost/*", "http://127.0.0.1/*"],
-      "js": ["config.js", "content.js"],
+      "js": ["config.js", "logger.js", "content.js"],
       "run_at": "document_start",
       "all_frames": true
     }

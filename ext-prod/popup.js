@@ -1,9 +1,9 @@
 // Global error handling to log popup script errors to console
 window.addEventListener('error', (event) => {
-  console.error(`[popup] Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}`);
+  logger.error(`[popup] Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}`);
 });
 window.addEventListener('unhandledrejection', (event) => {
-  console.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
+  logger.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
 });
 
 // Set Environment Label
@@ -21,10 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 window.addEventListener('error', (event) => {
-  console.error(`[popup] Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}`);
+  logger.error(`[popup] Unhandled Error: ${event.message} at ${event.filename}:${event.lineno}`);
 });
 window.addEventListener('unhandledrejection', (event) => {
-  console.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
+  logger.error(`[popup] Unhandled Promise Rejection: ${event.reason}`);
 });
 
 function showAlert(message) {
@@ -116,17 +116,17 @@ let isRecording = false;
 // 1. Periksa Sesi Login dari storage terlebih dahulu
 chrome.storage.local.get(['gdrive_user_session'], (result) => {
   const session = result.gdrive_user_session;
-  console.log('[Jam Extension Popup] Checking session from storage:', session);
+  logger.log('[Jam Extension Popup] Checking session from storage:', session);
   
   if (!session || !session.token) {
-    console.log('[Jam Extension Popup] No valid session, showing login warning');
+    logger.log('[Jam Extension Popup] No valid session, showing login warning');
     loginWarning.style.display = 'block';
     statusContainer.style.display = 'none';
     btnAction.style.display = 'none';
     btnScreenshot.style.display = 'none';
     if (btnDashboard) btnDashboard.style.display = 'none';
   } else {
-    console.log('[Jam Extension Popup] Valid session found, showing controls');
+    logger.log('[Jam Extension Popup] Valid session found, showing controls');
     loginWarning.style.display = 'none';
     statusContainer.style.display = 'flex';
     btnAction.style.display = 'flex';
@@ -164,7 +164,7 @@ btnAction.addEventListener('click', async () => {
         },
         (response) => {
           if (chrome.runtime.lastError) {
-            console.error(`[popup] [Popup] Gagal rekam: ${chrome.runtime.lastError.message}`);
+            logger.error(`[popup] [Popup] Gagal rekam: ${chrome.runtime.lastError.message}`);
             btnAction.disabled = false;
             return;
           }
@@ -181,25 +181,25 @@ btnAction.addEventListener('click', async () => {
     });
   } else {
     // Hentikan Perekaman
-    console.log('[popup] Stop button clicked');
+    logger.log('[popup] Stop button clicked');
     statusDisplay.innerHTML = 'Processing...';
     chrome.runtime.sendMessage(
       { source: 'jam-extension-popup', action: 'STOP_RECORDING' },
       (response) => {
-        console.log('[popup] Stop recording response:', response);
+        logger.log('[popup] Stop recording response:', response);
         if (chrome.runtime.lastError) {
-          console.error(`[popup] [Popup] Gagal stop: ${chrome.runtime.lastError.message}`);
+          logger.error(`[popup] [Popup] Gagal stop: ${chrome.runtime.lastError.message}`);
           btnAction.disabled = false;
           return;
         }
         btnAction.disabled = false;
         if (response && response.success) {
-          console.log('[popup] Stop recording successful');
+          logger.log('[popup] Stop recording successful');
           isRecording = false;
           updateUI(false, 0);
           window.close();
         } else {
-          console.error('[popup] Stop recording failed:', response);
+          logger.error('[popup] Stop recording failed:', response);
           showAlert('Failed to stop recording: ' + (response?.error || 'Unknown error'));
         }
       }

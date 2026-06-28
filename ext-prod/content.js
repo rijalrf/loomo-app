@@ -46,7 +46,7 @@ try {
   };
   (document.head || document.documentElement).appendChild(script);
 } catch (e) {
-  console.error(`[Jam Extension] [content-script] Gagal menginjeksi skrip pencatat: ${e.message || String(e)}`);
+  logger.error(`[Jam Extension] [content-script] Gagal menginjeksi skrip pencatat: ${e.message || String(e)}`);
 }
 
 // State Control Floating Bar & Screenshot
@@ -96,11 +96,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         if (typeof window.showAlert === 'function') {
           window.showAlert(message.payload?.message || 'Recording duration warning');
         } else {
-          console.error('[Jam Extension Content] window.showAlert is not available after loading customDialog');
+          logger.error('[Jam Extension Content] window.showAlert is not available after loading customDialog');
           alert(message.payload?.message || 'Recording duration warning');
         }
       }).catch((err) => {
-        console.error('[Jam Extension Content] Failed to load custom dialog:', err);
+        logger.error('[Jam Extension Content] Failed to load custom dialog:', err);
         alert(message.payload?.message || 'Recording duration warning');
       });
       sendResponse({ status: 'Warning shown' });
@@ -126,7 +126,7 @@ if (isLoomoHost) {
 
   // Close the popup window when the web app dispatches the loomo_close_window event
   window.addEventListener('loomo_close_window', () => {
-    console.log('[Jam Extension Content] Menutup jendela popup sesuai permintaan Loomo app...');
+    logger.log('[Jam Extension Content] Menutup jendela popup sesuai permintaan Loomo app...');
     if (!isExtensionValid()) return;
     chrome.runtime.sendMessage({ action: 'CLOSE_CURRENT_WINDOW' });
   });
@@ -135,19 +135,19 @@ if (isLoomoHost) {
 function syncSession() {
   if (!isExtensionValid()) return;
   const session = localStorage.getItem('gdrive_user_session');
-  console.log('[Jam Extension Content] Syncing session from localStorage:', session ? 'Found' : 'Not found');
+  logger.log('[Jam Extension Content] Syncing session from localStorage:', session ? 'Found' : 'Not found');
   if (session) {
     try {
       const parsed = JSON.parse(session);
-      console.log('[Jam Extension Content] Session data:', parsed);
+      logger.log('[Jam Extension Content] Session data:', parsed);
       chrome.storage.local.set({ gdrive_user_session: parsed }, () => {
-        console.log('[Jam Extension Content] Session saved to chrome.storage.local');
+        logger.log('[Jam Extension Content] Session saved to chrome.storage.local');
       });
     } catch (e) {
-      console.error('[Jam Extension Content] Failed to parse session:', e);
+      logger.error('[Jam Extension Content] Failed to parse session:', e);
     }
   } else {
-    console.log('[Jam Extension Content] No session found, removing from storage');
+    logger.log('[Jam Extension Content] No session found, removing from storage');
     chrome.storage.local.remove('gdrive_user_session');
   }
 
@@ -160,16 +160,16 @@ function syncSession() {
 }
 
 async function importPendingJamFromExtension() {
-  console.log('[Jam Extension Content] Mendeteksi data transfer ke backoffice...');
+  logger.log('[Jam Extension Content] Mendeteksi data transfer ke backoffice...');
   if (!isExtensionValid()) return;
   
   chrome.runtime.sendMessage({ action: 'GET_PENDING_JAM' }, async (response) => {
     if (chrome.runtime.lastError) {
-      console.warn('[Jam Extension Content] Gagal get pending jam:', chrome.runtime.lastError.message);
+      logger.warn('[Jam Extension Content] Gagal get pending jam:', chrome.runtime.lastError.message);
       return;
     }
     if (!response) {
-      console.warn('[Jam Extension Content] Tidak ada rekaman pending untuk diimpor.');
+      logger.warn('[Jam Extension Content] Tidak ada rekaman pending untuk diimpor.');
       return;
     }
     
@@ -182,11 +182,11 @@ async function importPendingJamFromExtension() {
       localStorage.setItem(`jam_meta_${metadata.id}`, JSON.stringify(metadata));
       await saveVideoToIndexedDB(metadata.id, videoBlob);
       
-      console.log('[Jam Extension Content] Data berhasil disimpan ke IndexedDB dan localStorage');
+      logger.log('[Jam Extension Content] Data berhasil disimpan ke IndexedDB dan localStorage');
       
       window.dispatchEvent(new CustomEvent('loomo_editor_data_ready', { detail: { id: metadata.id } }));
     } catch (err) {
-      console.error(`[Jam Extension Content] [content-script] Gagal menyimpan data impor: ${err.message || String(err)}`);
+      logger.error(`[Jam Extension Content] [content-script] Gagal menyimpan data impor: ${err.message || String(err)}`);
     }
   });
 }
@@ -329,7 +329,7 @@ function initScreenshotSelection() {
     document.body.removeChild(overlay);
 
     if (rect.width < 5 || rect.height < 5) {
-      console.warn('[Jam Extension] Seleksi area terlalu kecil, membatalkan screenshot.');
+      logger.warn('[Jam Extension] Seleksi area terlalu kecil, membatalkan screenshot.');
       return;
     }
 
@@ -638,22 +638,22 @@ function showFloatingControls(initialElapsed = 0, initialIsPaused = false) {
   });
   
   stopBtn.addEventListener('click', () => {
-    console.log('[Jam Extension Content] Stop button clicked');
+    logger.log('[Jam Extension Content] Stop button clicked');
     if (!isExtensionValid()) {
-      console.log('[Jam Extension Content] Extension context invalid');
+      logger.log('[Jam Extension Content] Extension context invalid');
       loadCustomDialog().then(() => {
         window.showAlert('Extension context is no longer active. Please reload the page to control recording.');
       });
       return;
     }
-    console.log('[Jam Extension Content] Sending STOP_RECORDING message to background');
+    logger.log('[Jam Extension Content] Sending STOP_RECORDING message to background');
     chrome.runtime.sendMessage({
       source: 'jam-extension-content',
       action: 'STOP_RECORDING'
     }, (response) => {
-      console.log('[Jam Extension Content] Stop recording response:', response);
+      logger.log('[Jam Extension Content] Stop recording response:', response);
       if (chrome.runtime.lastError) {
-        console.error('[Jam Extension Content] Stop recording error:', chrome.runtime.lastError);
+        logger.error('[Jam Extension Content] Stop recording error:', chrome.runtime.lastError);
       }
       removeFloatingControls();
     });
@@ -706,13 +706,13 @@ function generateUUID() {
 window.addEventListener('message', async (event) => {
   if (event.data && event.data.source === 'loomo-web-page' && event.data.action === 'START_BACKGROUND_UPLOAD') {
     const { mediaId, uploadUrl, id, title } = event.data.payload;
-    console.log('[Loomo Content] START_BACKGROUND_UPLOAD received for:', title, 'Media ID:', mediaId);
+    logger.log('[Loomo Content] START_BACKGROUND_UPLOAD received for:', title, 'Media ID:', mediaId);
 
     try {
       // 1. Get video blob from local IndexedDB
       const blob = await getVideoFromIndexedDB(id);
       if (!blob) {
-        console.error('[Loomo Content] Video blob not found in IndexedDB for ID:', id);
+        logger.error('[Loomo Content] Video blob not found in IndexedDB for ID:', id);
         return;
       }
 
@@ -728,13 +728,13 @@ window.addEventListener('message', async (event) => {
         }
       }, (response) => {
         if (chrome.runtime.lastError) {
-          console.error('[Loomo Content] Failed to send BACKGROUND_UPLOAD_START to background:', chrome.runtime.lastError.message);
+          logger.error('[Loomo Content] Failed to send BACKGROUND_UPLOAD_START to background:', chrome.runtime.lastError.message);
         } else {
-          console.log('[Loomo Content] Background upload request successfully sent to background worker');
+          logger.log('[Loomo Content] Background upload request successfully sent to background worker');
         }
       });
     } catch (err) {
-      console.error('[Loomo Content] Failed to read video and trigger background upload:', err);
+      logger.error('[Loomo Content] Failed to read video and trigger background upload:', err);
     }
   }
 });

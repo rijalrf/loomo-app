@@ -3,7 +3,7 @@ let stream = null;
 let chunks = [];
 let canvasInterval = null;
 
-console.log('[offscreen] Offscreen document loaded');
+logger.log('[offscreen] Offscreen document loaded');
 
 // Keep-alive ping to prevent offscreen from being terminated
 setInterval(() => {
@@ -50,7 +50,7 @@ async function startRecording(streamId) {
       });
     }
   } catch (err) {
-    console.warn('[Jam Extension] Izin rekam layar ditolak, beralih ke video Canvas fallback:', err);
+    logger.warn('[Jam Extension] Izin rekam layar ditolak, beralih ke video Canvas fallback:', err);
     
     // 3. Fallback: Buat Canvas animasi jika user membatalkan dialog sharing
     const canvas = document.createElement('canvas');
@@ -119,7 +119,7 @@ function resumeRecording() {
 }
 
 function stopRecording() {
-  console.log('[offscreen] stopRecording called, mediaRecorder state:', mediaRecorder?.state);
+  logger.log('[offscreen] stopRecording called, mediaRecorder state:', mediaRecorder?.state);
   
   if (canvasInterval) {
     clearInterval(canvasInterval);
@@ -128,9 +128,9 @@ function stopRecording() {
 
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.onstop = () => {
-      console.log('[offscreen] mediaRecorder stopped, chunks count:', chunks.length);
+      logger.log('[offscreen] mediaRecorder stopped, chunks count:', chunks.length);
       const blob = new Blob(chunks, { type: 'video/webm' });
-      console.log('[offscreen] Blob created, size:', blob.size, 'bytes');
+      logger.log('[offscreen] Blob created, size:', blob.size, 'bytes');
       
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
@@ -141,22 +141,22 @@ function stopRecording() {
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
         const base64Data = reader.result;
-        console.log('[offscreen] Base64 data created, length:', base64Data.length);
-        console.log('[offscreen] Sending video blob directly to background via message');
+        logger.log('[offscreen] Base64 data created, length:', base64Data.length);
+        logger.log('[offscreen] Sending video blob directly to background via message');
         
         chrome.runtime.sendMessage({
           source: 'jam-extension-offscreen',
           action: 'VIDEO_BLOB_READY',
           payload: { videoBase64: base64Data }
         }, (response) => {
-          console.log('[offscreen] Message sent, response:', response);
+          logger.log('[offscreen] Message sent, response:', response);
         });
       };
     };
     
     mediaRecorder.stop();
   } else {
-    console.log('[offscreen] mediaRecorder is null or already inactive');
+    logger.log('[offscreen] mediaRecorder is null or already inactive');
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
       stream = null;

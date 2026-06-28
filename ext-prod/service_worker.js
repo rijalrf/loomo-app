@@ -1,11 +1,18 @@
 import './config.js';
+import './logger.js';
 
-// Global error handling to log background service worker errors to console
+const log = globalThis.logger.log;
+const logError = globalThis.logger.error;
+const logWarn = globalThis.logger.warn;
+
+const MAX_DURATION_MS = (globalThis.LoomoConfig?.MAX_RECORDING_MINUTES || 4) * 60 * 1000;
+const WARNING_DURATION_MS = (globalThis.LoomoConfig?.WARNING_RECORDING_MINUTES || 2) * 60 * 1000;
+
 self.addEventListener('error', (event) => {
-  console.error(`[background] Unhandled error: ${event.message} at ${event.filename}:${event.lineno}`);
+  logError(`[background] Unhandled error: ${event.message} at ${event.filename}:${event.lineno}`);
 });
 self.addEventListener('unhandledrejection', (event) => {
-  console.error(`[background] Unhandled promise rejection: ${event.reason}`);
+  logError(`[background] Unhandled promise rejection: ${event.reason}`);
 });
 
 // State Perekaman Global di Background
@@ -20,8 +27,6 @@ let logs = [];
 let networkRequests = [];
 let userActions = [];
 
-const MAX_DURATION_MS = 4 * 60 * 1000;
-const WARNING_DURATION_MS = 2 * 60 * 1000;
 let maxDurationTimer = null;
 let warningShown = false;
 
@@ -144,7 +149,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       chrome.tabCapture.getMediaStreamId({ targetTabId: targetTabId }, (streamId) => {
         if (chrome.runtime.lastError) {
-          console.warn('Gagal mengambil streamId tabCapture:', chrome.runtime.lastError.message);
+          logWarn('Gagal mengambil streamId tabCapture:', chrome.runtime.lastError.message);
           startRecordingFlow(targetTabId, null, sendResponse);
         } else {
           startRecordingFlow(targetTabId, streamId, sendResponse);
@@ -278,10 +283,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (winId !== null) {
               // Clear error and fallback to default window capture
               const errMsg = chrome.runtime.lastError.message;
-              console.warn('[Jam Extension] captureVisibleTab failed for windowId, falling back to default:', errMsg);
+              logWarn('[Jam Extension] captureVisibleTab failed for windowId, falling back to default:', errMsg);
               performCapture(null);
             } else {
-              console.error(`[background] [Jam Extension] captureVisibleTab error: ${chrome.runtime.lastError.message}`);
+              logError(`[background] [Jam Extension] captureVisibleTab error: ${chrome.runtime.lastError.message}`);
               sendResponse({ error: chrome.runtime.lastError.message });
             }
           } else {
@@ -305,17 +310,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 3. Terima Video Blob dari Offscreen Document langsung via message
   if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY') {
-    console.log('[background] Received VIDEO_BLOB_READY from offscreen');
+    log('[background] Received VIDEO_BLOB_READY from offscreen');
     const videoBase64 = message.payload?.videoBase64;
     
     if (videoBase64) {
-      console.log('[background] Video blob received, length:', videoBase64.length);
+      log('[background] Video blob received, length:', videoBase64.length);
       withRecordingState(() => {
         saveRecordingAndRedirect(videoBase64);
       });
       sendResponse({ success: true });
     } else {
-      console.error('[background] No video data in payload');
+      logError('[background] No video data in payload');
       sendResponse({ success: false, error: 'No video data' });
     }
     return true;
@@ -323,21 +328,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 3b (Legacy). Terima Video Blob dari Offscreen Document via Storage (fallback)
   if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY_IN_STORAGE') {
-    console.log('[background] Received VIDEO_BLOB_READY_IN_STORAGE from offscreen');
+    log('[background] Received VIDEO_BLOB_READY_IN_STORAGE from offscreen');
     withRecordingState(() => {
       chrome.storage.local.get(['pending_video_blob'], (result) => {
         if (chrome.runtime.lastError) {
-          console.error('[background] Gagal mengambil pending_video_blob dari storage:', chrome.runtime.lastError.message);
+          logError('[background] Gagal mengambil pending_video_blob dari storage:', chrome.runtime.lastError.message);
           return;
         }
         const videoBase64 = result.pending_video_blob;
-        console.log('[background] Video blob from storage:', videoBase64 ? `${videoBase64.length} bytes` : 'empty');
+        log('[background] Video blob from storage:', videoBase64 ? `${videoBase64.length} bytes` : 'empty');
         chrome.storage.local.remove('pending_video_blob');
         if (videoBase64) {
-          console.log('[background] Calling saveRecordingAndRedirect');
+          log('[background] Calling saveRecordingAndRedirect');
           saveRecordingAndRedirect(videoBase64);
         } else {
-          console.error('[background] pending_video_blob kosong di storage.');
+          logError('[background] pending_video_blob kosong di storage.');
         }
       });
     });
@@ -402,14 +407,14 @@ async function startRecordingFlow(targetTabId, streamId, sendResponse) {
           });
           await new Promise(r => setTimeout(r, 150));
         } catch (err) {
-          console.warn('Gagal melakukan injeksi skrip rekam:', err);
+          logWarn('Gagal melakukan injeksi skrip rekam:', err);
         }
       }
 
       await chrome.tabs.sendMessage(activeTabId, {
         source: 'jam-extension-background',
         action: 'START_RECORDING'
-      }).catch((e) => console.log('Mungkin skrip belum dimuat pada halaman sistem:', e));
+      }).catch((e) => log('Mungkin skrip belum dimuat pada halaman sistem:', e));
 
       await createOffscreenDocument();
 
@@ -426,7 +431,7 @@ async function startRecordingFlow(targetTabId, streamId, sendResponse) {
       sendResponse({ success: true });
     });
   } catch (err) {
-    console.error(`[background] Gagal memulai alur perekaman: ${err.message || String(err)}`);
+    logError(`[background] Gagal memulai alur perekaman: ${err.message || String(err)}`);
     clearRecordingState(() => {
       sendResponse({ success: false, error: err.message });
     });
@@ -440,14 +445,14 @@ function checkDurationWarningAndStop() {
     const currentDuration = isPaused ? accumulatedTime : (accumulatedTime + (Date.now() - startTime));
 
     if (currentDuration >= MAX_DURATION_MS) {
-      console.log('[background] Max duration 4 minutes reached, auto-stopping recording');
+      log('[background] Max duration 4 minutes reached, auto-stopping recording');
       stopRecordingFlow(() => {});
       return;
     }
 
     if (currentDuration >= WARNING_DURATION_MS && !warningShown) {
       warningShown = true;
-      console.log('[background] Warning: 2 minutes reached, max 4 minutes');
+      log('[background] Warning: 2 minutes reached, max 4 minutes');
       if (activeTabId) {
         chrome.tabs.sendMessage(activeTabId, {
           source: 'jam-extension-background',
@@ -469,7 +474,7 @@ async function stopRecordingFlow(sendResponse) {
     return;
   }
 
-  console.log('[background] Stop recording flow started');
+  log('[background] Stop recording flow started');
 
   if (isPaused) {
     finalDuration = Math.round(accumulatedTime / 1000);
@@ -477,18 +482,18 @@ async function stopRecordingFlow(sendResponse) {
     finalDuration = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
   }
 
-  console.log('[background] Final duration:', finalDuration, 'seconds');
+  log('[background] Final duration:', finalDuration, 'seconds');
 
   updateRecordingState(async () => {
     if (activeTabId) {
-      console.log('[background] Sending STOP_RECORDING to tab:', activeTabId);
+      log('[background] Sending STOP_RECORDING to tab:', activeTabId);
       await chrome.tabs.sendMessage(activeTabId, {
         source: 'jam-extension-background',
         action: 'STOP_RECORDING'
       }).catch(() => {});
     }
 
-    console.log('[background] Checking if offscreen exists before sending stop');
+    log('[background] Checking if offscreen exists before sending stop');
     const offscreenUrl = chrome.runtime.getURL('offscreen.html');
     const existingContexts = await chrome.runtime.getContexts({
       contextTypes: ['OFFSCREEN_DOCUMENT'],
@@ -496,16 +501,16 @@ async function stopRecordingFlow(sendResponse) {
     });
 
     if (existingContexts.length > 0) {
-      console.log('[background] Offscreen exists, sending STOP_OFFSCREEN_CAPTURE');
+      log('[background] Offscreen exists, sending STOP_OFFSCREEN_CAPTURE');
       chrome.runtime.sendMessage({
         source: 'jam-extension-background',
         action: 'STOP_OFFSCREEN_CAPTURE'
       }).catch((err) => {
-        console.error('[background] Failed to send stop to offscreen:', err);
+        logError('[background] Failed to send stop to offscreen:', err);
       });
     } else {
-      console.warn('[background] Offscreen document not found, it may have been terminated');
-      console.log('[background] Recording stopped but no video will be saved');
+      logWarn('[background] Offscreen document not found, it may have been terminated');
+      log('[background] Recording stopped but no video will be saved');
       clearRecordingState();
     }
 
@@ -523,18 +528,18 @@ async function createOffscreenDocument() {
   });
 
   if (existingContexts.length > 0) {
-    console.log('[background] Offscreen document already exists');
+    log('[background] Offscreen document already exists');
     return;
   }
 
-  console.log('[background] Creating new offscreen document');
+  log('[background] Creating new offscreen document');
   await chrome.offscreen.createDocument({
     url: 'offscreen.html',
     reasons: ['USER_MEDIA'],
     justification: 'Merekam layar tab aktif dan mikrofon untuk laporan bug.'
   });
   
-  console.log('[background] Offscreen document created successfully');
+  log('[background] Offscreen document created successfully');
 }
 
 // Menyimpan Hasil dan Mengarahkan ke Backoffice
@@ -559,7 +564,7 @@ function createCenteredEditorWindow(url) {
       top: Math.max(0, top)
     }, (newWin) => {
       if (chrome.runtime.lastError) {
-        console.warn('Gagal membuat centered window, mencoba fallback:', chrome.runtime.lastError.message);
+        logWarn('Gagal membuat centered window, mencoba fallback:', chrome.runtime.lastError.message);
         chrome.windows.create({
           url,
           type: 'popup'
@@ -570,12 +575,12 @@ function createCenteredEditorWindow(url) {
 }
 
 async function saveRecordingAndRedirect(videoDataBase64) {
-  console.log('[background] saveRecordingAndRedirect called with video data:', videoDataBase64 ? `${videoDataBase64.length} bytes` : 'empty');
+  log('[background] saveRecordingAndRedirect called with video data:', videoDataBase64 ? `${videoDataBase64.length} bytes` : 'empty');
   
   chrome.offscreen.closeDocument().catch(() => {});
   
   const durationSec = finalDuration || 1;
-  console.log('[background] Creating metadata with duration:', durationSec);
+  log('[background] Creating metadata with duration:', durationSec);
  
   const metadata = {
     id: generateUUID(),
@@ -596,16 +601,16 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     userActions: userActions
   };
  
-  console.log('[background] Metadata created:', metadata.id);
+  log('[background] Metadata created:', metadata.id);
   
   chrome.storage.local.set({
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
-    console.log('[background] Data saved to storage, clearing recording state');
+    log('[background] Data saved to storage, clearing recording state');
     clearRecordingState(() => {
       const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
-      console.log('[background] Opening editor window:', backofficeUrl);
+      log('[background] Opening editor window:', backofficeUrl);
       createCenteredEditorWindow(backofficeUrl);
     });
   });
@@ -623,7 +628,7 @@ function generateUUID() {
 }
 
 async function performBackgroundUpload(mediaId, uploadUrl, blob, id, title) {
-  console.log('[background] Starting background upload to Google Drive for:', title, 'Media ID:', mediaId);
+  log('[background] Starting background upload to Google Drive for:', title, 'Media ID:', mediaId);
   
   try {
     // 1. Upload directly to Google Drive (PUT request)
@@ -641,7 +646,7 @@ async function performBackgroundUpload(mediaId, uploadUrl, blob, id, title) {
 
     const gMetadata = await uploadRes.json();
     const driveFileId = gMetadata.id;
-    console.log('[background] Google Drive upload success, file ID:', driveFileId);
+    log('[background] Google Drive upload success, file ID:', driveFileId);
 
     // 2. Finalize on server
     const completeRes = await fetch(`${globalThis.LoomoConfig.API_BASE_URL}/api/media/upload/complete`, {
@@ -661,7 +666,7 @@ async function performBackgroundUpload(mediaId, uploadUrl, blob, id, title) {
       throw new Error(`Failed to finalize upload on server: ${errText}`);
     }
 
-    console.log('[background] Background upload successfully finalized for:', title);
+    log('[background] Background upload successfully finalized for:', title);
 
     // 3. Show System Notification (CORS/Permissions allowed)
     chrome.notifications.create(mediaId, {
@@ -673,7 +678,7 @@ async function performBackgroundUpload(mediaId, uploadUrl, blob, id, title) {
     });
 
   } catch (err) {
-    console.error('[background] Background upload error:', err.message || err);
+    logError('[background] Background upload error:', err.message || err);
     
     // Show Error Notification
     chrome.notifications.create(mediaId, {
