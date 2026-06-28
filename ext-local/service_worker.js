@@ -20,6 +20,73 @@ let logs = [];
 let networkRequests = [];
 let userActions = [];
 
+// Helper untuk sinkronisasi state ke storage (mengatasi service worker inactivity/idle termination)
+function withRecordingState(callback) {
+  chrome.storage.local.get([
+    'rec_isRecording',
+    'rec_isPaused',
+    'rec_startTime',
+    'rec_accumulatedTime',
+    'rec_finalDuration',
+    'rec_activeTabId',
+    'rec_logs',
+    'rec_networkRequests',
+    'rec_userActions'
+  ], (res) => {
+    isRecording = !!res.rec_isRecording;
+    isPaused = !!res.rec_isPaused;
+    startTime = res.rec_startTime || 0;
+    accumulatedTime = res.rec_accumulatedTime || 0;
+    finalDuration = res.rec_finalDuration || 0;
+    activeTabId = res.rec_activeTabId || null;
+    logs = res.rec_logs || [];
+    networkRequests = res.rec_networkRequests || [];
+    userActions = res.rec_userActions || [];
+    callback();
+  });
+}
+
+function updateRecordingState(cb) {
+  chrome.storage.local.set({
+    rec_isRecording: isRecording,
+    rec_isPaused: isPaused,
+    rec_startTime: startTime,
+    rec_accumulatedTime: accumulatedTime,
+    rec_finalDuration: finalDuration,
+    rec_activeTabId: activeTabId,
+    rec_logs: logs,
+    rec_networkRequests: networkRequests,
+    rec_userActions: userActions
+  }, () => {
+    if (cb) cb();
+  });
+}
+
+function clearRecordingState(cb) {
+  isRecording = false;
+  isPaused = false;
+  startTime = 0;
+  accumulatedTime = 0;
+  finalDuration = 0;
+  activeTabId = null;
+  logs = [];
+  networkRequests = [];
+  userActions = [];
+  chrome.storage.local.remove([
+    'rec_isRecording',
+    'rec_isPaused',
+    'rec_startTime',
+    'rec_accumulatedTime',
+    'rec_finalDuration',
+    'rec_activeTabId',
+    'rec_logs',
+    'rec_networkRequests',
+    'rec_userActions'
+  ], () => {
+    if (cb) cb();
+  });
+}
+
 // Mendengarkan pesan dari Content Script, Popup, dan Offscreen Document
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Jembatan Penulisan Log Fisik removed
@@ -33,13 +100,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   // 1. Log Penyadapan Halaman Target (dari content.js)
-  if (message.source === 'jam-extension-content' && isRecording) {
-    if (message.type === 'CONSOLE_LOG') {
-      logs.push(message.payload);
-    } else if (message.type === 'NETWORK_REQUEST') {
-      networkRequests.push(message.payload);
-    } else if (message.type === 'USER_ACTION') {
-      userActions.push(message.payload);
+  if (message.source === 'jam-extension-content') {
+    if (message.type === 'CONSOLE_LOG' || message.type === 'NETWORK_REQUEST' || message.type === 'USER_ACTION') {
+      withRecordingState(() => {
+        if (isRecording) {
+          if (message.type === 'CONSOLE_LOG') {
+            logs.push(message.payload);
+          } else if (message.type === 'NETWORK_REQUEST') {
+            networkRequests.push(message.payload);
+          } else if (message.type === 'USER_ACTION') {
+            userActions.push(message.payload);
+          }
+          updateRecordingState();
+        }
+      });
+      return false; // non-blocking logging
     }
   }
 
@@ -64,40 +139,59 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true; // async response
     } else if (message.action === 'STOP_RECORDING') {
-      stopRecordingFlow(sendResponse);
+      withRecordingState(() => {
+        stopRecordingFlow(sendResponse);
+      });
       return true; // async response
     } else if (message.action === 'PAUSE_RECORDING') {
-      if (isRecording && !isPaused) {
-        accumulatedTime += (Date.now() - startTime);
-        isPaused = true;
-      }
-      chrome.runtime.sendMessage({
-        source: 'jam-extension-background',
-        action: 'PAUSE_OFFSCREEN_CAPTURE'
-      });
-      sendResponse({ success: true });
-    } else if (message.action === 'RESUME_RECORDING') {
-      if (isRecording && isPaused) {
-        startTime = Date.now();
-        isPaused = false;
-      }
-      chrome.runtime.sendMessage({
-        source: 'jam-extension-background',
-        action: 'RESUME_OFFSCREEN_CAPTURE'
-      });
-      sendResponse({ success: true });
-    } else if (message.action === 'GET_STATUS') {
-      let elapsed = 0;
-      if (isRecording) {
-        if (isPaused) {
-          elapsed = Math.round(accumulatedTime / 1000);
+      withRecordingState(() => {
+        if (isRecording && !isPaused) {
+          accumulatedTime += (Date.now() - startTime);
+          isPaused = true;
+          updateRecordingState(() => {
+            chrome.runtime.sendMessage({
+              source: 'jam-extension-background',
+              action: 'PAUSE_OFFSCREEN_CAPTURE'
+            });
+            sendResponse({ success: true });
+          });
         } else {
-          elapsed = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
+          sendResponse({ success: false, error: 'Cannot pause: not recording or already paused.' });
         }
-      }
-      const senderTabId = (sender && sender.tab) ? sender.tab.id : null;
-      const isCurrentTabRecording = isRecording && (senderTabId === activeTabId);
-      sendResponse({ isRecording, isCurrentTabRecording, isPaused, elapsed });
+      });
+      return true;
+    } else if (message.action === 'RESUME_RECORDING') {
+      withRecordingState(() => {
+        if (isRecording && isPaused) {
+          startTime = Date.now();
+          isPaused = false;
+          updateRecordingState(() => {
+            chrome.runtime.sendMessage({
+              source: 'jam-extension-background',
+              action: 'RESUME_OFFSCREEN_CAPTURE'
+            });
+            sendResponse({ success: true });
+          });
+        } else {
+          sendResponse({ success: false, error: 'Cannot resume: not paused.' });
+        }
+      });
+      return true;
+    } else if (message.action === 'GET_STATUS') {
+      withRecordingState(() => {
+        let elapsed = 0;
+        if (isRecording) {
+          if (isPaused) {
+            elapsed = Math.round(accumulatedTime / 1000);
+          } else {
+            elapsed = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
+          }
+        }
+        const senderTabId = (sender && sender.tab) ? sender.tab.id : null;
+        const isCurrentTabRecording = isRecording && (senderTabId === activeTabId);
+        sendResponse({ isRecording, isCurrentTabRecording, isPaused, elapsed });
+      });
+      return true;
     } else if (message.action === 'START_SCREENSHOT') {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const activeTab = tabs[0];
@@ -181,19 +275,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 3. Terima Video Blob dari Offscreen Document (offscreen.js) via Storage
   if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY_IN_STORAGE') {
-    chrome.storage.local.get(['pending_video_blob'], (result) => {
-      if (chrome.runtime.lastError) {
-        console.error('[background] Gagal mengambil pending_video_blob dari storage:', chrome.runtime.lastError.message);
-        return;
-      }
-      const videoBase64 = result.pending_video_blob;
-      chrome.storage.local.remove('pending_video_blob');
-      if (videoBase64) {
-        saveRecordingAndRedirect(videoBase64);
-      } else {
-        console.error('[background] pending_video_blob kosong di storage.');
-      }
+    withRecordingState(() => {
+      chrome.storage.local.get(['pending_video_blob'], (result) => {
+        if (chrome.runtime.lastError) {
+          console.error('[background] Gagal mengambil pending_video_blob dari storage:', chrome.runtime.lastError.message);
+          return;
+        }
+        const videoBase64 = result.pending_video_blob;
+        chrome.storage.local.remove('pending_video_blob');
+        if (videoBase64) {
+          saveRecordingAndRedirect(videoBase64);
+        } else {
+          console.error('[background] pending_video_blob kosong di storage.');
+        }
+      });
     });
+    return false;
   }
 
   // 3b. Menerima request upload latar belakang dari content script
@@ -235,49 +332,52 @@ async function startRecordingFlow(targetTabId, streamId, sendResponse) {
     networkRequests = [];
     userActions = [];
 
-    // B. Beri tahu content script tab aktif untuk mulai menyadap (dengan auto-injeksi jika diperlukan)
-    const pingSuccess = await new Promise((resolve) => {
-      chrome.tabs.sendMessage(activeTabId, { action: 'PING' }, (res) => {
-        if (chrome.runtime.lastError) {
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      });
-    });
-
-    if (!pingSuccess) {
-      try {
-        await chrome.scripting.executeScript({
-          target: { tabId: activeTabId },
-          files: ['content.js']
+    updateRecordingState(async () => {
+      // B. Beri tahu content script tab aktif untuk mulai menyadap (dengan auto-injeksi jika diperlukan)
+      const pingSuccess = await new Promise((resolve) => {
+        chrome.tabs.sendMessage(activeTabId, { action: 'PING' }, (res) => {
+          if (chrome.runtime.lastError) {
+            resolve(false);
+          } else {
+            resolve(true);
+          }
         });
-        await new Promise(r => setTimeout(r, 150));
-      } catch (err) {
-        console.warn('Gagal melakukan injeksi skrip rekam:', err);
+      });
+
+      if (!pingSuccess) {
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: activeTabId },
+            files: ['content.js']
+          });
+          await new Promise(r => setTimeout(r, 150));
+        } catch (err) {
+          console.warn('Gagal melakukan injeksi skrip rekam:', err);
+        }
       }
-    }
 
-    await chrome.tabs.sendMessage(activeTabId, {
-      source: 'jam-extension-background',
-      action: 'START_RECORDING'
-    }).catch((e) => console.log('Mungkin skrip belum dimuat pada halaman sistem:', e));
+      await chrome.tabs.sendMessage(activeTabId, {
+        source: 'jam-extension-background',
+        action: 'START_RECORDING'
+      }).catch((e) => console.log('Mungkin skrip belum dimuat pada halaman sistem:', e));
 
-    // D. Buat offscreen document untuk merekam video (karena worker Manifest V3 tidak punya DOM API)
-    await createOffscreenDocument();
+      // D. Buat offscreen document untuk merekam video (karena worker Manifest V3 tidak punya DOM API)
+      await createOffscreenDocument();
 
-    // E. Beri tahu offscreen untuk mulai menangkap
-    chrome.runtime.sendMessage({
-      source: 'jam-extension-background',
-      action: 'START_OFFSCREEN_CAPTURE',
-      payload: { streamId }
+      // E. Beri tahu offscreen untuk mulai menangkap
+      chrome.runtime.sendMessage({
+        source: 'jam-extension-background',
+        action: 'START_OFFSCREEN_CAPTURE',
+        payload: { streamId }
+      });
+
+      sendResponse({ success: true });
     });
-
-    sendResponse({ success: true });
   } catch (err) {
     console.error(`[background] Gagal memulai alur perekaman: ${err.message || String(err)}`);
-    isRecording = false;
-    sendResponse({ success: false, error: err.message });
+    clearRecordingState(() => {
+      sendResponse({ success: false, error: err.message });
+    });
   }
 }
 
@@ -294,26 +394,23 @@ async function stopRecordingFlow(sendResponse) {
     finalDuration = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
   }
 
-  // A. Beri tahu content script halaman target untuk stop menyadap
-  if (activeTabId) {
-    await chrome.tabs.sendMessage(activeTabId, {
+  updateRecordingState(async () => {
+    // A. Beri tahu content script halaman target untuk stop menyadap
+    if (activeTabId) {
+      await chrome.tabs.sendMessage(activeTabId, {
+        source: 'jam-extension-background',
+        action: 'STOP_RECORDING'
+      }).catch(() => {});
+    }
+
+    // B. Beri tahu offscreen document untuk menghentikan media recorder
+    chrome.runtime.sendMessage({
       source: 'jam-extension-background',
-      action: 'STOP_RECORDING'
-    }).catch(() => {});
-  }
+      action: 'STOP_OFFSCREEN_CAPTURE'
+    });
 
-  // B. Beri tahu offscreen document untuk menghentikan media recorder
-  chrome.runtime.sendMessage({
-    source: 'jam-extension-background',
-    action: 'STOP_OFFSCREEN_CAPTURE'
+    sendResponse({ success: true });
   });
-
-  isRecording = false;
-  isPaused = false;
-  activeTabId = null;
-  accumulatedTime = 0;
-  startTime = 0;
-  sendResponse({ success: true });
 }
 
 // Membuat Offscreen Document
@@ -339,11 +436,13 @@ async function createOffscreenDocument() {
 // Menyimpan Hasil dan Mengarahkan ke Backoffice
 function createCenteredEditorWindow(url) {
   chrome.windows.getLastFocused((win) => {
-    const winWidth = 1600;
-    const winHeight = 960;
+    let winWidth = 1280;
+    let winHeight = 720;
     let left = 100;
     let top = 100;
     if (win && typeof win.width === 'number' && typeof win.height === 'number') {
+      winWidth = Math.min(1600, Math.round(win.width * 0.9));
+      winHeight = Math.min(960, Math.round(win.height * 0.9));
       left = Math.round((win.width - winWidth) / 2 + (win.left || 0));
       top = Math.round((win.height - winHeight) / 2 + (win.top || 0));
     }
@@ -359,9 +458,7 @@ function createCenteredEditorWindow(url) {
         console.warn('Gagal membuat centered window, mencoba fallback:', chrome.runtime.lastError.message);
         chrome.windows.create({
           url,
-          type: 'popup',
-          width: winWidth,
-          height: winHeight
+          type: 'popup'
         });
       }
     });
@@ -399,8 +496,10 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
-    const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
-    createCenteredEditorWindow(backofficeUrl);
+    clearRecordingState(() => {
+      const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
+      createCenteredEditorWindow(backofficeUrl);
+    });
   });
 }
 
