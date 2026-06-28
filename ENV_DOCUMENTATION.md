@@ -1,190 +1,174 @@
-# Environment Variables Documentation
+# Environment Variables - Simplified
 
-## 📁 File Overview
+## 📁 File yang Dipakai
 
-| File | Location | Purpose | Committed to Git? |
-|------|----------|---------|-------------------|
-| `.env.extension.example` | Root | Template untuk extension config | ✅ Yes |
-| `.env.extension` | Root | Extension config (aktual) | ❌ No (gitignored) |
-| `web/.env.example` | web/ | Template untuk web app | ✅ Yes |
-| `web/.env` | web/ | Web app config local dev | ❌ No (gitignored) |
-| `web/.env.production` | web/ | Web app config production (Vercel) | ❌ No (gitignored) |
+```
+loomo-app/
+├── .env.extension          ← Extension config (gitignored)
+├── .env.extension.example  ← Template extension (committed)
+└── web/
+    ├── .env                ← Web app config (gitignored)
+    └── .env.example        ← Template web app (committed)
+```
+
+**HANYA 2 FILE `.env` YANG DIPAKAI:**
+1. **`.env.extension`** - Config untuk Chrome Extension
+2. **`web/.env`** - Config untuk Next.js Web App
 
 ---
 
-## 1️⃣ Extension Configuration (`.env.extension`)
+## 1️⃣ Extension Config (`.env.extension`)
 
-**File:** `.env.extension` (root directory)
+**Lokasi:** Root folder  
 **Template:** `.env.extension.example`
-
-### Variables:
-
-```env
-# API Base URL - URL web application
-API_BASE_URL=http://localhost:8999
-
-# Recording Configuration (dalam menit)
-MAX_RECORDING_MINUTES=4          # Max duration sebelum auto-stop
-WARNING_RECORDING_MINUTES=2      # Kapan warning muncul
-
-# Debug Mode
-DEBUG=true                       # true = console log aktif, false = disabled
-```
 
 ### Setup:
 ```bash
 cp .env.extension.example .env.extension
-# Edit sesuai environment
-npm run config:generate
 ```
 
-### Environment Values:
+### Isi file:
+```env
+# URL web application
+API_BASE_URL=http://localhost:8999
 
-| Environment | API_BASE_URL | MAX_RECORDING_MINUTES | DEBUG |
-|-------------|--------------|------------------------|-------|
-| Local | `http://localhost:8999` | 4-10 | true |
-| QA | `https://qa.loomo.my.id` | 4 | false |
-| Production | `https://loomo.my.id` | 4 | false |
+# Max recording duration (menit)
+MAX_RECORDING_MINUTES=4
+WARNING_RECORDING_MINUTES=2
+
+# Debug mode (true/false)
+DEBUG=true
+```
+
+### Nilai per Environment:
+
+| Environment | API_BASE_URL | DEBUG |
+|-------------|--------------|-------|
+| Local | `http://localhost:8999` | `true` |
+| Production | `https://loomo.my.id` | `false` |
+
+**Generate config:** `npm run config:generate`
 
 ---
 
-## 2️⃣ Web Application Configuration (`web/.env`)
+## 2️⃣ Web App Config (`web/.env`)
 
-**File:** `web/.env` (untuk local development)
+**Lokasi:** `web/` folder  
 **Template:** `web/.env.example`
 
-### Variables:
-
-```env
-# Database
-DATABASE_URL="postgresql://postgres:admin123@127.0.0.1:5432/loomo_db?schema=public"
-
-# Google OAuth
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id"
-
-# Application URL
-NEXT_PUBLIC_APP_URL="http://localhost:8999"
-
-# Security
-JWT_SECRET="your-jwt-secret-key"
-ENCRYPTION_KEY="your-32-byte-encryption-key-here"
-
-# Cron Job Secret
-CRON_SECRET="your-cron-secret-hex"
-
-# Storage
-DEFAULT_SAVE_TO_OWNER_DRIVE=true
-
-# Upload Limit
-MAX_UPLOAD_SIZE_MB=100
-```
-
-### Setup Local Development:
+### Setup:
 ```bash
 cd web
 cp .env.example .env
-# Edit DATABASE_URL, GOOGLE_CLIENT_ID, etc.
-npm run dev
 ```
 
----
+### Isi file:
+```env
+# Database (PostgreSQL local)
+DATABASE_URL="postgresql://postgres:admin123@127.0.0.1:5432/loomo_db"
 
-## 3️⃣ Production Configuration (Vercel)
+# Google OAuth (dari Google Cloud Console)
+GOOGLE_CLIENT_ID="xxx"
+GOOGLE_CLIENT_SECRET="xxx"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID="xxx"
 
-**File:** `web/.env.production` (auto-generated oleh Vercel)
+# App URL
+NEXT_PUBLIC_APP_URL="http://localhost:8999"
 
-### Setup di Vercel Dashboard:
+# Security (generate pakai openssl)
+JWT_SECRET="xxx"
+ENCRYPTION_KEY="xxx"
+CRON_SECRET="xxx"
 
-1. Go to: `https://vercel.com/[team]/loomo-app/settings/environment-variables`
-
-2. Tambahkan variables untuk **Production**:
-
-```
-DATABASE_URL=prisma://accelerate.prisma-data.net/?api_key=xxx
-GOOGLE_CLIENT_ID=xxx
-GOOGLE_CLIENT_SECRET=xxx
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxx
-NEXT_PUBLIC_APP_URL=https://loomo.my.id
-JWT_SECRET=xxx
-ENCRYPTION_KEY=xxx
-CRON_SECRET=xxx
+# Storage
 DEFAULT_SAVE_TO_OWNER_DRIVE=true
 ```
 
-3. Untuk **QA environment** (jika ada):
-```
-NEXT_PUBLIC_APP_URL=https://qa.loomo.my.id
+### Generate Secrets:
+```bash
+# JWT Secret
+openssl rand -base64 32
+
+# Encryption Key (32 bytes)
+openssl rand -hex 32
+
+# Cron Secret
+openssl rand -hex 32
 ```
 
 ---
 
-## 🔒 Security Notes
+## 🚀 Production (Vercel)
 
-### Secrets yang WAJIB diganti:
+**Untuk production, TIDAK pakai file `.env`!**
 
-1. **JWT_SECRET** - Generate:
-   ```bash
-   openssl rand -base64 32
-   ```
+Set langsung di Vercel Dashboard:
+1. Go to: `https://vercel.com/[team]/loomo-app/settings/environment-variables`
+2. Tambahkan semua variable dari `web/.env.example`
+3. Ganti dengan nilai production (database, URL, secrets)
 
-2. **ENCRYPTION_KEY** - Generate 32 bytes:
-   ```bash
-   openssl rand -hex 32
-   ```
-
-3. **CRON_SECRET** - Generate:
-   ```bash
-   openssl rand -hex 32
-   ```
-
-4. **GOOGLE_CLIENT_ID & SECRET** - Dari Google Cloud Console
+**Production values:**
+```
+DATABASE_URL=prisma://accelerate.prisma-data.net/?api_key=xxx
+NEXT_PUBLIC_APP_URL=https://loomo.my.id
+# ... (set semua variable lainnya)
+```
 
 ---
 
-## 📋 Checklist Setup
+## ✅ Checklist Setup
 
 ### Local Development:
-- [ ] Copy `web/.env.example` → `web/.env`
-- [ ] Setup PostgreSQL lokal
-- [ ] Update `DATABASE_URL` di `web/.env`
-- [ ] Copy `.env.extension.example` → `.env.extension`
-- [ ] Run `npm run config:generate`
-- [ ] Run `cd web && npm run dev`
+```bash
+# 1. Setup web app
+cd web
+cp .env.example .env
+# Edit .env (database, Google OAuth, dll)
+
+# 2. Setup extension
+cd ..
+cp .env.extension.example .env.extension
+# Edit jika perlu (default sudah OK)
+
+# 3. Generate extension config
+npm run config:generate
+
+# 4. Run dev server
+cd web
+npm run dev
+```
 
 ### Production Deployment:
-- [ ] Set environment variables di Vercel Dashboard
-- [ ] Copy `.env.extension.example` → `.env.extension`
-- [ ] Edit `.env.extension` (set production URL, DEBUG=false)
-- [ ] Run `npm run ext:build`
-- [ ] Commit & push
-- [ ] Vercel auto-deploy
+```bash
+# 1. Set variables di Vercel Dashboard
+# 2. Edit .env.extension (set production URL, DEBUG=false)
+# 3. Push ke GitHub
+# 4. Vercel auto-deploy (extension otomatis ter-generate)
+```
 
 ---
 
-## 🚀 Quick Reference
+## 🎯 Quick Commands
 
-| Task | Command |
-|------|---------|
-| Generate extension config | `npm run config:generate` |
-| Build extension (prod) | `npm run ext:build` |
-| Build extension (all env) | `npm run ext:build:all` |
-| Run web dev | `cd web && npm run dev` |
-| Build web | `cd web && npm run build` |
+```bash
+npm run config:generate    # Generate extension config dari .env.extension
+npm run ext:build          # Build extension package (prod)
+cd web && npm run dev      # Run web app development server
+cd web && npm run build    # Build web app (auto-build extension juga)
+```
 
 ---
 
 ## ❓ FAQ
 
-**Q: Kenapa ada 2 file .env terpisah?**
-A: `.env.extension` untuk config Chrome Extension, `web/.env` untuk Next.js web app.
+**Q: Kenapa ada 2 file .env terpisah?**  
+A: `.env.extension` untuk Chrome Extension config, `web/.env` untuk Next.js web app config.
 
-**Q: Apakah .env.extension perlu di-commit?**
-A: Tidak. Hanya `.env.extension.example` yang di-commit sebagai template.
+**Q: File .env mana yang harus di-commit?**  
+A: **JANGAN commit .env apapun!** Hanya commit `.example` files sebagai template.
 
-**Q: Bagaimana cara ganti max recording duration?**
-A: Edit `MAX_RECORDING_MINUTES` di `.env.extension`, lalu run `npm run ext:build`.
+**Q: Bagaimana cara production pakai .env?**  
+A: **TIDAK pakai .env di production!** Set environment variables langsung di Vercel Dashboard.
 
-**Q: Vercel limit 10 detik, apakah video 4 menit bisa diupload?**
-A: Ya, karena extension pakai **resumable upload** langsung ke Google Drive (tidak lewat server Vercel).
+**Q: Kenapa extension perlu .env sendiri?**  
+A: Chrome Extension tidak bisa akses environment variables dari Next.js. Butuh file config.js yang di-generate dari .env.extension.
