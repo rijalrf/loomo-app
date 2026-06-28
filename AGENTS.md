@@ -78,6 +78,9 @@ Contoh elemen yang harus memiliki cursor pointer:
 - Tab navigation
 - Modal close button "X"
 
+### Kapitalisasi / Casing Label
+Semua label teks, header bagian (section header), dan label form di sidebar **DILARANG** menggunakan format uppercase seluruhnya (`uppercase` class pada Tailwind). Gunakan penulisan biasa (Sentence case atau Title Case) dengan font weight bold atau semibold untuk mempertahankan estetika desain yang bersih, rapi, dan modern.
+
 ### PopupModal Component
 Komponen `PopupModal` adalah komponen reusable minimal yang hanya menyediakan:
 - Container modal dengan backdrop blur

@@ -284,7 +284,7 @@ export default function Sidebar({
                 {activeWorkspace?.name?.charAt(0).toUpperCase() || 'L'}
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest leading-none mb-1">Workspace</span>
+                <span className="text-xs font-bold text-[var(--text-muted)] leading-none mb-1">Workspace</span>
                 <span className="text-sm text-white group-hover:text-[var(--primary)] transition-colors truncate">
                   {activeWorkspace?.name}
                 </span>
@@ -299,7 +299,7 @@ export default function Sidebar({
           {workspaceDropdownOpen && (
             <div className="absolute left-0 right-0 mt-1.5 z-50 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg p-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
               <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-0.5">
-                <label className="block text-xs font-black text-[var(--text-muted)] uppercase tracking-wider px-2.5 py-1.5">Select Workspace</label>
+                <label className="block text-xs font-bold text-[var(--text-muted)] px-2.5 py-1.5">Select Workspace</label>
                 {workspaces.map((w) => (
                   <button
                     key={w.id}
@@ -353,7 +353,7 @@ export default function Sidebar({
 
         <nav className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider mb-1.5 px-2.5">Main Menu</label>
+            <label className="text-xs font-bold text-[var(--text-muted)] mb-1.5 px-2.5">Main Menu</label>
             
             <button
               onClick={() => {
@@ -376,7 +376,7 @@ export default function Sidebar({
           {/* Folders List */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between px-2.5 mb-1.5">
-              <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider">Projects</label>
+              <label className="text-xs font-bold text-[var(--text-muted)]">Projects</label>
               {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
                 <button
                   onClick={() => setShowCreateFolderModal(true)}
@@ -456,7 +456,7 @@ export default function Sidebar({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-black text-[var(--text-muted)] uppercase tracking-wider mb-1.5 px-2.5">System</label>
+            <label className="text-xs font-bold text-[var(--text-muted)] mb-1.5 px-2.5">System</label>
             
             <button
               onClick={() => {
@@ -685,7 +685,7 @@ export default function Sidebar({
         </p>
         <form onSubmit={handleEditWorkspace} className="space-y-4 font-sans">
           <div>
-            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Workspace Name</label>
+            <label className="block text-xs font-bold text-[#a1a1aa] mb-2">Workspace Name</label>
             <input
               type="text"
               placeholder="Workspace name"
@@ -697,7 +697,7 @@ export default function Sidebar({
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Description</label>
+            <label className="block text-xs font-bold text-[#a1a1aa] mb-2">Description</label>
             <input
               type="text"
               placeholder="Short description (optional)"
@@ -708,7 +708,7 @@ export default function Sidebar({
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-[#a1a1aa] uppercase tracking-wider mb-2">Department</label>
+            <label className="block text-xs font-bold text-[#a1a1aa] mb-2">Department</label>
             <select
               value={editWorkspaceDept}
               onChange={(e) => setEditWorkspaceDept(e.target.value)}
