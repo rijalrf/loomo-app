@@ -12,7 +12,7 @@ interface MediaVisibilitySelectProps {
 
 const options = {
   PRIVATE: { label: 'Private', color: 'bg-[var(--text-muted)]' },
-  UNLISTED: { label: 'Unlisted', color: 'bg-[var(--primary)]' },
+  UNLISTED: { label: 'Public', color: 'bg-[var(--primary)]' },
   WORKSPACE_ONLY: { label: 'Workspace', color: 'bg-[var(--secondary)]' }
 };
 

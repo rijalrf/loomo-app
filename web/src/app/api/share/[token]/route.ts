@@ -35,19 +35,21 @@ export async function GET(
     }
 
     // Check visibility permissions
-    if (media.visibility === 'PRIVATE') {
-      return NextResponse.json({ error: 'This media is private' }, { status: 403 });
-    }
-
-    if (media.visibility === 'WORKSPACE_ONLY') {
-      const session = await getSession();
-      if (!session) {
-        return NextResponse.json({ error: 'Authentication required to view workspace media' }, { status: 401 });
+    if (media.visibility !== 'UNLISTED') {
+      if (media.visibility === 'PRIVATE') {
+        return NextResponse.json({ error: 'This media is private' }, { status: 403 });
       }
 
-      const isMember = media.workspace.members.some(m => m.userId === session.userId);
-      if (!isMember) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      if (media.visibility === 'WORKSPACE_ONLY') {
+        const session = await getSession();
+        if (!session) {
+          return NextResponse.json({ error: 'Authentication required to view workspace media' }, { status: 401 });
+        }
+
+        const isMember = media.workspace.members.some(m => m.userId === session.userId);
+        if (!isMember) {
+          return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
       }
     }
 

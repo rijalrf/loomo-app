@@ -84,20 +84,21 @@ export default async function SharePage({ params }: SharePageProps) {
   }
 
   // 2. Enforce visibility permissions
-  if (media.visibility === 'PRIVATE') {
-    return renderErrorPage('Private Content', 'This capture is marked as private and cannot be viewed via public links.', 403);
-  }
-
-  if (media.visibility === 'WORKSPACE_ONLY') {
-    const session = await getSession();
-    if (!session) {
-      // Prompt user to sign in
-      redirect(`/api/auth/google`);
+  if (media.visibility !== 'UNLISTED') {
+    if (media.visibility === 'PRIVATE') {
+      return renderErrorPage('Private Content', 'This capture is marked as private and cannot be viewed via public links.', 403);
     }
+    
+    if (media.visibility === 'WORKSPACE_ONLY') {
+      const session = await getSession();
+      if (!session) {
+        redirect(`/api/auth/google`);
+      }
 
-    const isMember = media.workspace.members.some(m => m.userId === session.userId);
-    if (!isMember) {
-      return renderErrorPage('Access Denied', 'This capture is restricted to members of the workspace. You do not have permission to view this content.', 403);
+      const isMember = media.workspace.members.some(m => m.userId === session.userId);
+      if (!isMember) {
+        return renderErrorPage('Access Denied', 'This capture is restricted to members of the workspace. You do not have permission to view this content.', 403);
+      }
     }
   }
 
