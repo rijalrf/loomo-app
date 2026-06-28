@@ -37,9 +37,19 @@ function parseEnv(filePath) {
   return config;
 }
 
-function generateExtensionConfig(allConfig) {
+function generateExtensionConfig(allConfig, env) {
+  let apiBaseUrl;
+  
+  if (env === 'local') {
+    apiBaseUrl = allConfig.EXT_API_BASE_URL_LOCAL || 'http://localhost:8999';
+  } else if (env === 'qa') {
+    apiBaseUrl = allConfig.EXT_API_BASE_URL_QA || 'https://qa.loomo.my.id';
+  } else {
+    apiBaseUrl = allConfig.EXT_API_BASE_URL || 'https://www.loomo.my.id';
+  }
+  
   return {
-    API_BASE_URL: allConfig.EXT_API_BASE_URL || allConfig.NEXT_PUBLIC_APP_URL || 'http://localhost:8999',
+    API_BASE_URL: apiBaseUrl,
     MAX_RECORDING_MINUTES: allConfig.EXT_MAX_RECORDING_MINUTES || 4,
     WARNING_RECORDING_MINUTES: allConfig.EXT_WARNING_RECORDING_MINUTES || 2,
     DEBUG: allConfig.EXT_DEBUG !== undefined ? allConfig.EXT_DEBUG : true
@@ -58,17 +68,17 @@ globalThis.LoomoConfig = ${JSON.stringify(config, null, 2)};
 
 const envPath = path.join(__dirname, '.env');
 const allConfig = parseEnv(envPath);
-const extensionConfig = generateExtensionConfig(allConfig);
 
 const targets = [
-  path.join(__dirname, 'ext-local', 'config.js'),
-  path.join(__dirname, 'ext-prod', 'config.js'),
-  path.join(__dirname, 'ext-qa', 'config.js')
+  { path: path.join(__dirname, 'ext-local', 'config.js'), env: 'local' },
+  { path: path.join(__dirname, 'ext-qa', 'config.js'), env: 'qa' },
+  { path: path.join(__dirname, 'ext-prod', 'config.js'), env: 'prod' }
 ];
 
 targets.forEach(target => {
-  if (fs.existsSync(path.dirname(target))) {
-    generateConfigJs(extensionConfig, target);
+  if (fs.existsSync(path.dirname(target.path))) {
+    const extensionConfig = generateExtensionConfig(allConfig, target.env);
+    generateConfigJs(extensionConfig, target.path);
   }
 });
 
