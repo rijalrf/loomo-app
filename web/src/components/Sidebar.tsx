@@ -507,7 +507,12 @@ export default function Sidebar({
             )}
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-white truncate">{initialUser.displayName}</span>
-              <span className="text-xs font-bold text-[var(--text-muted)] truncate leading-none mt-1">{workspaces.find(w => w.id === activeWorkspaceId)?.role || 'Member'}</span>
+              <span className="text-[10px] font-medium text-[var(--text-muted)] truncate leading-none mt-1">
+                {(() => {
+                  const rawRole = workspaces.find(w => w.id === activeWorkspaceId)?.role || 'Member';
+                  return rawRole.charAt(0).toUpperCase() + rawRole.slice(1).toLowerCase();
+                })()}
+              </span>
             </div>
           </div>
           <ChevronDown size={14} className="text-[var(--text-muted)] shrink-0" />
