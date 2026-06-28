@@ -3,7 +3,16 @@ let stream = null;
 let chunks = [];
 let canvasInterval = null;
 
-// Mendengarkan perintah perekaman dari service_worker.js
+console.log('[offscreen] Offscreen document loaded');
+
+// Keep-alive ping to prevent offscreen from being terminated
+setInterval(() => {
+  chrome.runtime.sendMessage({
+    source: 'jam-extension-offscreen',
+    action: 'PING'
+  }).catch(() => {});
+}, 20000);
+
 chrome.runtime.onMessage.addListener((message) => {
   if (message.source === 'jam-extension-background') {
     if (message.action === 'START_OFFSCREEN_CAPTURE') {

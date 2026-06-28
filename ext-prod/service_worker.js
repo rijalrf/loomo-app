@@ -99,7 +99,10 @@ function clearRecordingState(cb) {
 
 // Mendengarkan pesan dari Content Script, Popup, dan Offscreen Document
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Jembatan Penulisan Log Fisik removed
+  // Handle keep-alive ping from offscreen
+  if (message.source === 'jam-extension-offscreen' && message.action === 'PING') {
+    return false;
+  }
 
   // Handle closing the current popup/window
   if (message.action === 'CLOSE_CURRENT_WINDOW') {
@@ -467,11 +470,26 @@ async function stopRecordingFlow(sendResponse) {
       }).catch(() => {});
     }
 
-    console.log('[background] Sending STOP_OFFSCREEN_CAPTURE to offscreen');
-    chrome.runtime.sendMessage({
-      source: 'jam-extension-background',
-      action: 'STOP_OFFSCREEN_CAPTURE'
+    console.log('[background] Checking if offscreen exists before sending stop');
+    const offscreenUrl = chrome.runtime.getURL('offscreen.html');
+    const existingContexts = await chrome.runtime.getContexts({
+      contextTypes: ['OFFSCREEN_DOCUMENT'],
+      documentUrls: [offscreenUrl]
     });
+
+    if (existingContexts.length > 0) {
+      console.log('[background] Offscreen exists, sending STOP_OFFSCREEN_CAPTURE');
+      chrome.runtime.sendMessage({
+        source: 'jam-extension-background',
+        action: 'STOP_OFFSCREEN_CAPTURE'
+      }).catch((err) => {
+        console.error('[background] Failed to send stop to offscreen:', err);
+      });
+    } else {
+      console.warn('[background] Offscreen document not found, it may have been terminated');
+      console.log('[background] Recording stopped but no video will be saved');
+      clearRecordingState();
+    }
 
     sendResponse({ success: true });
   });
@@ -481,20 +499,24 @@ async function stopRecordingFlow(sendResponse) {
 async function createOffscreenDocument() {
   const offscreenUrl = chrome.runtime.getURL('offscreen.html');
   
-  // Periksa apakah offscreen sudah ada
   const existingContexts = await chrome.runtime.getContexts({
     contextTypes: ['OFFSCREEN_DOCUMENT'],
     documentUrls: [offscreenUrl]
   });
 
-  if (existingContexts.length > 0) return;
+  if (existingContexts.length > 0) {
+    console.log('[background] Offscreen document already exists');
+    return;
+  }
 
-  // Buat offscreen baru
+  console.log('[background] Creating new offscreen document');
   await chrome.offscreen.createDocument({
     url: 'offscreen.html',
     reasons: ['USER_MEDIA'],
     justification: 'Merekam layar tab aktif dan mikrofon untuk laporan bug.'
   });
+  
+  console.log('[background] Offscreen document created successfully');
 }
 
 // Menyimpan Hasil dan Mengarahkan ke Backoffice
