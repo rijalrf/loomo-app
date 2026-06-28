@@ -110,6 +110,8 @@ function resumeRecording() {
 }
 
 function stopRecording() {
+  console.log('[offscreen] stopRecording called, mediaRecorder state:', mediaRecorder?.state);
+  
   if (canvasInterval) {
     clearInterval(canvasInterval);
     canvasInterval = null;
@@ -117,21 +119,24 @@ function stopRecording() {
 
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     mediaRecorder.onstop = () => {
+      console.log('[offscreen] mediaRecorder stopped, chunks count:', chunks.length);
       const blob = new Blob(chunks, { type: 'video/webm' });
+      console.log('[offscreen] Blob created, size:', blob.size, 'bytes');
       
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
         stream = null;
       }
 
-      // Konversi blob ke base64
       const reader = new FileReader();
       reader.readAsDataURL(blob);
       reader.onloadend = () => {
         const base64Data = reader.result;
+        console.log('[offscreen] Base64 data created, length:', base64Data.length);
         chrome.storage.local.set({
           pending_video_blob: base64Data
         }, () => {
+          console.log('[offscreen] Video saved to storage, sending message to background');
           chrome.runtime.sendMessage({
             source: 'jam-extension-offscreen',
             action: 'VIDEO_BLOB_READY_IN_STORAGE'
@@ -142,6 +147,7 @@ function stopRecording() {
     
     mediaRecorder.stop();
   } else {
+    console.log('[offscreen] mediaRecorder is null or already inactive');
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
       stream = null;

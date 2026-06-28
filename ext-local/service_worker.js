@@ -302,6 +302,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // 3. Terima Video Blob dari Offscreen Document (offscreen.js) via Storage
   if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY_IN_STORAGE') {
+    console.log('[background] Received VIDEO_BLOB_READY_IN_STORAGE from offscreen');
     withRecordingState(() => {
       chrome.storage.local.get(['pending_video_blob'], (result) => {
         if (chrome.runtime.lastError) {
@@ -309,8 +310,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return;
         }
         const videoBase64 = result.pending_video_blob;
+        console.log('[background] Video blob from storage:', videoBase64 ? `${videoBase64.length} bytes` : 'empty');
         chrome.storage.local.remove('pending_video_blob');
         if (videoBase64) {
+          console.log('[background] Calling saveRecordingAndRedirect');
           saveRecordingAndRedirect(videoBase64);
         } else {
           console.error('[background] pending_video_blob kosong di storage.');
@@ -445,20 +448,26 @@ async function stopRecordingFlow(sendResponse) {
     return;
   }
 
+  console.log('[background] Stop recording flow started');
+
   if (isPaused) {
     finalDuration = Math.round(accumulatedTime / 1000);
   } else {
     finalDuration = Math.round((accumulatedTime + (Date.now() - startTime)) / 1000);
   }
 
+  console.log('[background] Final duration:', finalDuration, 'seconds');
+
   updateRecordingState(async () => {
     if (activeTabId) {
+      console.log('[background] Sending STOP_RECORDING to tab:', activeTabId);
       await chrome.tabs.sendMessage(activeTabId, {
         source: 'jam-extension-background',
         action: 'STOP_RECORDING'
       }).catch(() => {});
     }
 
+    console.log('[background] Sending STOP_OFFSCREEN_CAPTURE to offscreen');
     chrome.runtime.sendMessage({
       source: 'jam-extension-background',
       action: 'STOP_OFFSCREEN_CAPTURE'
@@ -521,23 +530,24 @@ function createCenteredEditorWindow(url) {
 }
 
 async function saveRecordingAndRedirect(videoDataBase64) {
-  // A. Hapus offscreen document karena perekaman selesai
+  console.log('[background] saveRecordingAndRedirect called with video data:', videoDataBase64 ? `${videoDataBase64.length} bytes` : 'empty');
+  
   chrome.offscreen.closeDocument().catch(() => {});
   
   const durationSec = finalDuration || 1;
+  console.log('[background] Creating metadata with duration:', durationSec);
  
-  // B. Susun objek Metadata Jam
   const metadata = {
     id: generateUUID(),
     title: `Loomo Recording - ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`,
     createdAt: new Date().toISOString(),
-    type: 'recording', // Tipe: Recording
+    type: 'recording',
     duration: durationSec || 1,
     systemInfo: {
       browser: 'Google Chrome (Extension)',
       os: 'Linux',
       userAgent: 'Chrome Extension',
-      screenResolution: '1920x1080', // Default fallback
+      screenResolution: '1920x1080',
       viewportSize: '1280x720',
       locale: 'id-ID'
     },
@@ -546,13 +556,16 @@ async function saveRecordingAndRedirect(videoDataBase64) {
     userActions: userActions
   };
  
-  // C. Simpan sementara di chrome.storage.local agar bisa dibaca halaman Loomo
+  console.log('[background] Metadata created:', metadata.id);
+  
   chrome.storage.local.set({
     pending_jam_metadata: metadata,
     pending_jam_video: videoDataBase64
   }, () => {
+    console.log('[background] Data saved to storage, clearing recording state');
     clearRecordingState(() => {
       const backofficeUrl = `${globalThis.LoomoConfig.API_BASE_URL}/editor?id=${metadata.id}&isPopup=true`;
+      console.log('[background] Opening editor window:', backofficeUrl);
       createCenteredEditorWindow(backofficeUrl);
     });
   });
