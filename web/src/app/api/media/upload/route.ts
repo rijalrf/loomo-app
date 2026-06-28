@@ -228,6 +228,8 @@ export async function POST(request: NextRequest) {
 
     const mediaTitle = title || (type === 'SCREENSHOT' ? `Screenshot ${new Date().toLocaleDateString()}` : `Recording ${new Date().toLocaleDateString()}`);
 
+    const base64Data = fileBuffer.toString('base64');
+
     const result = await prisma.$transaction(async (tx) => {
       const media = await tx.media.create({
         data: {
@@ -249,9 +251,6 @@ export async function POST(request: NextRequest) {
       const fileExt = type === 'SCREENSHOT' ? 'png' : 'webm';
       const fileName = `${media.id}.${fileExt}`;
 
-      // Convert file buffer to base64
-      const base64Data = fileBuffer.toString('base64');
-
       const job = await tx.backgroundJob.create({
         data: {
           mediaId: media.id,
@@ -266,6 +265,8 @@ export async function POST(request: NextRequest) {
       });
 
       return { media, job };
+    }, {
+      timeout: 60000 // 60 seconds timeout for large uploads
     });
 
     // 4. Trigger the scheduler in the background (non-blocking, post-response)
