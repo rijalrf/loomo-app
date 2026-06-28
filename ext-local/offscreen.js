@@ -142,20 +142,14 @@ function stopRecording() {
       reader.onloadend = () => {
         const base64Data = reader.result;
         console.log('[offscreen] Base64 data created, length:', base64Data.length);
+        console.log('[offscreen] Sending video blob directly to background via message');
         
-        if (typeof chrome === 'undefined' || !chrome.storage) {
-          console.error('[offscreen] chrome.storage is not available');
-          return;
-        }
-        
-        chrome.storage.local.set({
-          pending_video_blob: base64Data
-        }, () => {
-          console.log('[offscreen] Video saved to storage, sending message to background');
-          chrome.runtime.sendMessage({
-            source: 'jam-extension-offscreen',
-            action: 'VIDEO_BLOB_READY_IN_STORAGE'
-          });
+        chrome.runtime.sendMessage({
+          source: 'jam-extension-offscreen',
+          action: 'VIDEO_BLOB_READY',
+          payload: { videoBase64: base64Data }
+        }, (response) => {
+          console.log('[offscreen] Message sent, response:', response);
         });
       };
     };

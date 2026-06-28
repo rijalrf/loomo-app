@@ -303,7 +303,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   }
 
-  // 3. Terima Video Blob dari Offscreen Document (offscreen.js) via Storage
+  // 3. Terima Video Blob dari Offscreen Document langsung via message
+  if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY') {
+    console.log('[background] Received VIDEO_BLOB_READY from offscreen');
+    const videoBase64 = message.payload?.videoBase64;
+    
+    if (videoBase64) {
+      console.log('[background] Video blob received, length:', videoBase64.length);
+      withRecordingState(() => {
+        saveRecordingAndRedirect(videoBase64);
+      });
+      sendResponse({ success: true });
+    } else {
+      console.error('[background] No video data in payload');
+      sendResponse({ success: false, error: 'No video data' });
+    }
+    return true;
+  }
+
+  // 3b (Legacy). Terima Video Blob dari Offscreen Document via Storage (fallback)
   if (message.source === 'jam-extension-offscreen' && message.action === 'VIDEO_BLOB_READY_IN_STORAGE') {
     console.log('[background] Received VIDEO_BLOB_READY_IN_STORAGE from offscreen');
     withRecordingState(() => {
