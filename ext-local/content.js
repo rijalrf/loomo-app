@@ -93,7 +93,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       sendResponse({ status: 'Screenshot selection initialized' });
     } else if (message.action === 'SHOW_DURATION_WARNING') {
       loadCustomDialog().then(() => {
-        window.showAlert(message.payload?.message || 'Recording duration warning');
+        if (typeof window.showAlert === 'function') {
+          window.showAlert(message.payload?.message || 'Recording duration warning');
+        } else {
+          console.error('[Jam Extension Content] window.showAlert is not available after loading customDialog');
+          alert(message.payload?.message || 'Recording duration warning');
+        }
+      }).catch((err) => {
+        console.error('[Jam Extension Content] Failed to load custom dialog:', err);
+        alert(message.payload?.message || 'Recording duration warning');
       });
       sendResponse({ status: 'Warning shown' });
     }
