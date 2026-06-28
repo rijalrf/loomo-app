@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Eye, EyeOff, Users } from 'lucide-react';
 import Dropdown from './Dropdown';
 
 interface MediaVisibilitySelectProps {
@@ -11,9 +11,18 @@ interface MediaVisibilitySelectProps {
 }
 
 const options = {
-  PRIVATE: { label: 'Private', color: 'bg-[var(--text-muted)]' },
-  UNLISTED: { label: 'Public', color: 'bg-[var(--primary)]' },
-  WORKSPACE_ONLY: { label: 'Workspace', color: 'bg-[var(--secondary)]' }
+  PRIVATE: {
+    label: 'Private',
+    icon: (size: number) => <EyeOff size={size} className="text-[var(--text-muted)] shrink-0" />
+  },
+  UNLISTED: {
+    label: 'Public',
+    icon: (size: number) => <Eye size={size} className="text-[var(--primary)] shrink-0" />
+  },
+  WORKSPACE_ONLY: {
+    label: 'Workspace',
+    icon: (size: number) => <Users size={size} className="text-[var(--secondary)] shrink-0" />
+  }
 };
 
 export default function MediaVisibilitySelect({
@@ -31,7 +40,7 @@ export default function MediaVisibilitySelect({
           type="button"
           className="flex items-center gap-1.5 bg-transparent text-xs font-bold text-[var(--text-muted)] outline-none cursor-pointer hover:text-white transition-all"
         >
-          <span className={`w-1.5 h-1.5 rounded-full ${current.color}`}></span>
+          {current.icon(14)}
           <span>{current.label}</span>
           <ChevronDown size={14} className="text-[var(--text-muted)]" />
         </button>
@@ -58,7 +67,7 @@ export default function MediaVisibilitySelect({
                   : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white'
               }`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${opt.color}`}></span>
+              {opt.icon(14)}
               <span className="flex-1 text-left">{opt.label}</span>
               {optKey === value && (
                 <Check size={14} className="text-[var(--primary)]" />
