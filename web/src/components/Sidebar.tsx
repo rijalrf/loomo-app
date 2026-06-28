@@ -353,7 +353,7 @@ export default function Sidebar({
 
         <nav className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-bold text-[var(--text-muted)] mb-1.5 px-2.5">Main Menu</label>
+            <label className="text-sm font-bold text-[var(--text-muted)] mb-1.5 px-2.5">Main Menu</label>
             
             <button
               onClick={() => {
@@ -376,7 +376,7 @@ export default function Sidebar({
           {/* Folders List */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between px-2.5 mb-1.5">
-              <label className="text-xs font-bold text-[var(--text-muted)]">Projects</label>
+              <label className="text-sm font-bold text-[var(--text-muted)]">Projects</label>
               {activeWorkspace && (activeWorkspace.isOwner || activeWorkspace.role === 'OWNER') && (
                 <button
                   onClick={() => setShowCreateFolderModal(true)}
@@ -456,7 +456,7 @@ export default function Sidebar({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-bold text-[var(--text-muted)] mb-1.5 px-2.5">System</label>
+            <label className="text-sm font-bold text-[var(--text-muted)] mb-1.5 px-2.5">System</label>
             
             <button
               onClick={() => {
