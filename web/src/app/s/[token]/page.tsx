@@ -128,16 +128,24 @@ export default async function SharePage({ params }: SharePageProps) {
         
         {/* Actions */}
         <div className="flex items-center gap-3">
-          <a 
-            href={fileUrl} 
-            download={media.title}
-            className="btn-primary py-2 px-4 text-xs rounded-lg gap-2"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            <span className="font-bold">Download</span>
-          </a>
+          {(() => {
+            const ext = media.type === 'SCREENSHOT' ? 'png' : 'webm';
+            const downloadFilename = media.title.toLowerCase().endsWith(`.${ext}`)
+              ? media.title
+              : `${media.title}.${ext}`;
+            return (
+              <a 
+                href={fileUrl} 
+                download={downloadFilename}
+                className="btn-primary py-2 px-4 text-xs rounded-lg gap-2 cursor-pointer"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span className="font-bold">Download</span>
+              </a>
+            );
+          })()}
         </div>
       </div>
 

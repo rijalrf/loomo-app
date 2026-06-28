@@ -58,13 +58,18 @@ export async function GET(
     // Stream the file from Google Drive
     const driveRes = await fetchFileStream(accessToken, media.driveFileId);
 
+    const ext = media.type === 'SCREENSHOT' ? 'png' : 'webm';
+    const filename = media.title.toLowerCase().endsWith(`.${ext}`)
+      ? media.title
+      : `${media.title}.${ext}`;
+
     // Return the stream directly
     return new NextResponse(driveRes.body, {
       headers: {
         'Content-Type': media.mimeType || (media.type === 'SCREENSHOT' ? 'image/png' : 'video/webm'),
         'Content-Length': media.fileSizeBytes?.toString() || '',
         'Cache-Control': 'public, max-age=86400', // cache public shares heavily
-        'Content-Disposition': `inline; filename="${media.title}"`
+        'Content-Disposition': `inline; filename="${filename.replace(/"/g, '\\"')}"`
       }
     });
   } catch (error: any) {
