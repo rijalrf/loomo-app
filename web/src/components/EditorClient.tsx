@@ -483,108 +483,33 @@ export default function EditorClient() {
 
       let mediaId: string;
 
-      if (isRecording || blob.size > 4 * 1024 * 1024) {
-        // 1. Initiate upload session on server (very fast)
-        const initResponse = await fetch('/api/media/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            title: title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'),
-            description: description || undefined,
-            type: isRecording ? 'recording' : 'screenshot',
-            workspaceId: selectedWorkspaceId,
-            folderId: (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') ? selectedFolderId : undefined,
-            durationSeconds: (isRecording && metadata?.duration) ? metadata.duration : 0,
-            fileSize: blob.size
-          })
-        });
-
-        if (!initResponse.ok) {
-          const errJson = await initResponse.json();
-          throw new Error(errJson.error || 'Server failed to initiate upload session');
-        }
-
-        const { mediaId: initMediaId, uploadUrl } = await initResponse.json();
-        mediaId = initMediaId;
-
-        // 2. Generate public share link and copy to clipboard instantly (very fast)
-        const shareRes = await fetch(`/api/media/${mediaId}/share`, {
-          method: 'POST'
-        });
-
-        let shareLink = '';
-        if (shareRes.ok) {
-          const shareData = await shareRes.json();
-          shareLink = `${window.location.origin}/s/${shareData.shareToken}`;
-          setCopiedLink(shareLink);
-          
-          // Copy to clipboard
-          try {
-            await navigator.clipboard.writeText(shareLink);
-          } catch (clipErr) {
-            console.warn('Failed to copy to clipboard automatically:', clipErr);
-          }
-        }
-
-        // 3. Trigger Chrome Extension Background Upload (delegates upload to service worker)
-        window.postMessage({
-          source: 'loomo-web-page',
-          action: 'START_BACKGROUND_UPLOAD',
-          payload: {
-            mediaId,
-            uploadUrl,
-            id,
-            title: title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot')
-          }
-        }, '*');
-
-        toast.success('Upload started in background! Share link copied to clipboard.', { id: 'save-media' });
-
-        // 4. Success behavior: close editor immediately
-        if (isPopup) {
-          window.dispatchEvent(new CustomEvent('loomo_close_window'));
-          setTimeout(() => {
-            window.close();
-          }, 800);
-        } else {
-          router.push('/');
-          setTimeout(() => {
-            window.location.reload();
-          }, 800);
-        }
-        return; // Skip the rest of standard save logic
-      } else {
-        // Fallback to standard multipart upload for small screenshots
-        const formData = new FormData();
-        formData.append('file', blob, filename);
-        formData.append('title', title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'));
-        formData.append('type', isRecording ? 'recording' : 'screenshot');
-        formData.append('workspaceId', selectedWorkspaceId);
-        if (description) {
-          formData.append('description', description);
-        }
-        if (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') {
-          formData.append('folderId', selectedFolderId);
-        }
-        if (isRecording && metadata?.duration) {
-          formData.append('durationSeconds', String(metadata.duration));
-        }
-
-        const res = await fetch('/api/media/upload', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!res.ok) {
-          const errJson = await res.json();
-          throw new Error(errJson.error || 'Server upload failed');
-        }
-
-        const uploadResult = await res.json();
-        mediaId = uploadResult.mediaId;
+      const formData = new FormData();
+      formData.append('file', blob, filename);
+      formData.append('title', title || (isRecording ? 'Screen Recording' : 'Annotated Screenshot'));
+      formData.append('type', isRecording ? 'recording' : 'screenshot');
+      formData.append('workspaceId', selectedWorkspaceId);
+      if (description) {
+        formData.append('description', description);
       }
+      if (selectedFolderId && selectedFolderId !== 'null' && selectedFolderId !== 'none') {
+        formData.append('folderId', selectedFolderId);
+      }
+      if (isRecording && metadata?.duration) {
+        formData.append('durationSeconds', String(metadata.duration));
+      }
+
+      const res = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json();
+        throw new Error(errJson.error || 'Server upload failed');
+      }
+
+      const uploadResult = await res.json();
+      mediaId = uploadResult.mediaId;
 
       // 3b. Generate public share link
       const shareRes = await fetch(`/api/media/${mediaId}/share`, {

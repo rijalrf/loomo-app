@@ -56,32 +56,34 @@ export default function PendingImportHandler() {
         throw new Error('Video recording not found in browser local database. Please try capturing again.');
       }
 
-      setUploadState(prev => ({ ...prev, progress: 'Initiating upload session...' }));
+      setUploadState(prev => ({ ...prev, progress: 'Uploading recording to server...' }));
 
       // 2. Resolve workspaceId
       const savedWorkspaceId = localStorage.getItem('loomo_active_workspace_id') || undefined;
 
-      // 3. Call initiate endpoint
-      const initResponse = await fetch('/api/media/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: metadata.title,
-          type: 'recording',
-          workspaceId: savedWorkspaceId,
-          durationSeconds: metadata.duration || 0,
-          fileSize: videoBlob.size
-        })
-      });
-
-      if (!initResponse.ok) {
-        const errJson = await initResponse.json();
-        throw new Error(errJson.error || 'Server failed to initiate upload session');
+      // 3. Call upload endpoint with multipart/form-data to queue in BackgroundJob
+      const formData = new FormData();
+      formData.append('file', videoBlob, `${id}.webm`);
+      formData.append('title', metadata.title || 'Screen Recording');
+      formData.append('type', 'recording');
+      if (savedWorkspaceId) {
+        formData.append('workspaceId', savedWorkspaceId);
+      }
+      if (metadata.duration) {
+        formData.append('durationSeconds', String(metadata.duration));
       }
 
-      const { mediaId, uploadUrl } = await initResponse.json();
+      const uploadRes = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!uploadRes.ok) {
+        const errJson = await uploadRes.json();
+        throw new Error(errJson.error || 'Server upload failed');
+      }
+
+      const { mediaId } = await uploadRes.json();
 
       setUploadState(prev => ({ ...prev, progress: 'Generating public share link...' }));
 
@@ -102,21 +104,9 @@ export default function PendingImportHandler() {
         }
       }
 
-      // 5. Trigger Chrome Extension Background Upload
-      window.postMessage({
-        source: 'loomo-web-page',
-        action: 'START_BACKGROUND_UPLOAD',
-        payload: {
-          mediaId,
-          uploadUrl,
-          id,
-          title: metadata.title || 'Screen Recording'
-        }
-      }, '*');
+      setUploadState(prev => ({ ...prev, progress: 'Upload started in background! Closing...' }));
 
-      setUploadState(prev => ({ ...prev, progress: 'Background upload started! Closing...' }));
-
-      // 6. Success behavior
+      // 5. Success behavior
       const isPopup = searchParams.get('isPopup') === 'true';
       if (isPopup) {
         window.dispatchEvent(new CustomEvent('loomo_close_window'));
